@@ -1,0 +1,85 @@
+"use client"
+
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { Bell, ChevronDown } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+const navItems = [
+  { label: "Dashboard", href: "/" },
+  { label: "Therapists", href: "/therapists" },
+  { label: "Events & Requests", href: "/events-requests" },
+  { label: "Reports", href: "/reports" },
+]
+
+export function Header() {
+  const pathname = usePathname()
+
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/"
+    return pathname.startsWith(href)
+  }
+
+  return (
+    <header className="flex items-center justify-between mb-8">
+      <Link href="/" className="flex items-center gap-2">
+        <span className="text-xl uppercase bg-[#00ACA7] text-white px-4 py-1 rounded-full font-black">MindShift Peer Connect</span>
+      </Link>
+
+      <nav className="hidden md:flex items-center bg-card rounded-full px-2 py-1.5 border border-border">
+        {navItems.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+              isActive(item.href)
+                ? "bg-[#00ACA7] text-white"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {item.label}
+          </Link>
+        ))}
+      </nav>
+
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" className="rounded-full">
+          <Bell className="w-5 h-5" />
+        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="flex items-center gap-2 cursor-pointer">
+              <Avatar className="h-9 w-9">
+                <AvatarImage src="https://static.vecteezy.com/system/resources/previews/042/332/098/non_2x/default-avatar-profile-icon-grey-photo-placeholder-female-no-photo-images-for-unfilled-user-profile-greyscale-illustration-for-socail-media-web-vector.jpg" />
+                <AvatarFallback>OS</AvatarFallback>
+              </Avatar>
+              <div className="hidden sm:block text-left">
+                <p className="text-sm font-medium">Chirine</p>
+                <p className="text-xs text-muted-foreground">Admin</p>
+              </div>
+              <ChevronDown className="w-4 h-4 text-muted-foreground hidden sm:block" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem asChild>
+              <Link href="/profile">Profile</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild className="text-destructive">
+              <Link href="/login">Log out</Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </header>
+  )
+}
