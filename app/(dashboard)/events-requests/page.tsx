@@ -1,30 +1,7 @@
 "use client"
 
+import { EventForm } from "@/components/dashboard/EventForm"
 import { PageHeader } from "@/components/dashboard/page-header"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { BrainCog, Calendar, Coffee, Plus, Radio, MapPin, Clock, User, Trash2, Pencil, CheckCircle, XCircle, Eye, Speaker } from "lucide-react"
-import { DataTable, ColumnDef } from "@/components/ui/DataTable"
-import { useState } from "react"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/ui/dialog"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,7 +12,20 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { EventForm } from "@/components/dashboard/EventForm"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { ColumnDef, DataTable } from "@/components/ui/DataTable"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { BrainCog, Calendar, CheckCircle, Clock, Coffee, Eye, MapPin, Pencil, Plus, Radio, Speaker, Trash2, User, XCircle } from "lucide-react"
+import { useState } from "react"
 
 
 interface Event {
@@ -401,7 +391,7 @@ export default function EventsRequests() {
                 )}
                 {detailEvent.idea && (
                   <div className="rounded-lg bg-muted/60 p-3 text-sm text-muted-foreground">
-                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">User's Idea</p>
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">User's Ideas</p>
                     <p>{detailEvent.idea}</p>
                   </div>
                 )}

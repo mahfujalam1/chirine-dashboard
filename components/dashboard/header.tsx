@@ -1,8 +1,5 @@
 "use client"
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Bell, ChevronDown } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -12,12 +9,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Bell, ChevronDown } from "lucide-react"
+import Image from 'next/image'
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 const navItems = [
   { label: "Dashboard", href: "/" },
   { label: "Therapists", href: "/therapists" },
   { label: "Events & Requests", href: "/events-requests" },
   { label: "Reports", href: "/reports" },
+  { label: "Chat Management", href: "/chat-management" },
+  { label: "Chat Assets", href: "/chat-assets" },
 ]
 
 export function Header() {
@@ -31,7 +34,7 @@ export function Header() {
   return (
     <header className="flex items-center justify-between mb-8">
       <Link href="/" className="flex items-center gap-2">
-        <span className="text-xl uppercase bg-[#00ACA7] text-white px-4 py-1 rounded-full font-black">MindShift Peer Connect</span>
+        <Image src={"/brand.svg"} width={40} height={30} alt='MindShift Peer Connect' />
       </Link>
 
       <nav className="hidden md:flex items-center bg-card rounded-full px-2 py-1.5 border border-border">
@@ -39,11 +42,10 @@ export function Header() {
           <Link
             key={item.href}
             href={item.href}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-              isActive(item.href)
-                ? "bg-[#00ACA7] text-white"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
+            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${isActive(item.href)
+              ? "bg-[#00ACA7] text-white"
+              : "text-muted-foreground hover:text-foreground"
+              }`}
           >
             {item.label}
           </Link>
@@ -72,7 +74,6 @@ export function Header() {
             <DropdownMenuItem asChild>
               <Link href="/profile">Profile</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild className="text-destructive">
               <Link href="/login">Log out</Link>

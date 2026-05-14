@@ -1,20 +1,7 @@
 "use client"
 
-import { PageHeader } from "@/components/dashboard/page-header"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { DataTable, ColumnDef } from "@/components/ui/DataTable"
 import { MetricCard } from "@/components/dashboard/metric-card"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/ui/dialog"
+import { PageHeader } from "@/components/dashboard/page-header"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,22 +12,33 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ColumnDef, DataTable } from "@/components/ui/DataTable"
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog"
 import {
   Bug,
+  Calendar,
+  CheckCircle,
   ClockArrowDown,
   ClockArrowUp,
-  SquareX,
-  Eye,
-  Trash2,
-  CheckCircle,
-  XCircle,
-  User,
-  FileText,
-  Tag,
-  Calendar,
   ExternalLink,
+  Eye,
+  FileText,
+  SquareX,
+  Trash2,
+  User,
+  XCircle
 } from "lucide-react"
-import { useState, useMemo } from "react"
+import { useMemo, useState } from "react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -341,9 +339,8 @@ export default function ReportsPage() {
           <div
             key={m.label}
             onClick={() => setStatusFilter((prev) => (prev === m.filter ? null : m.filter))}
-            className={`cursor-pointer rounded-xl transition-all ring-offset-background ${
-              statusFilter === m.filter ? "ring-2 ring-foreground/20" : ""
-            }`}
+            className={`cursor-pointer rounded-xl transition-all ring-offset-background ${statusFilter === m.filter ? "ring-2 ring-foreground/20" : ""
+              }`}
           >
             <MetricCard
               title={m.label}
@@ -534,7 +531,7 @@ export default function ReportsPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-white hover:bg-destructive/90"
               onClick={() => deleteTarget && handleDelete(deleteTarget.id)}
             >
               Delete

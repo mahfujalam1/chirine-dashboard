@@ -1,12 +1,12 @@
 import { PageHeader } from "@/components/dashboard/page-header"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Camera, Mail, Phone, MapPin, Building, Calendar, Shield, Bell, Key } from "lucide-react"
+import { Bell, Building, Calendar, Camera, Key, Mail, MapPin, Phone, Shield } from "lucide-react"
 
 const activityLog = [
   { action: "Logged in from new device", time: "2 hours ago", icon: Shield },
@@ -128,41 +128,6 @@ export default function ProfilePage() {
                 <Button variant="outline" size="sm" className="bg-transparent">
                   Change
                 </Button>
-              </div>
-              <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-background rounded-lg">
-                    <Shield className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Two-Factor Authentication</p>
-                    <p className="text-xs text-muted-foreground">Add extra security to your account</p>
-                  </div>
-                </div>
-                <Button variant="outline" size="sm" className="bg-transparent">
-                  Enable
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border border-border">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-base font-medium">Recent Activity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {activityLog.map((activity, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <div className="p-2 bg-muted rounded-lg">
-                      <activity.icon className="w-4 h-4 text-muted-foreground" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm">{activity.action}</p>
-                      <p className="text-xs text-muted-foreground">{activity.time}</p>
-                    </div>
-                  </div>
-                ))}
               </div>
             </CardContent>
           </Card>

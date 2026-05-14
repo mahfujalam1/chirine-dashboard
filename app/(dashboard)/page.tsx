@@ -2,13 +2,13 @@
 import { MetricCard } from "@/components/dashboard/metric-card"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { ProfitChart } from "@/components/dashboard/profit-chart"
+import { UsersMatrix } from "@/components/dashboard/users-matrix"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, Upload, Users, Brain, DollarSign, CalendarDays } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/DataTable"
 import UserDetails from "@/components/ui/user-details"
-import { Badge } from "@/components/ui/badge"
-import { UsersMatrix } from "@/components/dashboard/users-matrix"
+import { Brain, Calendar, CalendarDays, DollarSign, Users } from "lucide-react"
 import Link from "next/link"
 
 export default function DashboardPage() {
@@ -29,10 +29,6 @@ export default function DashboardPage() {
         <Button variant="outline" className="flex items-center gap-2 bg-transparent text-sm">
           <Calendar className="w-4 h-4" />
           This Week
-        </Button>
-        <Button variant="outline" className="flex items-center gap-2 bg-transparent">
-          <Upload className="w-4 h-4" />
-          Export Report
         </Button>
       </PageHeader>
 

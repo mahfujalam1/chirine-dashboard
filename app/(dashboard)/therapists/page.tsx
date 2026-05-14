@@ -1,16 +1,16 @@
 "use client"
 
-import { useState, Suspense } from "react"
 import { PageHeader } from "@/components/dashboard/page-header"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Search, Plus, Users, ShieldBan, ShieldCheck, ListTodo } from "lucide-react"
-import Loading from "./loading"
-import UserDetails from "@/components/ui/user-details"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/DataTable"
+import { Input } from "@/components/ui/input"
+import UserDetails from "@/components/ui/user-details"
 import { getStatusColor } from "@/lib/utils"
+import { ListTodo, Search, ShieldBan, ShieldCheck, Users } from "lucide-react"
+import { Suspense, useState } from "react"
+import Loading from "./loading"
 
 const therapists = [
   { id: 1, name: "Sarah Johnson", email: "sarah.johnson@email.com", totalPost: 24, spent: "$4,250.00", status: "Active", joined: "Jan 2024" },
@@ -119,7 +119,7 @@ export default function TherapistsPage() {
                 >
                   All Therapists
                 </Button>
-                {["Active", "Blocked"].map((status) => (
+                {["Pending Therapists", "Active", "Blocked"].map((status) => (
                   <Button
                     key={status}
                     variant={statusFilter === status ? "default" : "outline"}
