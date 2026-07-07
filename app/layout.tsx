@@ -1,7 +1,8 @@
-import type React from "react"
-import type { Metadata } from "next"
 import { Analytics } from "@vercel/analytics/next"
+import type { Metadata } from "next"
+import type React from "react"
 import "./globals.css"
+import ReduxWrapper from './redux-query/ReduxWrapper'
 
 export const metadata: Metadata = {
   title: "MindShift Peer Connect Dashboard",
@@ -34,7 +35,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
-        {children}
+        <ReduxWrapper>
+          {children}
+        </ReduxWrapper>
         <Analytics />
       </body>
     </html>

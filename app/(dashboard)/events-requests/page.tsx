@@ -1,5 +1,6 @@
 "use client"
 
+import { useGetAllRequestEventsQuery } from '@/app/redux-query/services/eventApis'
 import { EventForm } from "@/components/dashboard/EventForm"
 import { PageHeader } from "@/components/dashboard/page-header"
 import {
@@ -145,7 +146,7 @@ function DetailRow({ icon, label, value }: { icon: React.ReactNode; label: strin
 
 export default function EventsRequests() {
   const [events, setEvents] = useState<Event[]>(SEED_EVENTS)
-  const [statusFilter, setStatusFilter] = useState<string | null>(null)
+  const [statusFilter, setStatusFilter] = useState<"Pending" | "Accepted" | "Rejected" | null>(null)
   const [typeFilter, setTypeFilter] = useState<string | null>(null)
 
 
@@ -154,6 +155,9 @@ export default function EventsRequests() {
   const [createOpen, setCreateOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Event | null>(null)
 
+  const { data, isLoading } = useGetAllRequestEventsQuery({
+    ...(statusFilter && { status: statusFilter })
+  })
 
   const counts = {
     coffee_connect: events.filter((e) => e.event_type === "coffee_connect").length,
@@ -163,7 +167,7 @@ export default function EventsRequests() {
 
 
   const filtered = events.filter((e) => {
-    if (statusFilter && e.status !== statusFilter) return false
+    if (statusFilter && e.status.toLowerCase() !== statusFilter) return false
     if (typeFilter && e.event_type !== typeFilter) return false
     return true
   })
@@ -334,7 +338,7 @@ export default function EventsRequests() {
             >
               All
             </Button>
-            {(["Pending", "Approved", "Rejected"] as const).map((s) => (
+            {(["Pending", "Accepted", "Rejected"] as const).map((s) => (
               <Button
                 key={s}
                 variant={statusFilter === s ? "default" : "outline"}

@@ -1,48 +1,68 @@
 "use client"
 
+import { useGetAllTherapistsQuery } from '@/app/redux-query/services/userApis'
 import { PageHeader } from "@/components/dashboard/page-header"
-import { Badge } from "@/components/ui/badge"
+import { LoadingScreen } from '@/components/loading-screen'
+import { Badge } from '@/components/ui/badge'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/DataTable"
 import { Input } from "@/components/ui/input"
 import UserDetails from "@/components/ui/user-details"
-import { getStatusColor } from "@/lib/utils"
-import { ListTodo, Search, ShieldBan, ShieldCheck, Users } from "lucide-react"
-import { Suspense, useState } from "react"
-import Loading from "./loading"
+import { getStatusColor } from '@/lib/utils'
+import { User } from '@/types/userApis'
+import { Eye, ListTodo, Search, ShieldBan, ShieldCheck, Users } from "lucide-react"
+import { useRouter } from 'next/navigation'
+import { Suspense, useMemo, useState } from "react"
 
-const therapists = [
-  { id: 1, name: "Sarah Johnson", email: "sarah.johnson@email.com", totalPost: 24, spent: "$4,250.00", status: "Active", joined: "Jan 2024" },
-  { id: 2, name: "Michael Chen", email: "m.chen@email.com", totalPost: 18, spent: "$3,120.50", status: "Active", joined: "Feb 2024" },
-  { id: 3, name: "Emma Wilson", email: "emma.w@email.com", totalPost: 32, spent: "$6,840.00", status: "Block", joined: "Nov 2023" },
-  { id: 4, name: "James Brown", email: "james.brown@email.com", totalPost: 8, spent: "$890.25", status: "Active", joined: "Mar 2024" },
-  { id: 5, name: "Lisa Anderson", email: "lisa.a@email.com", totalPost: 45, spent: "$9,312.80", status: "Block", joined: "Aug 2023" },
-  { id: 6, name: "David Martinez", email: "d.martinez@email.com", totalPost: 12, spent: "$1,560.00", status: "Active", joined: "Dec 2023" },
-  { id: 7, name: "Jennifer Lee", email: "j.lee@email.com", totalPost: 3, spent: "$245.00", status: "New", joined: "Apr 2024" },
-  { id: 8, name: "Robert Taylor", email: "r.taylor@email.com", totalPost: 0, spent: "$0.00", status: "Inactive", joined: "Jan 2024" },
-]
+type FilterType = 'All' | 'Pending' | 'Active' | 'Blocked'
 
 export default function TherapistsPage() {
+  const [activeFilter, setActiveFilter] = useState<FilterType>('All')
   const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState<string | null>(null)
+  const router = useRouter()
 
-  const filteredTherapists = therapists.filter(
-    (therapist) =>
-      therapist.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      therapist.email.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+
+  const getApiStatus = (filter: FilterType): string => {
+    switch (filter) {
+      case 'Pending':
+        return 'Pending';
+      case 'Active':
+        return 'Active';
+      case 'Blocked':
+        return 'Blocked';
+      case 'All':
+      default:
+        return 'All';
+    }
+  }
+
+  const { data, isLoading, error, isFetching } = useGetAllTherapistsQuery({
+    status: getApiStatus(activeFilter),
+    searchTerm: searchQuery
+  })
+
+  const userData: User[] = useMemo(() => data?.data?.result ?? [], [data])
+
+
+  if (error) return <div className="text-red-500">Failed to load therapists.</div>;
+
+  const filterButtons: { label: string; value: FilterType; icon: React.ReactNode }[] = [
+    { label: 'All Therapists', value: 'All', icon: <Users className="w-4 h-4" /> },
+    { label: 'Pending', value: 'Pending', icon: <ListTodo className="w-4 h-4" /> },
+    { label: 'Active', value: 'Active', icon: <ShieldCheck className="w-4 h-4" /> },
+    { label: 'Blocked', value: 'Blocked', icon: <ShieldBan className="w-4 h-4" /> },
+  ]
 
   return (
-    <Suspense fallback={<Loading />}>
+    <Suspense fallback={<LoadingScreen />}>
       <>
         <PageHeader
           title="Therapists"
           description="Manage and view your therapist base."
-        >
-        </PageHeader>
+        />
 
-        {/* Customer Stats */}
+        {/* Therapist Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <Card className="bg-card border border-border">
             <CardContent className="p-5">
@@ -52,48 +72,57 @@ export default function TherapistsPage() {
                   <Users className="w-4 h-4 text-muted-foreground" />
                 </div>
               </div>
-              <p className="text-3xl font-semibold">4,263</p>
+              <p className="text-3xl font-semibold">
+                {data?.data?.stats?.totalTherapists ?? data?.data?.meta?.total ?? 0}
+              </p>
             </CardContent>
           </Card>
+
           <Card className="bg-card border border-border">
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-muted-foreground">Pending Therapists</span>
+                <span className="text-sm text-muted-foreground">Pending</span>
                 <div className="p-2 bg-muted rounded-lg">
                   <ListTodo className="w-4 h-4 text-muted-foreground" />
                 </div>
               </div>
-              <p className="text-3xl font-semibold">34</p>
+              <p className="text-3xl font-semibold">
+                {data?.data?.stats?.pendingTherapists ?? 0}
+              </p>
             </CardContent>
           </Card>
+
           <Card className="bg-card border border-border">
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-muted-foreground">Active Therapists</span>
+                <span className="text-sm text-muted-foreground">Active</span>
                 <div className="p-2 bg-muted rounded-lg">
                   <ShieldCheck className="w-4 h-4 text-muted-foreground" />
                 </div>
               </div>
-              <p className="text-3xl font-semibold">847</p>
+              <p className="text-3xl font-semibold">
+                {data?.data?.stats?.activeTherapists ?? 0}
+              </p>
             </CardContent>
           </Card>
+
           <Card className="bg-card border border-border">
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-muted-foreground">Blocked Therapists</span>
+                <span className="text-sm text-muted-foreground">Blocked</span>
                 <div className="p-2 bg-muted rounded-lg">
                   <ShieldBan className="w-4 h-4 text-muted-foreground" />
                 </div>
               </div>
-              <p className="text-3xl font-semibold">68</p>
+              <p className="text-3xl font-semibold">
+                {data?.data?.stats?.blockedTherapists ?? 0}
+              </p>
             </CardContent>
           </Card>
-
         </div>
 
-        {/* Customer Segments & List */}
+        {/* Therapist List */}
         <div className="grid grid-cols-1 gap-4">
-          {/* Customer List */}
           <Card className="lg:col-span-3 bg-card border border-border">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
@@ -111,39 +140,78 @@ export default function TherapistsPage() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-2">
-                <Button
-                  variant={statusFilter === null ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setStatusFilter(null)}
-                  className={statusFilter === null ? "bg-foreground text-background" : "bg-transparent"}
-                >
-                  All Therapists
-                </Button>
-                {["Pending Therapists", "Active", "Blocked"].map((status) => (
+                {filterButtons.map((button) => (
                   <Button
-                    key={status}
-                    variant={statusFilter === status ? "default" : "outline"}
+                    key={button.value}
+                    variant={activeFilter === button.value ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setStatusFilter(status)}
-                    className={statusFilter === status ? "bg-foreground text-background" : "bg-transparent"}
+                    onClick={() => setActiveFilter(button.value)}
+                    className={
+                      activeFilter === button.value
+                        ? "bg-foreground text-background"
+                        : "bg-transparent"
+                    }
                   >
-                    {status}
+                    <span className="mr-2">{button.icon}</span>
+                    {button.label}
                   </Button>
                 ))}
               </div>
+
               <DataTable
-                data={filteredTherapists}
+                data={userData}
+                loading={isFetching || isLoading}
                 columns={[
-                  { key: "name", title: "Therapist", renderItem: (value) => <UserDetails name={value?.name || ""} email={value?.email || ""} /> },
-                  { key: "status", title: "Status", renderItem: (value) => <Badge className={getStatusColor(value?.status as string)}>{value?.status}</Badge> },
-                  { key: "totalPost", title: "Total Post" },
-                  { key: "joined", title: "Joined" },
-                  { key: "id", title: "Actions", renderItem: () => <Button variant="outline" size="sm">View</Button> },
+                  {
+                    key: "fullName",
+                    title: "Therapist",
+                    renderItem: (value) => (
+                      <UserDetails
+                        name={value?.fullName || ""}
+                        email={value?.email || ""}
+                      />
+                    )
+                  },
+                  { key: "email", title: "Email" },
+                  {
+                    key: "isVerified",
+                    title: "Verification Status",
+                    renderItem: (value) => (
+                      <Badge className={getStatusColor(value?.isVerified ? "ACTIVE" : "INACTIVE")}>
+                        {value?.isVerified ? "Verified" : "Pending"}
+                      </Badge>
+                    )
+                  },
+                  {
+                    key: "isBlocked",
+                    title: "Account Status",
+                    renderItem: (value) => (
+                      <Badge className={getStatusColor(value?.isBlocked ? "BLOCKED" : "ACTIVE")}>
+                        {value?.isBlocked ? "Blocked" : "Active"}
+                      </Badge>
+                    )
+                  },
+                  {
+                    key: "createdAt",
+                    title: "Joined",
+                    renderItem: (value) => (
+                      <span className='text-nowrap'>
+                        {new Date(value?.createdAt).toLocaleDateString()}
+                      </span>
+                    )
+                  },
+                  {
+                    key: "_id",
+                    title: "Actions",
+                    renderItem: (value) => (
+                      <Button onClick={() => router.push(`/therapists/${value?._id}`)} variant="outline" size="sm">< Eye /> View</Button>
+                    )
+                  },
                 ]}
                 meta={{
-                  limit: 10,
-                  total: filteredTherapists.length,
-                  page: 1,
+                  limit: data?.data?.meta?.limit || 10,
+                  total: data?.data?.meta?.totalPage || 0,
+                  page: data?.data?.meta?.page || 1,
                 }}
               />
             </CardContent>
