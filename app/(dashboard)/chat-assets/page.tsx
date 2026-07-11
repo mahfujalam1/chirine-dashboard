@@ -3,7 +3,6 @@
 import { useDeleteAssetsMutation, useGetChatAssetsQuery } from '@/app/redux-query/services/chatassetsApis'
 import AssetCard from '@/components/dashboard/AssetForm/AssetCard'
 import AssetForm from '@/components/dashboard/AssetForm/AssetForm'
-import { LoadingScreen } from '@/components/loading-screen'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -184,10 +183,6 @@ export default function ChatAssets() {
     }
   }
 
-  // Show loading screen only for initial load
-  if (isLoading) {
-    return <LoadingScreen message="Loading Assets..." />
-  }
 
   return (
     <>
@@ -219,7 +214,7 @@ export default function ChatAssets() {
                 value={search}
                 onChange={(e) => handleSearch(e.target.value)}
                 className="pl-9 h-9 bg-background"
-                disabled={isFetching}
+                disabled={isFetching || isLoading}
               />
               {search && (
                 <button
@@ -243,7 +238,7 @@ export default function ChatAssets() {
                       ? "bg-background text-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
                   )}
-                  disabled={isFetching}
+                  disabled={isFetching || isLoading}
                 >
                   {t === null ? `All (${data?.data?.counts?.all || 0})` : t === "gif" ? `GIF (${data?.data?.counts?.gif || 0})` : `Image (${data?.data?.counts?.image || 0})`}
                 </button>
@@ -258,7 +253,7 @@ export default function ChatAssets() {
                   "p-1.5 rounded-md transition-colors",
                   view === "grid" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                 )}
-                disabled={isFetching}
+                disabled={isFetching || isLoading}
               >
                 <LayoutGrid className="w-4 h-4" />
               </button>
@@ -268,7 +263,7 @@ export default function ChatAssets() {
                   "p-1.5 rounded-md transition-colors",
                   view === "list" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                 )}
-                disabled={isFetching}
+                disabled={isFetching || isLoading}
               >
                 <LayoutList className="w-4 h-4" />
               </button>
@@ -289,7 +284,7 @@ export default function ChatAssets() {
                     ? "bg-foreground text-background border-foreground"
                     : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
                 )}
-                disabled={isFetching}
+                disabled={isFetching || isLoading}
               >
                 All
               </button>
@@ -303,7 +298,7 @@ export default function ChatAssets() {
                       ? "bg-foreground text-background border-foreground"
                       : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
                   )}
-                  disabled={isFetching}
+                  disabled={isFetching || isLoading}
                 >
                   #{tag}
                 </button>
