@@ -3,11 +3,16 @@
 import { useSignInMutation } from '@/app/redux-query/services/authApis';
 import { LoadingScreen } from '@/components/loading-screen';
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useEffect } from "react";
 import { toast } from 'sonner';
 
 export default function LoginPage() {
   const router = useRouter();
   const [signIn, { isLoading }] = useSignInMutation();
+  useEffect(() => {
+    if (localStorage.getItem("accessToken")) router.replace("/");
+  }, [router]);
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault();
@@ -58,7 +63,7 @@ export default function LoginPage() {
 
             <div className="w-full flex items-center justify-between mt-8 text-gray-500/80">
               <div />
-              <a className="text-sm underline" href="#">Forgot password?</a>
+              <Link className="text-sm underline" href="/forgot-password">Forgot password?</Link>
             </div>
 
             <button

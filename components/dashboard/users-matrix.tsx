@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MoreHorizontal } from "lucide-react"
@@ -13,13 +12,6 @@ import {
   Tooltip,
   ResponsiveContainer
 } from "recharts"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 
 // Mock data for multiple years
 const yearlyData = {
@@ -69,10 +61,16 @@ const yearlyData = {
 
 type YearKey = keyof typeof yearlyData
 
-export function UsersMatrix() {
-  const [selectedYear, setSelectedYear] = useState<YearKey>("2026")
+interface UsersMatrixProps {
+  data?: { month: string; totalUsers: number }[]
+  activeYear?: string
+}
 
-  const data = yearlyData[selectedYear]
+export function UsersMatrix({ data: apiData, activeYear = "2026" }: UsersMatrixProps) {
+  const data = apiData && apiData.length > 0
+    ? apiData.map(item => ({ month: item.month, users: item.totalUsers }))
+    : (yearlyData[activeYear as YearKey] || yearlyData["2026"])
+
   const totalUsers = data.reduce((acc, curr) => acc + curr.users, 0)
 
   return (
@@ -83,19 +81,9 @@ export function UsersMatrix() {
           <p className="text-xs text-muted-foreground">Monthly user acquisition</p>
         </div>
         <div className="flex items-center gap-2">
-          <Select
-            value={selectedYear}
-            onValueChange={(value) => setSelectedYear(value as YearKey)}
-          >
-            <SelectTrigger className="h-8 w-[100px] text-xs">
-              <SelectValue placeholder="Select Year" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="2026">2026</SelectItem>
-              <SelectItem value="2025">2025</SelectItem>
-              <SelectItem value="2024">2024</SelectItem>
-            </SelectContent>
-          </Select>
+          <span className="text-xs font-semibold px-2 py-1 bg-muted border border-border rounded-md text-muted-foreground">
+            {activeYear}
+          </span>
           <Button variant="ghost" size="icon" className="h-8 w-8">
             <MoreHorizontal className="w-4 h-4" />
           </Button>
@@ -106,7 +94,7 @@ export function UsersMatrix() {
           <p className="text-3xl font-semibold tracking-tight">
             {totalUsers.toLocaleString()}
           </p>
-          <p className="text-sm text-muted-foreground mt-1">Total users in {selectedYear}</p>
+          <p className="text-sm text-muted-foreground mt-1">Total users in {activeYear}</p>
         </div>
         <div className="h-[150px] w-full mt-4">
           <ResponsiveContainer width="100%" height="100%">
@@ -132,7 +120,7 @@ export function UsersMatrix() {
                 axisLine={false}
                 tickLine={false}
                 tick={{ fontSize: 12, fill: '#6B7280' }}
-                tickFormatter={(value) => `${value / 1000}k`}
+                tickFormatter={(value) => value >= 1000 ? `${value / 1000}k` : value}
               />
               <Tooltip
                 contentStyle={{

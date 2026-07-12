@@ -17,7 +17,8 @@ import { usePathname } from "next/navigation"
 const navItems = [
   { label: "Dashboard", href: "/" },
   { label: "Therapists", href: "/therapists" },
-  { label: "Events & Requests", href: "/events-requests" },
+  { label: "Events", href: "/events" },
+  { label: "Requests", href: "/events-requests" },
   { label: "Reports", href: "/reports" },
   { label: "Chat Management", href: "/chat-management" },
   { label: "Chat Assets", href: "/chat-assets" },
@@ -28,7 +29,7 @@ export function Header() {
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/"
-    return pathname.startsWith(href)
+    return pathname === href || pathname.startsWith(`${href}/`)
   }
 
   return (

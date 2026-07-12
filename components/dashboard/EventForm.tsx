@@ -20,9 +20,10 @@ import {
 
 interface EventFormProps {
     initial?: EventFormData
-    onSubmit: (data: EventFormData) => void
+    onSubmit: (data: EventFormData) => void | Promise<void>
     onCancel: () => void
     isEdit?: boolean
+    isSubmitting?: boolean
 }
 
 
@@ -30,6 +31,7 @@ interface Event {
     id: string
     title: string
     event_image?: string
+    eventImage?: File
     event_type: "coffee_connect" | "social_event" | "lunch_and_learn"
     date: string
     start_time: string
@@ -37,7 +39,6 @@ interface Event {
     location: string
     description: string
     status: "Pending" | "Approved" | "Rejected"
-    speaker_name?: string
     requested_by?: string
     proposed_date?: string
     idea?: string
@@ -54,20 +55,31 @@ const EMPTY_FORM: EventFormData = {
     end_time: "",
     location: "",
     description: "",
-    speaker_name: "",
 }
 
 
-export function EventForm({ initial = EMPTY_FORM, onSubmit, onCancel, isEdit }: EventFormProps) {
+export function EventForm({ initial = EMPTY_FORM, onSubmit, onCancel, isEdit, isSubmitting = false }: EventFormProps) {
     const [form, setForm] = useState<EventFormData>(initial)
+    const [error, setError] = useState("")
 
     function set<K extends keyof EventFormData>(key: K, value: EventFormData[K]) {
         setForm((prev) => ({ ...prev, [key]: value }))
     }
 
-    function handleSubmit(e: React.FormEvent) {
+    async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
-        onSubmit(form)
+        setError("")
+
+        if (!isEdit && !form.eventImage) {
+            setError("Please select an event image.")
+            return
+        }
+        if (form.end_time <= form.start_time) {
+            setError("End time must be later than start time.")
+            return
+        }
+
+        await onSubmit(form)
     }
 
     return (
@@ -99,17 +111,28 @@ export function EventForm({ initial = EMPTY_FORM, onSubmit, onCancel, isEdit }: 
                 </Select>
             </div>
 
-            {/* Speaker — only for L&L */}
-            {form.event_type === "lunch_and_learn" && (
+            {!isEdit && (
                 <div className="space-y-1.5">
-                    <Label htmlFor="speaker">Speaker Name <span className="text-destructive">*</span></Label>
+                    <Label htmlFor="event_image">Event Image <span className="text-destructive">*</span></Label>
                     <Input
-                        id="speaker"
-                        placeholder="e.g. Dr. Emily Rhodes"
-                        value={form.speaker_name ?? ""}
-                        onChange={(e) => set("speaker_name", e.target.value)}
+                        id="event_image"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (!file) return set("eventImage", undefined)
+                            if (file.size > 5 * 1024 * 1024) {
+                                e.target.value = ""
+                                set("eventImage", undefined)
+                                setError("Event image must be 5 MB or smaller.")
+                                return
+                            }
+                            setError("")
+                            set("eventImage", file)
+                        }}
                         required
                     />
+                    <p className="text-xs text-muted-foreground">JPEG, PNG, or WebP; maximum 5 MB.</p>
                 </div>
             )}
 
@@ -174,10 +197,12 @@ export function EventForm({ initial = EMPTY_FORM, onSubmit, onCancel, isEdit }: 
                 />
             </div>
 
+            {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+
             <DialogFooter className="pt-2">
-                <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
-                <Button type="submit" className="bg-(--color-primary)">
-                    {isEdit ? "Save Changes" : "Create Event"}
+                <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>Cancel</Button>
+                <Button type="submit" className="bg-(--color-primary)" disabled={isSubmitting}>
+                    {isSubmitting ? "Creating..." : isEdit ? "Save Changes" : "Create Event"}
                 </Button>
             </DialogFooter>
         </form>
