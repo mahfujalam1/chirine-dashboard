@@ -1,7 +1,7 @@
 "use client"
 
+import { useGetMyProfileQuery } from '@/app/redux-query/services/profileApis'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Bell, ChevronDown } from "lucide-react"
+import { ChevronDown } from "lucide-react"
 import Image from 'next/image'
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -26,6 +26,8 @@ const navItems = [
 
 export function Header() {
   const pathname = usePathname()
+  const { data, isLoading } = useGetMyProfileQuery()
+  const profile = data?.data
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/"
@@ -53,35 +55,63 @@ export function Header() {
         ))}
       </nav>
 
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <Bell className="w-5 h-5" />
-        </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2 cursor-pointer">
-              <Avatar className="h-9 w-9">
-                <AvatarImage src="https://static.vecteezy.com/system/resources/previews/042/332/098/non_2x/default-avatar-profile-icon-grey-photo-placeholder-female-no-photo-images-for-unfilled-user-profile-greyscale-illustration-for-socail-media-web-vector.jpg" />
-                <AvatarFallback>OS</AvatarFallback>
-              </Avatar>
-              <div className="hidden sm:block text-left">
-                <p className="text-sm font-medium">Chirine</p>
-                <p className="text-xs text-muted-foreground">Admin</p>
-              </div>
-              <ChevronDown className="w-4 h-4 text-muted-foreground hidden sm:block" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem asChild>
-              <Link href="/profile">Profile</Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild className="text-destructive">
-              <Link href="/login">Log out</Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      {
+        isLoading ? (
+          <div className="flex items-center gap-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 cursor-pointer">
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src={"https://static.vecteezy.com/system/resources/previews/042/332/098/non_2x/default-avatar-profile-icon-grey-photo-placeholder-female-no-photo-images-for-unfilled-user-profile-greyscale-illustration-for-socail-media-web-vector.jpg"} />
+                    <AvatarFallback>----</AvatarFallback>
+                  </Avatar>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground hidden sm:block" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem asChild>
+                  <Link href="/profile">Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild className="text-destructive">
+                  <Link href="/login">Log out</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <div className="hidden sm:block text-left">
+              <p className="text-sm font-medium">...</p>
+              <p className="text-xs text-muted-foreground">...</p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 cursor-pointer">
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src={profile?.profileImage || "https://static.vecteezy.com/system/resources/previews/042/332/098/non_2x/default-avatar-profile-icon-grey-photo-placeholder-female-no-photo-images-for-unfilled-user-profile-greyscale-illustration-for-socail-media-web-vector.jpg"} />
+                    <AvatarFallback>{profile?.fullName.charAt(0).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <div className="hidden sm:block text-left">
+                    <p className="text-sm font-medium">{profile?.fullName}</p>
+                    <p className="text-xs text-muted-foreground">Admin</p>
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground hidden sm:block" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem asChild>
+                  <Link href="/profile">Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild className="text-destructive">
+                  <Link href="/login">Log out</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )
+      }
     </header>
   )
 }

@@ -1,544 +1,88 @@
 "use client"
 
+import { Report, ReportStatus, useDeleteReportMutation, useGetAllReportsQuery, useUpdateStatusMutation } from "@/app/redux-query/services/reportApis"
 import { MetricCard } from "@/components/dashboard/metric-card"
 import { PageHeader } from "@/components/dashboard/page-header"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { ReportDetailsDialog } from "@/components/dashboard/reports/report-details-dialog"
+import { ReportUserCell } from "@/components/dashboard/reports/report-user-cell"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ColumnDef, DataTable } from "@/components/ui/DataTable"
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog"
-import {
-  Bug,
-  Calendar,
-  CheckCircle,
-  ClockArrowDown,
-  ClockArrowUp,
-  ExternalLink,
-  Eye,
-  FileText,
-  SquareX,
-  Trash2,
-  User,
-  XCircle
-} from "lucide-react"
-import { useMemo, useState } from "react"
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type ReportStatus = "pending" | "resolved" | "rejected"
-type ReportType = "violations" | "spam" | "harassment" | "inappropriate_content" | "misinformation" | "other"
-
-interface UserRef {
-  name: string
-  email: string
-  avatar?: string
-}
-
-interface Report {
-  id: string
-  status: ReportStatus
-  reportBy: UserRef
-  reportType: ReportType
-  reportOn: UserRef
-  reason: string
-  reportPostID: string
-  createdAt: string
-}
-
-// ─── Seed Data ────────────────────────────────────────────────────────────────
-
-const SEED_REPORTS: Report[] = [
-  {
-    id: "1",
-    status: "pending",
-    reportBy: { name: "John Doe", email: "john.doe@example.com" },
-    reportType: "violations",
-    reportOn: { name: "Jane Smith", email: "jane.smith@example.com" },
-    reason: "This user repeatedly violated community guidelines by posting offensive content targeting specific groups.",
-    reportPostID: "post-123",
-    createdAt: "2025-10-15",
-  },
-  {
-    id: "2",
-    status: "pending",
-    reportBy: { name: "Alice Chen", email: "alice.chen@example.com" },
-    reportType: "spam",
-    reportOn: { name: "Bob Miller", email: "bob.miller@example.com" },
-    reason: "User is sending repetitive promotional messages to multiple users without consent.",
-    reportPostID: "post-456",
-    createdAt: "2025-10-18",
-  },
-  {
-    id: "3",
-    status: "resolved",
-    reportBy: { name: "Marcus Lee", email: "marcus.lee@example.com" },
-    reportType: "harassment",
-    reportOn: { name: "Priya Patel", email: "priya.patel@example.com" },
-    reason: "The reported user has been sending threatening and abusive direct messages.",
-    reportPostID: "post-789",
-    createdAt: "2025-10-10",
-  },
-  {
-    id: "4",
-    status: "rejected",
-    reportBy: { name: "Sofia Torres", email: "sofia.torres@example.com" },
-    reportType: "misinformation",
-    reportOn: { name: "Liam Brooks", email: "liam.brooks@example.com" },
-    reason: "Post contains factually incorrect medical information that could be harmful.",
-    reportPostID: "post-321",
-    createdAt: "2025-10-12",
-  },
-  {
-    id: "5",
-    status: "pending",
-    reportBy: { name: "Noah Kim", email: "noah.kim@example.com" },
-    reportType: "inappropriate_content",
-    reportOn: { name: "Emma Davis", email: "emma.davis@example.com" },
-    reason: "Profile picture and recent posts contain graphic content not suitable for the platform.",
-    reportPostID: "post-654",
-    createdAt: "2025-10-20",
-  },
-  {
-    id: "6",
-    status: "resolved",
-    reportBy: { name: "Olivia Wright", email: "olivia.wright@example.com" },
-    reportType: "other",
-    reportOn: { name: "James Wilson", email: "james.wilson@example.com" },
-    reason: "User is impersonating a well-known public figure and misleading followers.",
-    reportPostID: "post-987",
-    createdAt: "2025-10-08",
-  },
-]
-
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const REPORT_TYPE_LABELS: Record<ReportType, string> = {
-  violations: "Violations",
-  spam: "Spam",
-  harassment: "Harassment",
-  inappropriate_content: "Inappropriate Content",
-  misinformation: "Misinformation",
-  other: "Other",
-}
+import { Input } from "@/components/ui/input"
+import { Bug, CheckCircle, ClockArrowDown, ClockArrowUp, Eye, RefreshCw, Search, SquareX, Trash2, XCircle } from "lucide-react"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
 
 const STATUS_STYLES: Record<ReportStatus, string> = {
-  pending:
-    "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-800",
-  resolved:
-    "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800",
-  rejected:
-    "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-400 dark:border-red-800",
+  Pending: "border-amber-200 bg-amber-50 text-amber-700",
+  Resolved: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  Rejected: "border-red-200 bg-red-50 text-red-700",
 }
 
-const REPORT_TYPE_STYLES: Record<ReportType, string> = {
-  violations: "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/40 dark:text-orange-400 dark:border-orange-800",
-  spam: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-800",
-  harassment: "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-400 dark:border-red-800",
-  inappropriate_content: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/40 dark:text-purple-400 dark:border-purple-800",
-  misinformation: "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-400 dark:border-yellow-800",
-  other: "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(new Date(value))
 }
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-function UserCell({ user }: { user: UserRef }) {
-  const initials = user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-  return (
-    <div className="flex items-center gap-2.5">
-      <Avatar className="h-7 w-7 shrink-0">
-        <AvatarFallback className="text-[10px] font-medium">{initials}</AvatarFallback>
-      </Avatar>
-      <div className="min-w-0">
-        <p className="text-sm font-medium text-foreground leading-none truncate">{user.name}</p>
-        <p className="text-xs text-muted-foreground truncate mt-0.5">{user.email}</p>
-      </div>
-    </div>
-  )
-}
-
-function DetailRow({
-  icon,
-  label,
-  children,
-}: {
-  icon: React.ReactNode
-  label: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="flex items-start gap-3">
-      <div className="mt-0.5 p-1.5 rounded-md bg-muted text-muted-foreground shrink-0">{icon}</div>
-      <div className="min-w-0 flex-1">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-        <div className="mt-0.5">{children}</div>
-      </div>
-    </div>
-  )
-}
-
-// ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function ReportsPage() {
-  const [reports, setReports] = useState<Report[]>(SEED_REPORTS)
-  const [statusFilter, setStatusFilter] = useState<ReportStatus | null>(null)
-  const [detailReport, setDetailReport] = useState<Report | null>(null)
+  const [status, setStatus] = useState<ReportStatus | null>(null)
+  const [search, setSearch] = useState("")
+  const [debouncedSearch, setDebouncedSearch] = useState("")
+  const [page, setPage] = useState(1)
+  const [details, setDetails] = useState<Report | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Report | null>(null)
+  const limit = 10
 
-  // ── Derived counts ──
-  const counts = useMemo(() => ({
-    total: reports.length,
-    pending: reports.filter((r) => r.status === "pending").length,
-    resolved: reports.filter((r) => r.status === "resolved").length,
-    rejected: reports.filter((r) => r.status === "rejected").length,
-  }), [reports])
+  useEffect(() => {
+    const timer = window.setTimeout(() => { setDebouncedSearch(search.trim()); setPage(1) }, 500)
+    return () => window.clearTimeout(timer)
+  }, [search])
 
-  // ── Filtered rows ──
-  const filtered = useMemo(
-    () => (statusFilter ? reports.filter((r) => r.status === statusFilter) : reports),
-    [reports, statusFilter]
-  )
+  const { data, isLoading, isFetching, isError, refetch } = useGetAllReportsQuery({ page, limit, ...(status && { status }), ...(debouncedSearch && { search: debouncedSearch }) })
+  const [updateStatus, statusState] = useUpdateStatusMutation()
+  const [deleteReport, deleteState] = useDeleteReportMutation()
+  const busy = statusState.isLoading || deleteState.isLoading
 
-  // ── Handlers ──
-  function handleStatusChange(id: string, status: ReportStatus) {
-    setReports((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)))
-    setDetailReport((prev) => (prev?.id === id ? { ...prev, status } : prev))
+  async function handleStatus(report: Report, nextStatus: "Resolved" | "Rejected") {
+    setDetails(null)
+    try { const response = await updateStatus({ id: report._id, status: nextStatus }).unwrap(); toast.success(response.message || `Report ${nextStatus.toLowerCase()}`) }
+    catch (error: any) { toast.error(error?.data?.message || error?.message || "Unable to update report") }
   }
 
-  function handleDelete(id: string) {
-    setReports((prev) => prev.filter((r) => r.id !== id))
-    setDeleteTarget(null)
-    setDetailReport(null)
+  async function handleDelete() {
+    if (!deleteTarget) return
+    const target = deleteTarget
+    setDeleteTarget(null); setDetails(null)
+    try { const response = await deleteReport({ id: target._id }).unwrap(); toast.success(response.message || "Report deleted") }
+    catch (error: any) { toast.error(error?.data?.message || error?.message || "Unable to delete report") }
   }
 
-  // ── Columns ──
   const columns: ColumnDef<Report>[] = [
-    {
-      title: "Reported By",
-      key: "reportBy",
-      renderItem: (record) => <UserCell user={record.reportBy} />,
-    },
-    {
-      title: "Report Type",
-      key: "reportType",
-      renderItem: (record) => (
-        <Badge variant="outline" className={`text-xs ${REPORT_TYPE_STYLES[record.reportType]}`}>
-          {REPORT_TYPE_LABELS[record.reportType]}
-        </Badge>
-      ),
-    },
-    {
-      title: "Reported On",
-      key: "reportOn",
-      renderItem: (record) => <UserCell user={record.reportOn} />,
-    },
-    {
-      title: "Post",
-      key: "reportPostID",
-      renderItem: (record) => (
-        <span className="text-xs font-mono text-muted-foreground bg-muted px-2 py-0.5 rounded">
-          {record.reportPostID}
-        </span>
-      ),
-    },
-    {
-      title: "Date",
-      key: "createdAt",
-      renderItem: (record) => (
-        <span className="text-sm text-muted-foreground">{record.createdAt}</span>
-      ),
-    },
-    {
-      title: "Status",
-      key: "status",
-      renderItem: (record) => (
-        <Badge variant="outline" className={`text-xs capitalize ${STATUS_STYLES[record.status]}`}>
-          {record.status}
-        </Badge>
-      ),
-    },
-    {
-      title: "Actions",
-      align: "right",
-      renderItem: (record) => (
-        <div className="flex items-center justify-end gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            title="View details"
-            onClick={(e) => { e.stopPropagation(); setDetailReport(record) }}
-          >
-            <Eye className="w-4 h-4" />
-          </Button>
-          {record.status === "pending" && (
-            <>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
-                title="Resolve"
-                onClick={(e) => { e.stopPropagation(); handleStatusChange(record.id, "resolved") }}
-              >
-                <CheckCircle className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                title="Reject"
-                onClick={(e) => { e.stopPropagation(); handleStatusChange(record.id, "rejected") }}
-              >
-                <XCircle className="w-4 h-4" />
-              </Button>
-            </>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-            title="Delete"
-            onClick={(e) => { e.stopPropagation(); setDeleteTarget(record) }}
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        </div>
-      ),
-    },
+    { title: "Reported By", renderItem: (report) => <ReportUserCell user={report.reporter} /> },
+    { title: "Type", renderItem: (report) => <Badge variant="outline">{report.reportType}</Badge> },
+    { title: "Reported User", renderItem: (report) => <ReportUserCell user={report.reportedUser} /> },
+    { title: "Report", renderItem: (report) => <div className="max-w-72"><p className="font-medium">{report.title}</p><p className="truncate text-xs text-muted-foreground">{report.description}</p></div> },
+    { title: "Date", renderItem: (report) => <span className="text-muted-foreground">{formatDate(report.createdAt)}</span> },
+    { title: "Status", renderItem: (report) => <Badge variant="outline" className={STATUS_STYLES[report.status]}>{report.status}</Badge> },
+    { title: "Actions", align: "right", renderItem: (report) => <div className="flex justify-end gap-1"><Button size="icon" variant="ghost" title="View details" onClick={(event) => { event.stopPropagation(); setDetails(report) }}><Eye className="h-4 w-4" /></Button>{report.status === "Pending" && <><Button size="icon" variant="ghost" title="Resolve" className="text-emerald-600" disabled={busy} onClick={(event) => { event.stopPropagation(); handleStatus(report, "Resolved") }}><CheckCircle className="h-4 w-4" /></Button><Button size="icon" variant="ghost" title="Reject" className="text-destructive" disabled={busy} onClick={(event) => { event.stopPropagation(); handleStatus(report, "Rejected") }}><XCircle className="h-4 w-4" /></Button></>}<Button size="icon" variant="ghost" title="Delete" className="text-destructive" disabled={busy} onClick={(event) => { event.stopPropagation(); setDeleteTarget(report) }}><Trash2 className="h-4 w-4" /></Button></div> },
   ]
 
-  return (
-    <>
-      <PageHeader title="Reports" description="Review and act on user-submitted reports.">
-      </PageHeader>
+  const stats = data?.data.stats
+  const metrics = [
+    { label: "Total Reports", value: stats?.totalReports ?? 0, icon: Bug, filter: null },
+    { label: "Pending", value: stats?.pendingReports ?? 0, icon: ClockArrowDown, filter: "Pending" as ReportStatus },
+    { label: "Resolved", value: stats?.resolvedReports ?? 0, icon: ClockArrowUp, filter: "Resolved" as ReportStatus },
+    { label: "Rejected", value: stats?.rejectedReports ?? 0, icon: SquareX, filter: "Rejected" as ReportStatus },
+  ]
 
-      {/* ── Metric Cards ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {[
-          { label: "Total Reports", value: String(counts.total), icon: Bug, filter: null },
-          { label: "Pending", value: String(counts.pending), icon: ClockArrowDown, filter: "pending" as ReportStatus },
-          { label: "Resolved", value: String(counts.resolved), icon: ClockArrowUp, filter: "resolved" as ReportStatus },
-          { label: "Rejected", value: String(counts.rejected), icon: SquareX, filter: "rejected" as ReportStatus },
-        ].map((m) => (
-          <div
-            key={m.label}
-            onClick={() => setStatusFilter((prev) => (prev === m.filter ? null : m.filter))}
-            className={`cursor-pointer rounded-xl transition-all ring-offset-background ${statusFilter === m.filter ? "ring-2 ring-foreground/20" : ""
-              }`}
-          >
-            <MetricCard
-              title={m.label}
-              value={m.value}
-              isPositiveOutcome={true}
-              icon={m.icon}
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* ── Table ── */}
-      <Card className="bg-card border border-border">
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div>
-              <CardTitle className="text-base font-medium">User Reports</CardTitle>
-              <CardDescription>
-                {statusFilter
-                  ? `Showing ${filtered.length} ${statusFilter} report${filtered.length !== 1 ? "s" : ""}`
-                  : `${reports.length} total reports`}
-              </CardDescription>
-            </div>
-            {/* Status filter pills */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <Button
-                size="sm"
-                variant={statusFilter === null ? "default" : "outline"}
-                onClick={() => setStatusFilter(null)}
-                className={statusFilter === null ? "bg-foreground text-background" : "bg-transparent"}
-              >
-                All
-              </Button>
-              {(["pending", "resolved", "rejected"] as ReportStatus[]).map((s) => (
-                <Button
-                  key={s}
-                  size="sm"
-                  variant={statusFilter === s ? "default" : "outline"}
-                  onClick={() => setStatusFilter(s)}
-                  className={`capitalize ${statusFilter === s ? "bg-foreground text-background" : "bg-transparent"}`}
-                >
-                  {s}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <DataTable
-            data={filtered}
-            columns={columns}
-            rowKey={(r) => r.id}
-            onRowClick={(record) => setDetailReport(record)}
-            emptyText="No reports match the current filter."
-            meta={{ total: filtered.length, limit: 8, page: 1 }}
-          />
-        </CardContent>
-      </Card>
-
-      {/* ── Detail Dialog ── */}
-      <Dialog open={!!detailReport} onOpenChange={(o) => !o && setDetailReport(null)}>
-        <DialogContent className="max-w-lg">
-          {detailReport && (
-            <>
-              <DialogHeader>
-                <div className="flex items-start gap-3 pr-6">
-                  <div className="p-2 rounded-lg bg-muted mt-0.5">
-                    <Bug className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <DialogTitle className="text-base leading-tight">
-                      Report #{detailReport.id}
-                    </DialogTitle>
-                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                      <Badge variant="outline" className={`text-xs capitalize ${STATUS_STYLES[detailReport.status]}`}>
-                        {detailReport.status}
-                      </Badge>
-                      <Badge variant="outline" className={`text-xs ${REPORT_TYPE_STYLES[detailReport.reportType]}`}>
-                        {REPORT_TYPE_LABELS[detailReport.reportType]}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-              </DialogHeader>
-
-              <div className="space-y-3.5 py-1">
-                {/* Reported By */}
-                <DetailRow icon={<User className="w-3.5 h-3.5" />} label="Reported By">
-                  <UserCell user={detailReport.reportBy} />
-                </DetailRow>
-
-                {/* Reported On */}
-                <DetailRow icon={<User className="w-3.5 h-3.5" />} label="Reported On">
-                  <UserCell user={detailReport.reportOn} />
-                </DetailRow>
-
-                {/* Post ID */}
-                <DetailRow icon={<ExternalLink className="w-3.5 h-3.5" />} label="Post Reference">
-                  <span className="text-sm font-mono text-foreground bg-muted px-2 py-0.5 rounded">
-                    {detailReport.reportPostID}
-                  </span>
-                </DetailRow>
-
-                {/* Date */}
-                <DetailRow icon={<Calendar className="w-3.5 h-3.5" />} label="Submitted On">
-                  <span className="text-sm text-foreground">{detailReport.createdAt}</span>
-                </DetailRow>
-
-                {/* Reason */}
-                <DetailRow icon={<FileText className="w-3.5 h-3.5" />} label="Reason">
-                  <div className="rounded-lg bg-muted/60 p-3 text-sm text-muted-foreground leading-relaxed">
-                    {detailReport.reason}
-                  </div>
-                </DetailRow>
-              </div>
-
-              <DialogFooter className="flex flex-wrap gap-2 sm:justify-between pt-1">
-                {/* Destructive left side */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-destructive border-destructive/40 hover:bg-destructive/10"
-                  onClick={() => { setDeleteTarget(detailReport); setDetailReport(null) }}
-                >
-                  <Trash2 className="w-3.5 h-3.5 mr-1.5" />
-                  Delete
-                </Button>
-
-                {/* Status actions right side */}
-                <div className="flex gap-2">
-                  {detailReport.status === "pending" && (
-                    <>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="text-destructive border-destructive/40 hover:bg-destructive/10"
-                        onClick={() => handleStatusChange(detailReport.id, "rejected")}
-                      >
-                        <XCircle className="w-3.5 h-3.5 mr-1.5" />
-                        Reject
-                      </Button>
-                      <Button
-                        size="sm"
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                        onClick={() => handleStatusChange(detailReport.id, "resolved")}
-                      >
-                        <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
-                        Resolve
-                      </Button>
-                    </>
-                  )}
-                  {detailReport.status === "resolved" && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleStatusChange(detailReport.id, "pending")}
-                    >
-                      Reset to Pending
-                    </Button>
-                  )}
-                  {detailReport.status === "rejected" && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleStatusChange(detailReport.id, "pending")}
-                    >
-                      Reset to Pending
-                    </Button>
-                  )}
-                </div>
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* ── Delete Confirmation ── */}
-      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete this report?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Report <span className="font-medium text-foreground">#{deleteTarget?.id}</span> submitted
-              by <span className="font-medium text-foreground">{deleteTarget?.reportBy.name}</span> will
-              be permanently removed. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-white hover:bg-destructive/90"
-              onClick={() => deleteTarget && handleDelete(deleteTarget.id)}
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
-  )
+  return <>
+    <PageHeader title="Reports" description="Review and act on user-submitted reports." />
+    <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">{metrics.map((metric) => <button key={metric.label} className={`rounded-xl text-left ring-offset-background transition-all ${status === metric.filter ? "ring-2 ring-foreground/20" : ""}`} onClick={() => { setStatus(metric.filter); setPage(1) }}><MetricCard title={metric.label} value={String(metric.value)} isPositiveOutcome icon={metric.icon} /></button>)}</div>
+    <Card><CardHeader className="pb-2"><div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"><div><CardTitle className="text-base">User Reports</CardTitle><CardDescription>{data?.data.meta.total ?? 0} reports match the current filters</CardDescription></div><div className="flex flex-col gap-2 sm:flex-row"><div className="flex gap-2 overflow-x-auto">{[null, "Pending", "Resolved", "Rejected"].map((item) => <Button key={item ?? "All"} size="sm" variant={status === item ? "default" : "outline"} className={status === item ? "bg-foreground text-background" : ""} onClick={() => { setStatus(item as ReportStatus | null); setPage(1) }}>{item ?? "All"}</Button>)}</div><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search reports..." className="w-full pl-9 sm:w-64" /></div></div></div></CardHeader><CardContent>
+      {isError ? <div className="flex flex-col items-center rounded-lg border border-destructive/30 bg-destructive/5 p-10 text-center"><p className="font-medium text-destructive">Unable to load reports</p><p className="mt-1 text-sm text-muted-foreground">Check your connection and try again.</p><Button className="mt-4" variant="outline" onClick={() => refetch()}><RefreshCw className="mr-2 h-4 w-4" />Try again</Button></div> : <DataTable data={data?.data.result ?? []} columns={columns} rowKey={(report) => report._id} onRowClick={setDetails} loading={isLoading || isFetching} emptyText="No reports match the current filters." meta={{ total: data?.data.meta.total ?? 0, page: data?.data.meta.page ?? page, limit: data?.data.meta.limit ?? limit }} onPageChange={setPage} />}
+    </CardContent></Card>
+    <ReportDetailsDialog report={details} busy={busy} onClose={() => setDetails(null)} onStatus={handleStatus} onDelete={(report) => { setDetails(null); setDeleteTarget(report) }} />
+    <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Delete this report?</AlertDialogTitle><AlertDialogDescription>“{deleteTarget?.title}” will be permanently deleted. This cannot be undone.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel disabled={deleteState.isLoading}>Cancel</AlertDialogCancel><AlertDialogAction className="bg-destructive text-white hover:bg-destructive/90" disabled={deleteState.isLoading} onClick={handleDelete}>{deleteState.isLoading ? "Deleting..." : "Delete report"}</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
+  </>
 }

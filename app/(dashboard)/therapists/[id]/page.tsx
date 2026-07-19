@@ -230,7 +230,7 @@ export default function TherapistsDetailsPage() {
               <CardTitle className="text-sm font-medium mb-3 flex items-center gap-1.5">
                 Credentials & Verification
               </CardTitle>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-200 p-2 rounded-md">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-200 p-2 rounded-md border border-border">
                 <InfoRow label="Profession" value={professionName} />
                 <InfoRow label="Governing Body" value={governingBodyName} icon={Building2} />
                 <InfoRow label="License Number" value={therapist.licenseNo} icon={Hash} />

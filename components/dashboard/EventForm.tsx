@@ -11,7 +11,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
     DialogFooter,
 } from "@/components/ui/dialog"
@@ -24,6 +24,7 @@ interface EventFormProps {
     onCancel: () => void
     isEdit?: boolean
     isSubmitting?: boolean
+    existingImage?: string
 }
 
 
@@ -44,7 +45,7 @@ interface Event {
     idea?: string
 }
 
-type EventFormData = Omit<Event, "id" | "status" | "requested_by" | "proposed_date" | "idea">
+export type EventFormData = Omit<Event, "id" | "status" | "requested_by" | "proposed_date" | "idea">
 
 
 const EMPTY_FORM: EventFormData = {
@@ -58,9 +59,16 @@ const EMPTY_FORM: EventFormData = {
 }
 
 
-export function EventForm({ initial = EMPTY_FORM, onSubmit, onCancel, isEdit, isSubmitting = false }: EventFormProps) {
+export function EventForm({ initial = EMPTY_FORM, onSubmit, onCancel, isEdit, isSubmitting = false, existingImage }: EventFormProps) {
     const [form, setForm] = useState<EventFormData>(initial)
     const [error, setError] = useState("")
+    const [imagePreview, setImagePreview] = useState(existingImage ?? "")
+
+    useEffect(() => {
+        return () => {
+            if (imagePreview.startsWith("blob:")) URL.revokeObjectURL(imagePreview)
+        }
+    }, [imagePreview])
 
     function set<K extends keyof EventFormData>(key: K, value: EventFormData[K]) {
         setForm((prev) => ({ ...prev, [key]: value }))
@@ -80,6 +88,25 @@ export function EventForm({ initial = EMPTY_FORM, onSubmit, onCancel, isEdit, is
         }
 
         await onSubmit(form)
+    }
+
+    function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0]
+        if (!file) {
+            set("eventImage", undefined)
+            setImagePreview(existingImage ?? "")
+            return
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            e.target.value = ""
+            set("eventImage", undefined)
+            setImagePreview(existingImage ?? "")
+            setError("Event image must be 5 MB or smaller.")
+            return
+        }
+        setError("")
+        set("eventImage", file)
+        setImagePreview(URL.createObjectURL(file))
     }
 
     return (
@@ -111,30 +138,22 @@ export function EventForm({ initial = EMPTY_FORM, onSubmit, onCancel, isEdit, is
                 </Select>
             </div>
 
-            {!isEdit && (
-                <div className="space-y-1.5">
-                    <Label htmlFor="event_image">Event Image <span className="text-destructive">*</span></Label>
+            <div className="space-y-2">
+                    <Label htmlFor="event_image">Event Image {!isEdit && <span className="text-destructive">*</span>}</Label>
+                    {imagePreview && (
+                        <div className="overflow-hidden rounded-xl border bg-muted">
+                            <img src={imagePreview} alt="Event image preview" className="h-48 w-full object-cover" />
+                        </div>
+                    )}
                     <Input
                         id="event_image"
                         type="file"
                         accept="image/jpeg,image/png,image/webp"
-                        onChange={(e) => {
-                            const file = e.target.files?.[0]
-                            if (!file) return set("eventImage", undefined)
-                            if (file.size > 5 * 1024 * 1024) {
-                                e.target.value = ""
-                                set("eventImage", undefined)
-                                setError("Event image must be 5 MB or smaller.")
-                                return
-                            }
-                            setError("")
-                            set("eventImage", file)
-                        }}
-                        required
+                        onChange={handleImageChange}
+                        required={!isEdit}
                     />
-                    <p className="text-xs text-muted-foreground">JPEG, PNG, or WebP; maximum 5 MB.</p>
-                </div>
-            )}
+                    <p className="text-xs text-muted-foreground">{isEdit ? "Select a new image only if you want to replace the current one. " : ""}JPEG, PNG, or WebP; maximum 5 MB.</p>
+            </div>
 
             {/* Date + Location */}
             <div className="grid grid-cols-2 gap-4">
@@ -202,7 +221,7 @@ export function EventForm({ initial = EMPTY_FORM, onSubmit, onCancel, isEdit, is
             <DialogFooter className="pt-2">
                 <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>Cancel</Button>
                 <Button type="submit" className="bg-(--color-primary)" disabled={isSubmitting}>
-                    {isSubmitting ? "Creating..." : isEdit ? "Save Changes" : "Create Event"}
+                    {isSubmitting ? (isEdit ? "Saving..." : "Creating...") : isEdit ? "Save Changes" : "Create Event"}
                 </Button>
             </DialogFooter>
         </form>

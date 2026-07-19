@@ -21,7 +21,9 @@ const baseApis = createApi({
     "auth",
     "chatAssets",
     "event",
-    "user"
+    "user",
+    "report",
+    "profile"
   ],
   endpoints: () => ({}),
 });
