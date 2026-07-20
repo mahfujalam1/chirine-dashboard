@@ -12,7 +12,7 @@ import {
 import { ChevronDown } from "lucide-react"
 import Image from 'next/image'
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 
 const navItems = [
   { label: "Dashboard", href: "/" },
@@ -28,6 +28,7 @@ export function Header() {
   const pathname = usePathname()
   const { data, isLoading } = useGetMyProfileQuery()
   const profile = data?.data
+  const router = useRouter()
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/"
@@ -68,15 +69,6 @@ export function Header() {
                   <ChevronDown className="w-4 h-4 text-muted-foreground hidden sm:block" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem asChild>
-                  <Link href="/profile">Profile</Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild className="text-destructive">
-                  <Link href="/login">Log out</Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
             </DropdownMenu>
             <div className="hidden sm:block text-left">
               <p className="text-sm font-medium">...</p>
@@ -105,7 +97,12 @@ export function Header() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild className="text-destructive">
-                  <Link href="/login">Log out</Link>
+                  <h1 onClick={() => {
+                    localStorage.removeItem("accessToken")
+                    localStorage.removeItem("refreshToken")
+                    localStorage.removeItem("user")
+                    router.push("/login")
+                  }}>Log out</h1>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
