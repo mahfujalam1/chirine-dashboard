@@ -63,12 +63,12 @@ export default function TherapistsPage() {
         />
 
         {/* Therapist Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1 mb-1">
           <Card className="bg-card border border-border">
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">Total Therapists</span>
-                <div className="p-2 bg-muted rounded-lg">
+                <div className="p-2 bg-muted rounded">
                   <Users className="w-4 h-4 text-muted-foreground" />
                 </div>
               </div>
@@ -82,7 +82,7 @@ export default function TherapistsPage() {
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">Pending</span>
-                <div className="p-2 bg-muted rounded-lg">
+                <div className="p-2 bg-muted rounded">
                   <ListTodo className="w-4 h-4 text-muted-foreground" />
                 </div>
               </div>
@@ -96,7 +96,7 @@ export default function TherapistsPage() {
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">Active</span>
-                <div className="p-2 bg-muted rounded-lg">
+                <div className="p-2 bg-muted rounded">
                   <ShieldCheck className="w-4 h-4 text-muted-foreground" />
                 </div>
               </div>
@@ -110,7 +110,7 @@ export default function TherapistsPage() {
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">Blocked</span>
-                <div className="p-2 bg-muted rounded-lg">
+                <div className="p-2 bg-muted rounded">
                   <ShieldBan className="w-4 h-4 text-muted-foreground" />
                 </div>
               </div>
@@ -122,7 +122,7 @@ export default function TherapistsPage() {
         </div>
 
         {/* Therapist List */}
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 gap-1">
           <Card className="lg:col-span-3 bg-card border border-border">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">

@@ -53,7 +53,7 @@ export default function EventsPage() {
           {EVENT_TABS.map((tab) => <Button key={tab.value} size="sm" variant={type === tab.value ? "default" : "outline"} className={type === tab.value ? "bg-[#00ACA7] text-white" : ""} onClick={() => setType(tab.value)}>{tab.label}</Button>)}
         </div>
 
-        {query.isError ? <div className="flex flex-col items-center rounded-lg border border-destructive/30 bg-destructive/5 p-8 text-center"><p className="text-sm font-medium text-destructive">Unable to load {currentTab.label}</p><Button variant="outline" size="sm" className="mt-3" onClick={() => query.refetch()}><RefreshCw className="mr-2 h-4 w-4" />Try again</Button></div> : <EventsTable rows={rows} type={type} loading={query.isLoading || query.isFetching} emptyText={`No ${currentTab.label} found.`} onEdit={openEditForm} onDelete={setDeleteTarget} onParticipants={setParticipantsEvent} />}
+        {query.isError ? <div className="flex flex-col items-center rounded border border-destructive/30 bg-destructive/5 p-8 text-center"><p className="text-sm font-medium text-destructive">Unable to load {currentTab.label}</p><Button variant="outline" size="sm" className="mt-3" onClick={() => query.refetch()}><RefreshCw className="mr-2 h-4 w-4" />Try again</Button></div> : <EventsTable rows={rows} type={type} loading={query.isLoading || query.isFetching} emptyText={`No ${currentTab.label} found.`} onEdit={openEditForm} onDelete={setDeleteTarget} onParticipants={setParticipantsEvent} />}
       </CardContent>
     </Card>
 

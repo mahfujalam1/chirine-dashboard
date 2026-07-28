@@ -270,7 +270,7 @@ function AssetForm({ onCancel }: AssetFormProps) {
         onDragLeave={handleDragLeave}
         onClick={() => !form.previewUrl && fileInputRef.current?.click()}
         className={cn(
-          "relative border-2 border-dashed rounded-xl transition-all duration-200",
+          "relative border-2 border-dashed rounded transition-all duration-200",
           form.previewUrl
             ? "border-transparent p-0"
             : "border-border hover:border-foreground/40 bg-muted/30 cursor-pointer p-8",
@@ -278,13 +278,13 @@ function AssetForm({ onCancel }: AssetFormProps) {
         )}
       >
         {form.previewUrl ? (
-          <div className="relative rounded-xl overflow-hidden group">
+          <div className="relative rounded overflow-hidden group">
             <Image
               width={200}
               height={200}
               src={form.previewUrl}
               alt="Asset preview"
-              className="w-full h-52 object-cover rounded-xl"
+              className="w-full h-52 object-cover rounded"
             />
             <button
               type="button"
@@ -360,7 +360,7 @@ function AssetForm({ onCancel }: AssetFormProps) {
         <Label>Tags</Label>
         <div
           className={cn(
-            "flex flex-wrap gap-1.5 min-h-[2.5rem] px-3 py-2 rounded-md border border-input bg-background",
+            "flex flex-wrap gap-1.5 min-h-[2.5rem] px-3 py-2 rounded border border-input bg-background",
             "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-0 transition-shadow",
             form.tags.length >= 10 && "border-yellow-500"
           )}
@@ -403,7 +403,7 @@ function AssetForm({ onCancel }: AssetFormProps) {
 
       {/* Error message */}
       {form.error && (
-        <div className="p-3 rounded-md bg-destructive/10 border border-destructive/20">
+        <div className="p-3 rounded bg-destructive/10 border border-destructive/20">
           <p className="text-sm text-destructive">{form.error}</p>
         </div>
       )}

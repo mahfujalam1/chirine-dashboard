@@ -282,7 +282,7 @@ function RoomDetailDialog({ room, onClose, onToggleMemberBlock, onToggleRoomBloc
         <DialogContent className="max-w-md max-h-[90vh] flex flex-col">
           <DialogHeader>
             <div className="flex items-start gap-3 pr-6">
-              <div className={`p-2 rounded-lg shrink-0 mt-0.5 ${room.type === "group" ? "bg-blue-50 dark:bg-blue-950/40" : "bg-muted"}`}>
+              <div className={`p-2 rounded shrink-0 mt-0.5 ${room.type === "group" ? "bg-blue-50 dark:bg-blue-950/40" : "bg-muted"}`}>
                 {room.type === "group"
                   ? <Boxes className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   : <MessageCircleMore className="w-4 h-4 text-muted-foreground" />
@@ -484,7 +484,7 @@ export default function ChatManagementPage() {
       key: "roomName",
       renderItem: (record) => (
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-muted shrink-0">
+          <div className="p-2 rounded bg-muted shrink-0">
             <MessageCircleMore className="w-3.5 h-3.5 text-muted-foreground" />
           </div>
           <div>
@@ -571,7 +571,7 @@ export default function ChatManagementPage() {
       key: "roomName",
       renderItem: (record) => (
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/40 shrink-0">
+          <div className="p-2 rounded bg-blue-50 dark:bg-blue-950/40 shrink-0">
             <Boxes className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
@@ -679,7 +679,7 @@ export default function ChatManagementPage() {
         />
 
         {/* ── Stat Cards ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-1 mb-1">
           <Card
             className={`bg-card border border-border cursor-pointer hover:border-foreground/30 transition-all ${tab === "chat" ? "ring-2 ring-foreground/20" : ""}`}
             onClick={() => setTab("chat")}
@@ -687,7 +687,7 @@ export default function ChatManagementPage() {
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">Total Rooms</span>
-                <div className="p-2 bg-muted rounded-lg">
+                <div className="p-2 bg-muted rounded">
                   <MessageCircleMore className="w-4 h-4 text-muted-foreground" />
                 </div>
               </div>
@@ -702,7 +702,7 @@ export default function ChatManagementPage() {
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">Total Groups</span>
-                <div className="p-2 bg-muted rounded-lg">
+                <div className="p-2 bg-muted rounded">
                   <Boxes className="w-4 h-4 text-muted-foreground" />
                 </div>
               </div>
@@ -714,7 +714,7 @@ export default function ChatManagementPage() {
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">Blocked Rooms</span>
-                <div className="p-2 bg-muted rounded-lg">
+                <div className="p-2 bg-muted rounded">
                   <ShieldOff className="w-4 h-4 text-muted-foreground" />
                 </div>
               </div>
@@ -728,7 +728,7 @@ export default function ChatManagementPage() {
         {/* ── Table ── */}
         <Card className="bg-card border border-border">
           <CardHeader className="pb-2">
-            <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center justify-between gap-1 flex-wrap">
               <CardTitle className="text-base font-medium">
                 {tab === "chat" ? "Chat Rooms" : "Group Rooms"}
               </CardTitle>

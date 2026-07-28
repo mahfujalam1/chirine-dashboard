@@ -58,7 +58,7 @@ export default function DashboardPage() {
           <AlertCircle className="w-12 h-12" />
         </div>
         <h3 className="text-xl font-semibold mb-2">Something went wrong</h3>
-        <p className="text-muted-foreground max-w-md mb-6">
+        <p className="text-muted-foreground max-w-md mb-1">
           We encountered an error while fetching your dashboard analytics or recent therapists. Please check your connection or try again.
         </p>
         <Button
@@ -80,7 +80,7 @@ export default function DashboardPage() {
   if (isLoading || isTherapistsLoading) {
     return (
       <>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-border mb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-1 pb-6 border-b border-border mb-1">
           <div className="space-y-2">
             <Skeleton className="h-8 w-64" />
             <Skeleton className="h-4 w-48" />
@@ -89,13 +89,13 @@ export default function DashboardPage() {
         </div>
 
         {/* Metric Cards Skeleton */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1 mb-1">
           {Array.from({ length: 4 }).map((_, i) => (
             <Card key={i} className="bg-card border-border">
               <CardContent className="p-5">
                 <div className="flex items-start justify-between mb-4">
                   <Skeleton className="h-4 w-28" />
-                  <Skeleton className="h-8 w-8 rounded-lg" />
+                  <Skeleton className="h-8 w-8 rounded" />
                 </div>
                 <Skeleton className="h-8 w-24 mb-2" />
                 <Skeleton className="h-3 w-16" />
@@ -105,24 +105,24 @@ export default function DashboardPage() {
         </div>
 
         {/* Charts Row Skeleton */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-1 mb-1">
           <Card className="lg:col-span-2 bg-card border-border p-6">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-1">
               <div className="space-y-2">
                 <Skeleton className="h-5 w-40" />
                 <Skeleton className="h-8 w-32" />
               </div>
-              <Skeleton className="h-8 w-8 rounded-md" />
+              <Skeleton className="h-8 w-8 rounded" />
             </div>
             <Skeleton className="h-[200px] w-full" />
           </Card>
           <Card className="bg-card border-border p-6">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-1">
               <div className="space-y-2">
                 <Skeleton className="h-5 w-40" />
                 <Skeleton className="h-3 w-28" />
               </div>
-              <Skeleton className="h-8 w-8 rounded-md" />
+              <Skeleton className="h-8 w-8 rounded" />
             </div>
             <Skeleton className="h-[150px] w-full mt-4" />
           </Card>
@@ -153,7 +153,7 @@ export default function DashboardPage() {
                   <Skeleton className="h-6 w-16 rounded-full" />
                   <Skeleton className="h-4 w-12" />
                   <Skeleton className="h-4 w-16" />
-                  <Skeleton className="h-8 w-12 rounded-md" />
+                  <Skeleton className="h-8 w-12 rounded" />
                 </div>
               ))}
             </div>
@@ -171,7 +171,7 @@ export default function DashboardPage() {
         title="Welcome, Chirine 👋"
         description="Analytics dashboard for your app."
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-cente">
           {(isFetching || isTherapistsFetching) && (
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground animate-pulse mr-2 bg-muted/50 px-2.5 py-1 rounded-full border border-border">
               <span className="w-2 h-2 rounded-full bg-[#00ACA7] animate-ping" />
@@ -193,7 +193,7 @@ export default function DashboardPage() {
       </PageHeader>
 
       {/* Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1 mb-1">
         <MetricCard
           title="Total Therapist"
           value={data?.data?.totalTherapist?.toLocaleString() || "0"}
@@ -222,7 +222,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-1 mb-1">
         <div className="lg:col-span-2">
           <ProfitChart data={data?.data?.totalEarningOverview} />
         </div>

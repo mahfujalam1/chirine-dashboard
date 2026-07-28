@@ -57,8 +57,8 @@ interface Asset {
 function SkeletonCard({ view }: { view: "grid" | "list" }) {
   if (view === "list") {
     return (
-      <div className="flex items-center gap-4 p-3 rounded-lg border border-border bg-card animate-pulse">
-        <div className="w-16 h-16 rounded-lg bg-muted flex-shrink-0" />
+      <div className="flex items-center gap-1 p-3 rounded border border-border bg-card animate-pulse">
+        <div className="w-16 h-16 rounded bg-muted flex-shrink-0" />
         <div className="flex-1 min-w-0">
           <div className="h-4 bg-muted rounded w-3/4 mb-2" />
           <div className="flex gap-1.5">
@@ -76,7 +76,7 @@ function SkeletonCard({ view }: { view: "grid" | "list" }) {
   }
 
   return (
-    <div className="group relative rounded-xl overflow-hidden border border-border bg-card animate-pulse">
+    <div className="group relative rounded overflow-hidden border border-border bg-card animate-pulse">
       <div className="aspect-square bg-muted" />
       <div className="p-3 space-y-2">
         <div className="h-4 bg-muted rounded w-3/4" />
@@ -188,7 +188,7 @@ export default function ChatAssets() {
     <>
       <Card className="border border-border bg-card">
         <CardHeader className="pb-4">
-          <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div className="flex items-start justify-between gap-1 flex-wrap">
             <div>
               <h1 className="text-base font-semibold text-foreground">Chat Assets</h1>
               <p className="text-sm text-muted-foreground mt-0.5">
@@ -227,15 +227,15 @@ export default function ChatAssets() {
             </div>
 
             {/* Type filter */}
-            <div className="flex items-center gap-1.5 bg-muted rounded-lg p-1">
+            <div className="flex items-center gap-1.5 bg-muted rounded p-1">
               {([null, "gif", "image"] as (AssetType | null)[]).map((t) => (
                 <button
                   key={String(t)}
                   onClick={() => handleTypeFilter(t)}
                   className={cn(
-                    "px-3 h-7 rounded-md text-xs font-medium transition-colors",
+                    "px-3 h-7 rounded text-xs font-medium transition-colors",
                     typeFilter === t
-                      ? "bg-background text-foreground shadow-sm"
+                      ? "bg-background text-foreground "
                       : "text-muted-foreground hover:text-foreground"
                   )}
                   disabled={isFetching || isLoading}
@@ -246,12 +246,12 @@ export default function ChatAssets() {
             </div>
 
             {/* View toggle */}
-            <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+            <div className="flex items-center gap-1 bg-muted rounded p-1">
               <button
                 onClick={() => setView("grid")}
                 className={cn(
-                  "p-1.5 rounded-md transition-colors",
-                  view === "grid" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                  "p-1.5 rounded transition-colors",
+                  view === "grid" ? "bg-background text-foreground " : "text-muted-foreground hover:text-foreground"
                 )}
                 disabled={isFetching || isLoading}
               >
@@ -260,8 +260,8 @@ export default function ChatAssets() {
               <button
                 onClick={() => setView("list")}
                 className={cn(
-                  "p-1.5 rounded-md transition-colors",
-                  view === "list" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                  "p-1.5 rounded transition-colors",
+                  view === "list" ? "bg-background text-foreground " : "text-muted-foreground hover:text-foreground"
                 )}
                 disabled={isFetching || isLoading}
               >

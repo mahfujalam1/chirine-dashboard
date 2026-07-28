@@ -1,16 +1,16 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { MoreHorizontal } from "lucide-react"
 import {
-  AreaChart,
   Area,
-  XAxis,
-  YAxis,
+  AreaChart,
   CartesianGrid,
+  ResponsiveContainer,
   Tooltip,
-  ResponsiveContainer
+  XAxis,
+  YAxis
 } from "recharts"
 
 // Mock data for multiple years
@@ -81,7 +81,7 @@ export function UsersMatrix({ data: apiData, activeYear = "2026" }: UsersMatrixP
           <p className="text-xs text-muted-foreground">Monthly user acquisition</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold px-2 py-1 bg-muted border border-border rounded-md text-muted-foreground">
+          <span className="text-xs font-semibold px-2 py-1 bg-muted border border-border rounded text-muted-foreground">
             {activeYear}
           </span>
           <Button variant="ghost" size="icon" className="h-8 w-8">

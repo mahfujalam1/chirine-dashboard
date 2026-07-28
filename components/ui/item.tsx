@@ -1,9 +1,9 @@
-import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
+import * as React from 'react'
 
-import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
+import { cn } from '@/lib/utils'
 
 function ItemGroup({ className, ...props }: React.ComponentProps<'div'>) {
   return (
@@ -31,7 +31,7 @@ function ItemSeparator({
 }
 
 const itemVariants = cva(
-  'group/item flex items-center border border-transparent text-sm rounded-md transition-colors [a&]:hover:bg-accent/50 [a&]:transition-colors duration-100 flex-wrap outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
+  'group/item flex items-center border border-transparent text-sm rounded transition-colors [a&]:hover:bg-accent/50 [a&]:transition-colors duration-100 flex-wrap outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
   {
     variants: {
       variant: {
@@ -40,7 +40,7 @@ const itemVariants = cva(
         muted: 'bg-muted/50',
       },
       size: {
-        default: 'p-4 gap-4 ',
+        default: 'p-4 gap-1 ',
         sm: 'py-3 px-4 gap-2.5',
       },
     },
@@ -77,9 +77,9 @@ const itemMediaVariants = cva(
     variants: {
       variant: {
         default: 'bg-transparent',
-        icon: "size-8 border rounded-sm bg-muted [&_svg:not([class*='size-'])]:size-4",
+        icon: "size-8 border rounded bg-muted [&_svg:not([class*='size-'])]:size-4",
         image:
-          'size-10 rounded-sm overflow-hidden [&_img]:size-full [&_img]:object-cover',
+          'size-10 rounded overflow-hidden [&_img]:size-full [&_img]:object-cover',
       },
     },
     defaultVariants: {
@@ -180,14 +180,7 @@ function ItemFooter({ className, ...props }: React.ComponentProps<'div'>) {
 }
 
 export {
-  Item,
-  ItemMedia,
-  ItemContent,
-  ItemActions,
-  ItemGroup,
-  ItemSeparator,
-  ItemTitle,
-  ItemDescription,
-  ItemHeader,
-  ItemFooter,
+  Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemGroup, ItemHeader, ItemMedia, ItemSeparator,
+  ItemTitle
 }
+

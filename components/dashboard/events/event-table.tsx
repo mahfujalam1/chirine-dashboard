@@ -22,7 +22,7 @@ export function EventsTable({ rows, type, loading, emptyText, onEdit, onDelete, 
     {
       title: "Event",
       renderItem: (event) => <div className="flex min-w-64 items-center gap-3">
-        <img src={event.image} alt="" className="h-12 w-16 rounded-md bg-muted object-cover" />
+        <img src={event.image} alt="" className="h-12 w-16 rounded bg-muted object-cover" />
         <div className="min-w-0"><p className="font-medium">{event.title}</p><p className="max-w-72 truncate text-xs text-muted-foreground">{event.description}</p></div>
       </div>,
     },

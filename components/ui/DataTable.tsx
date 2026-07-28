@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import React, { useMemo, useState } from "react";
 
 
 export type SortOrder = "asc" | "desc" | null;
@@ -42,8 +42,8 @@ function getAlignClass(align?: "left" | "center" | "right") {
   return align === "right"
     ? "text-right"
     : align === "center"
-    ? "text-center"
-    : "text-left";
+      ? "text-center"
+      : "text-left";
 }
 
 function getCellValue<T extends object>(record: T, key: keyof T | (keyof T)[]): string {
@@ -63,7 +63,7 @@ function SkeletonRow({ colCount }: { colCount: number }) {
     <tr className="border-b border-border">
       {Array.from({ length: colCount }).map((_, i) => (
         <td key={i} className="py-3 px-3">
-          <div className="h-4 rounded-md bg-muted animate-pulse" style={{ width: `${60 + Math.random() * 30}%` }} />
+          <div className="h-4 rounded bg-muted animate-pulse" style={{ width: `${60 + Math.random() * 30}%` }} />
         </td>
       ))}
     </tr>
@@ -95,7 +95,7 @@ function Pagination({ page, total, limit, onChange }: PaginationProps) {
   }, [page, totalPages]);
 
   return (
-    <div className="flex items-center justify-between gap-4 pt-4 flex-wrap">
+    <div className="flex items-center justify-between gap-1 pt-4 flex-wrap">
       <p className="text-sm text-muted-foreground">
         Showing <span className="font-medium text-foreground">{from}–{to}</span> of{" "}
         <span className="font-medium text-foreground">{total}</span> results
@@ -154,10 +154,10 @@ function PagBtn({
       disabled={disabled}
       title={title}
       className={cn(
-        "inline-flex items-center justify-center h-8 min-w-[2rem] px-1.5 rounded-md text-sm font-medium transition-colors",
+        "inline-flex items-center justify-center h-8 min-w-[2rem] px-1.5 rounded text-sm font-medium transition-colors",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         active
-          ? "bg-primary text-primary-foreground shadow-sm"
+          ? "bg-primary text-primary-foreground "
           : "text-foreground hover:bg-muted",
         disabled && "opacity-40 pointer-events-none"
       )}
@@ -250,7 +250,7 @@ export function DataTable<T extends object>({
   return (
     <div className={cn("w-full space-y-0", className)}>
       {/* Table wrapper */}
-      <div className={cn("w-full overflow-auto rounded-lg border border-border")}>
+      <div className={cn("w-full overflow-auto rounded border border-border")}>
         <table className="w-full bg-white caption-bottom text-sm">
           {/* ── Head ── */}
           <thead className={cn(stickyHeader && "sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60")}>
@@ -314,8 +314,8 @@ export function DataTable<T extends object>({
                         {col.renderItem
                           ? col.renderItem(record, rowIndex)
                           : col.key
-                          ? getCellValue(record, col.key)
-                          : null}
+                            ? getCellValue(record, col.key)
+                            : null}
                       </td>
                     ))}
                   </tr>

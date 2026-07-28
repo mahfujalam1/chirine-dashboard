@@ -86,7 +86,7 @@ export default function EventRequestsPage() {
     {
       title: "Event",
       renderItem: (event) => <div className="flex min-w-64 items-center gap-3">
-        <img src={event.image} alt="" className="h-12 w-16 rounded-md bg-muted object-cover" />
+        <img src={event.image} alt="" className="h-12 w-16 rounded bg-muted object-cover" />
         <div className="min-w-0"><p className="font-medium">{event.title}</p><p className="max-w-64 truncate text-xs text-muted-foreground">{event.description}</p></div>
       </div>,
     },
@@ -111,12 +111,12 @@ export default function EventRequestsPage() {
   return <>
     <PageHeader title="Event Requests" description="Review event requests submitted by users and approve or reject them." />
 
-    <div className="mb-6 grid gap-4 sm:grid-cols-3">
+    <div className="mb-1 grid gap-1 sm:grid-cols-3">
       {[
         { label: "Coffee Connect", count: stats?.coffeeConnectEvents ?? 0, icon: <Coffee className="h-4 w-4" /> },
         { label: "Social Event", count: stats?.socialEvents ?? 0, icon: <Radio className="h-4 w-4" /> },
         { label: "Lunch & Learn", count: stats?.lunchAndLearnEvents ?? 0, icon: <BrainCog className="h-4 w-4" /> },
-      ].map((item) => <Card key={item.label}><CardContent className="p-5"><div className="mb-3 flex items-center justify-between text-sm text-muted-foreground"><span>{item.label}</span><span className="rounded-lg bg-muted p-2">{item.icon}</span></div><p className="text-3xl font-semibold">{item.count}</p><p className="mt-1 text-xs text-muted-foreground">requests</p></CardContent></Card>)}
+      ].map((item) => <Card key={item.label}><CardContent className="p-5"><div className="mb-3 flex items-center justify-between text-sm text-muted-foreground"><span>{item.label}</span><span className="rounded bg-muted p-2">{item.icon}</span></div><p className="text-3xl font-semibold">{item.count}</p><p className="mt-1 text-xs text-muted-foreground">requests</p></CardContent></Card>)}
     </div>
 
     <Card><CardContent className="p-5">
@@ -133,8 +133,8 @@ export default function EventRequestsPage() {
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         {selectedEvent && <>
           <DialogHeader><div className="pr-8"><DialogTitle>{selectedEvent.title}</DialogTitle><div className="mt-2 flex gap-2"><Badge variant="outline">{EVENT_LABELS[selectedEvent.eventType]}</Badge><Badge variant="outline" className={STATUS_STYLES[selectedEvent.status]}>{selectedEvent.status}</Badge></div></div></DialogHeader>
-          {selectedEvent.image && <img src={selectedEvent.image} alt={selectedEvent.title} className="max-h-72 w-full rounded-xl bg-muted object-cover" />}
-          <div className="grid gap-4 rounded-xl border p-4 sm:grid-cols-2">
+          {selectedEvent.image && <img src={selectedEvent.image} alt={selectedEvent.title} className="max-h-72 w-full rounded bg-muted object-cover" />}
+          <div className="grid gap-1 rounded border p-4 sm:grid-cols-2">
             <div className="flex gap-3"><User className="mt-0.5 h-4 w-4 text-muted-foreground" /><div><p className="text-xs text-muted-foreground">Requested by</p><p className="font-medium">{selectedEvent.user.fullName}</p></div></div>
             <div className="flex gap-3"><Mail className="mt-0.5 h-4 w-4 text-muted-foreground" /><div><p className="text-xs text-muted-foreground">Email</p><p className="font-medium">{selectedEvent.user.email}</p></div></div>
             <div className="flex gap-3"><Calendar className="mt-0.5 h-4 w-4 text-muted-foreground" /><div><p className="text-xs text-muted-foreground">Date</p><p className="font-medium">{selectedEvent.date}</p></div></div>
@@ -142,7 +142,7 @@ export default function EventRequestsPage() {
             <div className="flex gap-3"><Users className="mt-0.5 h-4 w-4 text-muted-foreground" /><div><p className="text-xs text-muted-foreground">Maximum participants</p><p className="font-medium">{selectedEvent.maxParticipants ?? "Not specified"}</p></div></div>
             <div className="flex gap-3"><Globe2 className="mt-0.5 h-4 w-4 text-muted-foreground" /><div><p className="text-xs text-muted-foreground">Format</p><p className="font-medium">{selectedEvent.isOnline ? "Online" : "In person"}</p></div></div>
           </div>
-          <div><p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">Description</p><p className="rounded-lg bg-muted/60 p-4 text-sm">{selectedEvent.description}</p></div>
+          <div><p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">Description</p><p className="rounded bg-muted/60 p-4 text-sm">{selectedEvent.description}</p></div>
           <div><p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Entry requirements</p>{selectedEvent.entryRequirements?.length ? <div className="flex flex-wrap gap-2">{selectedEvent.entryRequirements.map((item) => <Badge key={item} variant="secondary">{item}</Badge>)}</div> : <p className="text-sm text-muted-foreground">No entry requirements</p>}</div>
           <div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2"><p>Submitted: {formatDateTime(selectedEvent.createdAt)}</p><p>Last updated: {formatDateTime(selectedEvent.updatedAt)}</p></div>
           <DialogFooter className="flex-wrap sm:justify-between">

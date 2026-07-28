@@ -40,7 +40,7 @@ export default function TherapistsDetailsPage() {
               <ArrowLeft className="w-5 h-5 text-muted-foreground" />
             </div>
             <h2 className="text-lg font-medium mb-2">Missing ID</h2>
-            <p className="text-sm text-muted-foreground mb-6">
+            <p className="text-sm text-muted-foreground mb-1">
               Please provide a valid therapist ID.
             </p>
             <Button onClick={() => router.back()} variant="outline" size="sm">
@@ -65,7 +65,7 @@ export default function TherapistsDetailsPage() {
             <h2 className="text-lg font-medium mb-2">
               {error ? "Error Loading" : "Not Found"}
             </h2>
-            <p className="text-sm text-muted-foreground mb-6">
+            <p className="text-sm text-muted-foreground mb-1">
               {error
                 ? "Failed to load therapist details. Please try again."
                 : "This therapist doesn't exist or has been removed."
@@ -134,7 +134,7 @@ export default function TherapistsDetailsPage() {
         </Button>
       </PageHeader>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-1 lg:gap-6 items-start">
         {/* Left Column — identity, status, contact, actions (sticky so it stays visible while scanning credentials) */}
         <div className="lg:col-span-1 lg:sticky lg:top-4">
           <Card>
@@ -223,14 +223,14 @@ export default function TherapistsDetailsPage() {
         </div>
 
         {/* Right Column — credentials lead, then personal, then a slim timeline strip */}
-        <div className="lg:col-span-2 gap-4 space-y-4 grid grid-cols-1 md:grid-cols-2">
+        <div className="lg:col-span-2 gap-1 space-y-4 grid grid-cols-1 md:grid-cols-2">
           {/* Credentials & Verification — this is the trust-critical info, shown first */}
           <Card>
             <CardContent>
               <CardTitle className="text-sm font-medium mb-3 flex items-center gap-1.5">
                 Credentials & Verification
               </CardTitle>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-200 p-2 rounded-md border border-border">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 bg-gray-200 p-2 rounded border border-border">
                 <InfoRow label="Profession" value={professionName} />
                 <InfoRow label="Governing Body" value={governingBodyName} icon={Building2} />
                 <InfoRow label="License Number" value={therapist.licenseNo} icon={Hash} />
@@ -246,7 +246,7 @@ export default function TherapistsDetailsPage() {
           <Card>
             <CardContent>
               <CardTitle className="text-sm font-medium mb-3 flex items-center gap-1.5">Personal Information</CardTitle>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 gap-4 bg-gray-200 p-2 rounded-md">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 gap-1 bg-gray-200 p-2 rounded">
                 <InfoRow label="Full Name" value={therapist.fullName} />
                 <InfoRow label="Role" value={therapist.role} />
                 <InfoRow label="Country" value={therapist.country} icon={MapPin} />

@@ -13,7 +13,7 @@ export function AuthCard({
 }) {
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
-      <section className="w-full max-w-md rounded-2xl border bg-background p-7 shadow-sm">
+      <section className="w-full max-w-md rounded-2xl border bg-background p-7 ">
         <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{description}</p>
         <div className="mt-7">{children}</div>

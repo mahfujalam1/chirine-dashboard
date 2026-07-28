@@ -40,8 +40,8 @@ interface AssetCardProps {
 function AssetCard({ asset, onDelete, view }: AssetCardProps) {
   if (view === "list") {
     return (
-      <div className="flex items-center gap-4 p-3 rounded-xl border border-border bg-card hover:bg-muted/40 transition-colors group">
-        <div className="h-16 w-16 rounded-lg overflow-hidden shrink-0 bg-muted">
+      <div className="flex items-center gap-1 p-3 rounded border border-border bg-card hover:bg-muted/40 transition-colors group">
+        <div className="h-16 w-16 rounded overflow-hidden shrink-0 bg-muted">
           <Image width={200} height={200} src={asset?.url} alt={asset?.label} className="h-full w-full object-cover" />
         </div>
         <div className="flex-1 min-w-0">
@@ -78,7 +78,7 @@ function AssetCard({ asset, onDelete, view }: AssetCardProps) {
   }
 
   return (
-    <div className="relative group rounded-xl overflow-hidden border border-border bg-card">
+    <div className="relative group rounded overflow-hidden border border-border bg-card">
       <div className="aspect-square overflow-hidden bg-muted">
         <img
           src={asset?.url}

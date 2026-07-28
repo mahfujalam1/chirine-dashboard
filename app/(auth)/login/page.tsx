@@ -2,8 +2,8 @@
 "use client";
 import { useSignInMutation } from '@/app/redux-query/services/authApis';
 import { LoadingScreen } from '@/components/loading-screen';
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from 'sonner';
 
@@ -36,8 +36,8 @@ export default function LoginPage() {
   return (
     <div className="flex h-screen w-full p-4">
       {isLoading && <LoadingScreen message="Loading..." />}
-      <div className="rounded-lg overflow-hidden border border-border p-2 flex gap-4 w-full">
-        <div className="hidden md:inline-block w-1/2 rounded-xl overflow-hidden">
+      <div className="rounded overflow-hidden border border-border p-2 flex gap-1 w-full">
+        <div className="hidden md:inline-block w-1/2 rounded overflow-hidden">
           <img className="h-full w-full object-cover" src="https://img.magnific.com/free-photo/hiker-watching-sunset-mountain-range_23-2151995794.jpg?t=st=1778699701~exp=1778703301~hmac=35c8a725cca0d1deb975cbe4a3cb4ea1355b133b802ba733334fa9708879e273&w=740" alt="brand" />
         </div>
 
