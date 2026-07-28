@@ -17,6 +17,8 @@ import { usePathname, useRouter } from "next/navigation"
 const navItems = [
   { label: "Dashboard", href: "/" },
   { label: "Therapists", href: "/therapists" },
+  { label: "Professions", href: "/professions" },
+  { label: "Governing Bodies", href: "/governing-bodies" },
   { label: "Events", href: "/events" },
   { label: "Requests", href: "/events-requests" },
   { label: "Reports", href: "/reports" },

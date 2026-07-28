@@ -38,7 +38,15 @@ export function useEventManagement(type: EventType) {
   const isDeleting = deleteCoffeeState.isLoading || deleteSocialState.isLoading || deleteLunchState.isLoading
 
   function toPayload(data: EventFormData): UpdateEventPayload {
-    return { eventImage: data.eventImage, title: data.title.trim(), description: data.description.trim(), date: data.date, startTime: data.start_time, endTime: data.end_time }
+    return {
+      eventImage: data.eventImage,
+      title: data.title.trim(),
+      description: data.description.trim(),
+      date: data.date,
+      startTime: data.start_time,
+      endTime: data.end_time,
+      location: data.location.trim(),
+    }
   }
 
   async function save(data: EventFormData, event: EventRow | null) {

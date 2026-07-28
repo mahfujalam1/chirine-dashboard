@@ -5,6 +5,7 @@ export interface CreateEventPayload {
   date: string;
   startTime: string;
   endTime: string;
+  location: string;
 }
 
 export type UpdateEventPayload = Omit<CreateEventPayload, 'eventImage'> & {

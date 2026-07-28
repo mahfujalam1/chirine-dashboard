@@ -15,8 +15,24 @@ export function EventFormDialog({ open, event, tab, saving, onOpenChange, onSubm
   onSubmit: (data: EventFormData) => Promise<void>
 }) {
   const initial: EventFormData = event
-    ? { title: event.title, event_type: tab.formType, date: event.date, start_time: event.source.startTime, end_time: event.source.endTime, location: event.venue === "Zoom" ? "" : event.venue, description: event.description }
-    : { title: "", event_type: tab.formType, date: "", start_time: "", end_time: "", location: "", description: "" }
+    ? {
+      title: event.title,
+      event_type: tab.formType,
+      date: event.date,
+      start_time: event.source.startTime,
+      end_time: event.source.endTime,
+      location: event.venue === "Zoom" ? "" : event.venue,
+      description: event.description
+    }
+    : {
+      title: "",
+      event_type: tab.formType,
+      date: "",
+      start_time: "",
+      end_time: "",
+      location: "",
+      description: ""
+    }
 
   return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="max-h-[90vh] min-w-2xl overflow-y-auto"><DialogHeader><DialogTitle>{event ? "Edit Event" : "Create Event"}</DialogTitle><DialogDescription>{event ? "Update this published event." : `Create a new ${tab.label} event.`}</DialogDescription></DialogHeader><EventForm key={event?.id ?? tab.value} isEdit={!!event} initial={initial} existingImage={event?.image} onSubmit={onSubmit} onCancel={() => onOpenChange(false)} isSubmitting={saving} /></DialogContent></Dialog>
 }

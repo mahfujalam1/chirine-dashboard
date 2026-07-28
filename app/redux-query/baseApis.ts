@@ -23,7 +23,9 @@ const baseApis = createApi({
     "event",
     "user",
     "report",
-    "profile"
+    "profile",
+    "profession",
+    "governingBody"
   ],
   endpoints: () => ({}),
 });

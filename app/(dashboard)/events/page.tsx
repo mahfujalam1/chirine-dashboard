@@ -32,7 +32,9 @@ export default function EventsPage() {
   }
 
   async function handleSave(data: EventFormData) {
-    if (await save(data, editTarget)) {
+    try {
+      await save(data, editTarget)
+    } finally {
       setFormOpen(false)
       setEditTarget(null)
     }
