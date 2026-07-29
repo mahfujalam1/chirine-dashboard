@@ -1,6 +1,6 @@
 "use client"
 
-import { useCreateAssetsMutation } from '@/app/redux-query/services/chatassetsApis'
+import { useCreateAssetsMutation } from '@/lib/redux/services/chatassetsApis'
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {

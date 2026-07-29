@@ -1,6 +1,6 @@
-import { CoffeConnectEvent } from "@/app/redux-query/services/coffeConnectApis"
-import { LunchAndLearnEvent } from "@/app/redux-query/services/lunchAndLearnApis"
-import { SocialEvent } from "@/app/redux-query/services/socialEventApis"
+import { CoffeConnectEvent } from "@/lib/redux/services/coffeConnectApis"
+import { LunchAndLearnEvent } from "@/lib/redux/services/lunchAndLearnApis"
+import { SocialEvent } from "@/lib/redux/services/socialEventApis"
 
 export type EventType = "coffee" | "social" | "lunch"
 export type EventRecord = CoffeConnectEvent | SocialEvent | LunchAndLearnEvent

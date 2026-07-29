@@ -1,4 +1,4 @@
-import { GoverningBody } from "@/app/redux-query/services/governingBodyApis"
+import { GoverningBody } from "@/lib/redux/services/governingBodyApis"
 import { Button } from "@/components/ui/button"
 import { ColumnDef, DataTable } from "@/components/ui/DataTable"
 import { Pencil, Trash2 } from "lucide-react"

@@ -1,7 +1,8 @@
 "use client";
 
-import { useChangePasswordMutation } from "@/app/redux-query/services/authApis";
-import { MyProfile } from "@/app/redux-query/services/profileApis";
+import Image from "next/image";
+import { useChangePasswordMutation } from "@/lib/redux/services/authApis";
+import { MyProfile } from "@/lib/redux/services/profileApis";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -82,9 +83,11 @@ export function EditProfileDialog({
           <div className="space-y-2">
             <Label>Profile Image</Label>
             {preview && (
-              <img
+              <Image
                 src={preview}
                 alt="Profile preview"
+                width={128}
+                height={128}
                 className="h-32 w-32 rounded-full border object-cover"
               />
             )}

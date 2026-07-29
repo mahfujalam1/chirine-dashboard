@@ -1,9 +1,10 @@
-import { SocialEvent } from "@/app/redux-query/services/socialEventApis"
+import { SocialEvent } from "@/lib/redux/services/socialEventApis"
 import { EventRow, EventType, isSocialEvent } from "@/components/dashboard/events/types"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ColumnDef, DataTable } from "@/components/ui/DataTable"
 import { ExternalLink, Pencil, Trash2 } from "lucide-react"
+import Image from "next/image"
 
 export function EventsTable({ rows, type, loading, emptyText, onEdit, onDelete, onParticipants }: {
   rows: EventRow[]
@@ -22,7 +23,7 @@ export function EventsTable({ rows, type, loading, emptyText, onEdit, onDelete, 
     {
       title: "Event",
       renderItem: (event) => <div className="flex min-w-64 items-center gap-3">
-        <img src={event.image} alt="" className="h-12 w-16 rounded bg-muted object-cover" />
+        <Image src={event.image} alt={event.title} width={64} height={48} className="h-12 w-16 rounded bg-muted object-cover" />
         <div className="min-w-0"><p className="font-medium">{event.title}</p><p className="max-w-72 truncate text-xs text-muted-foreground">{event.description}</p></div>
       </div>,
     },

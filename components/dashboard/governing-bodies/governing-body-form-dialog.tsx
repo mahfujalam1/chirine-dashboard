@@ -1,7 +1,7 @@
 "use client"
 
-import { GoverningBody, GoverningBodyInput } from "@/app/redux-query/services/governingBodyApis"
-import { Profession } from "@/app/redux-query/services/professionApis"
+import { GoverningBody, GoverningBodyInput } from "@/lib/redux/services/governingBodyApis"
+import { Profession } from "@/lib/redux/services/professionApis"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,

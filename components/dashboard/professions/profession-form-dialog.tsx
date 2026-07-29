@@ -1,6 +1,6 @@
 "use client"
 
-import { Profession, ProfessionInput } from "@/app/redux-query/services/professionApis"
+import { Profession, ProfessionInput } from "@/lib/redux/services/professionApis"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -22,6 +22,8 @@ interface ProfessionFormDialogProps {
   onOpenChange: (open: boolean) => void
   onSubmit: (data: ProfessionInput) => Promise<void>
 }
+
+import Image from "next/image"
 
 export function ProfessionFormDialog({
   open,
@@ -101,9 +103,11 @@ export function ProfessionFormDialog({
               Icon {!profession && <span className="text-destructive">*</span>}
             </Label>
             {preview && (
-              <img
+              <Image
                 src={preview}
                 alt="Profession icon preview"
+                width={80}
+                height={80}
                 className="h-20 w-20 rounded-xl border bg-muted object-cover"
               />
             )}

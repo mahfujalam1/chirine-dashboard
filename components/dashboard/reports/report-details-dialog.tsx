@@ -1,4 +1,4 @@
-import { Report, ReportStatus } from "@/app/redux-query/services/reportApis"
+import { Report, ReportStatus } from "@/lib/redux/services/reportApis"
 import { ReportUserCell } from "@/components/dashboard/reports/report-user-cell"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"

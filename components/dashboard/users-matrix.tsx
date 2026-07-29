@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { MoreHorizontal } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MoreHorizontal } from "lucide-react";
 import {
   Area,
   AreaChart,
@@ -10,10 +10,9 @@ import {
   ResponsiveContainer,
   Tooltip,
   XAxis,
-  YAxis
-} from "recharts"
+  YAxis,
+} from "recharts";
 
-// Mock data for multiple years
 const yearlyData = {
   "2026": [
     { month: "Jan", users: 4000 },
@@ -57,21 +56,22 @@ const yearlyData = {
     { month: "Nov", users: 5000 },
     { month: "Dec", users: 5500 },
   ],
-}
+};
 
-type YearKey = keyof typeof yearlyData
+type YearKey = keyof typeof yearlyData;
 
 interface UsersMatrixProps {
-  data?: { month: string; totalUsers: number }[]
-  activeYear?: string
+  data?: { month: string; totalUsers: number }[];
+  activeYear?: string;
 }
 
 export function UsersMatrix({ data: apiData, activeYear = "2026" }: UsersMatrixProps) {
-  const data = apiData && apiData.length > 0
-    ? apiData.map(item => ({ month: item.month, users: item.totalUsers }))
-    : (yearlyData[activeYear as YearKey] || yearlyData["2026"])
+  const data =
+    apiData && apiData.length > 0
+      ? apiData.map((item) => ({ month: item.month, users: item.totalUsers }))
+      : yearlyData[activeYear as YearKey] || yearlyData["2026"];
 
-  const totalUsers = data.reduce((acc, curr) => acc + curr.users, 0)
+  const totalUsers = data.reduce((acc, curr) => acc + curr.users, 0);
 
   return (
     <Card className="bg-card border-border h-full flex flex-col">
@@ -98,10 +98,7 @@ export function UsersMatrix({ data: apiData, activeYear = "2026" }: UsersMatrixP
         </div>
         <div className="h-[150px] w-full mt-4">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart
-              data={data}
-              margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-            >
+            <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#00ACA7" stopOpacity={0.3} />
@@ -113,14 +110,14 @@ export function UsersMatrix({ data: apiData, activeYear = "2026" }: UsersMatrixP
                 dataKey="month"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 12, fill: '#6B7280' }}
+                tick={{ fontSize: 12, fill: "#6B7280" }}
                 dy={10}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 12, fill: '#6B7280' }}
-                tickFormatter={(value) => value >= 1000 ? `${value / 1000}k` : value}
+                tick={{ fontSize: 12, fill: "#6B7280" }}
+                tickFormatter={(value: number) => (value >= 1000 ? `${value / 1000}k` : `${value}`)}
               />
               <Tooltip
                 contentStyle={{
@@ -131,7 +128,7 @@ export function UsersMatrix({ data: apiData, activeYear = "2026" }: UsersMatrixP
                   fontSize: "12px",
                 }}
                 itemStyle={{ color: "#111827", fontWeight: 500 }}
-                formatter={(value: number) => [value.toLocaleString(), "Users"]}
+                formatter={(value: any) => [Number(value).toLocaleString(), "Users"]}
                 labelStyle={{ color: "#6B7280", marginBottom: "4px" }}
               />
               <Area
@@ -149,5 +146,5 @@ export function UsersMatrix({ data: apiData, activeYear = "2026" }: UsersMatrixP
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

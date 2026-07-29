@@ -1,11 +1,11 @@
 "use client"
 
+import Image from 'next/image'
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Trash2
 } from "lucide-react"
-import Image from 'next/image'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -79,10 +79,12 @@ function AssetCard({ asset, onDelete, view }: AssetCardProps) {
 
   return (
     <div className="relative group rounded overflow-hidden border border-border bg-card">
-      <div className="aspect-square overflow-hidden bg-muted">
-        <img
-          src={asset?.url}
-          alt={asset?.label}
+      <div className="aspect-square overflow-hidden bg-muted relative">
+        <Image
+          src={asset?.url || "/placeholder.svg"}
+          alt={asset?.label || "Asset"}
+          width={300}
+          height={300}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
       </div>

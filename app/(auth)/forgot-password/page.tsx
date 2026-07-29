@@ -4,7 +4,7 @@ import { AuthCard } from "@/components/auth/auth-card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useForgotPasswordMutation } from "@/app/redux-query/services/authApis"
+import { useForgotPasswordMutation } from "@/lib/redux/services/authApis"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 

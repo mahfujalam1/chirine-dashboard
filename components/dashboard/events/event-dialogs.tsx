@@ -1,4 +1,4 @@
-import { SocialEvent } from "@/app/redux-query/services/socialEventApis"
+import { SocialEvent } from "@/lib/redux/services/socialEventApis"
 import { EventForm, EventFormData } from "@/components/dashboard/EventForm"
 import { EventRow, EventTab } from "@/components/dashboard/events/types"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"

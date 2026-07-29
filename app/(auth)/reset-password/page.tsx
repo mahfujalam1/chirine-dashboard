@@ -1,6 +1,6 @@
 "use client"
 
-import { useResetPasswordMutation } from "@/app/redux-query/services/authApis"
+import { useResetPasswordMutation } from "@/lib/redux/services/authApis"
 import { AuthCard } from "@/components/auth/auth-card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"

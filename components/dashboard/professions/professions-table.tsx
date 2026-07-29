@@ -1,7 +1,8 @@
-import { Profession } from "@/app/redux-query/services/professionApis"
+import { Profession } from "@/lib/redux/services/professionApis"
 import { Button } from "@/components/ui/button"
 import { ColumnDef, DataTable } from "@/components/ui/DataTable"
 import { Pencil, Trash2 } from "lucide-react"
+import Image from "next/image"
 
 interface ProfessionsTableProps {
   professions: Profession[]
@@ -24,7 +25,13 @@ export function ProfessionsTable({
     {
       title: "Icon",
       renderItem: (profession) => profession.icon ? (
-        <img src={profession.icon} alt="" className="h-10 w-10 rounded-lg border bg-muted object-cover" />
+        <Image
+          src={profession.icon}
+          alt={profession.name}
+          width={40}
+          height={40}
+          className="h-10 w-10 rounded-lg border bg-muted object-cover"
+        />
       ) : (
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-sm font-semibold">
           {profession.name.charAt(0).toUpperCase()}

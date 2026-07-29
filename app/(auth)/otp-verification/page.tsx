@@ -1,6 +1,6 @@
 "use client"
 
-import { useVerifyForgotOtpMutation, useResendResetCodeMutation } from "@/app/redux-query/services/authApis"
+import { useVerifyForgotOtpMutation, useResendResetCodeMutation } from "@/lib/redux/services/authApis"
 import { AuthCard } from "@/components/auth/auth-card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"

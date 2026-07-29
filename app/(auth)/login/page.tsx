@@ -1,6 +1,7 @@
 "use client";
 
-import { useSignInMutation } from "@/app/redux-query/services/authApis";
+import { useSignInMutation } from "@/lib/redux/services/authApis";
+import { setAuthToken } from "@/lib/actions/auth";
 import { LoadingScreen } from "@/components/loading-screen";
 import Link from "next/link";
 import Image from "next/image";
@@ -41,7 +42,10 @@ export default function LoginPage() {
       if (!res?.success) {
         throw new Error(res?.message || "Login failed");
       }
-      localStorage.setItem("accessToken", res?.data?.accessToken);
+      if (res?.data?.accessToken) {
+        localStorage.setItem("accessToken", res?.data?.accessToken);
+        await setAuthToken(res.data.accessToken);
+      }
       toast.success(res?.message || "Sign in successful");
       router.push("/");
     } catch (error: any) {

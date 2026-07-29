@@ -1,9 +1,9 @@
 "use client"
 
-import { useCreateCoffeConnectMutation, useDeleteCoffeConnectMutation, useGetCoffeConnectQuery, useUpdateCoffeConnectMutation } from "@/app/redux-query/services/coffeConnectApis"
-import { CreateEventPayload, UpdateEventPayload } from "@/app/redux-query/services/eventApiHelpers"
-import { useCreateLunchAndLearnMutation, useDeleteLunchAndLearnMutation, useGetLunchAndLearnQuery, useUpdateLunchAndLearnMutation } from "@/app/redux-query/services/lunchAndLearnApis"
-import { useCreateSocialEventMutation, useDeleteSocialEventMutation, useGetSocialEventQuery, useUpdateSocialEventMutation } from "@/app/redux-query/services/socialEventApis"
+import { useCreateCoffeConnectMutation, useDeleteCoffeConnectMutation, useGetCoffeConnectQuery, useUpdateCoffeConnectMutation } from "@/lib/redux/services/coffeConnectApis"
+import { CreateEventPayload, UpdateEventPayload } from "@/lib/redux/services/eventApiHelpers"
+import { useCreateLunchAndLearnMutation, useDeleteLunchAndLearnMutation, useGetLunchAndLearnQuery, useUpdateLunchAndLearnMutation } from "@/lib/redux/services/lunchAndLearnApis"
+import { useCreateSocialEventMutation, useDeleteSocialEventMutation, useGetSocialEventQuery, useUpdateSocialEventMutation } from "@/lib/redux/services/socialEventApis"
 import { EventFormData } from "@/components/dashboard/EventForm"
 import { EventRow, EventType, normalizeEvent } from "@/components/dashboard/events/types"
 import { useMemo } from "react"

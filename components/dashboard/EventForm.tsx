@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import {
   DialogFooter,
@@ -142,7 +143,7 @@ export function EventForm({ initial = EMPTY_FORM, onSubmit, onCancel, isEdit, is
         <Label htmlFor="event_image">Event Image {!isEdit && <span className="text-destructive">*</span>}</Label>
         {imagePreview && (
           <div className="overflow-hidden rounded border bg-muted">
-            <img src={imagePreview} alt="Event image preview" className="h-48 w-full object-cover" />
+            <Image src={imagePreview} alt="Event image preview" width={600} height={200} className="h-48 w-full object-cover" />
           </div>
         )}
         <Input

@@ -1,6 +1,6 @@
 "use client"
 
-import { useGetMyProfileQuery } from '@/app/redux-query/services/profileApis'
+import { useGetMyProfileQuery } from '@/lib/redux/services/profileApis'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -25,6 +25,8 @@ const navItems = [
   { label: "Chat Management", href: "/chat-management" },
   { label: "Chat Assets", href: "/chat-assets" },
 ]
+
+import { removeAuthToken } from "@/lib/actions/auth";
 
 export function Header() {
   const pathname = usePathname()
@@ -99,12 +101,18 @@ export function Header() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild className="text-destructive">
-                  <h1 onClick={() => {
-                    localStorage.removeItem("accessToken")
-                    localStorage.removeItem("refreshToken")
-                    localStorage.removeItem("user")
-                    router.push("/login")
-                  }}>Log out</h1>
+                  <button
+                    className="w-full text-left cursor-pointer"
+                    onClick={async () => {
+                      localStorage.removeItem("accessToken")
+                      localStorage.removeItem("refreshToken")
+                      localStorage.removeItem("user")
+                      await removeAuthToken()
+                      router.push("/login")
+                    }}
+                  >
+                    Log out
+                  </button>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

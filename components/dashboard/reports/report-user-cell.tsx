@@ -1,4 +1,4 @@
-import { ReportUser } from "@/app/redux-query/services/reportApis"
+import { ReportUser } from "@/lib/redux/services/reportApis"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export function ReportUserCell({ user }: { user: ReportUser }) {
