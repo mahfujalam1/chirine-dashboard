@@ -1,15 +1,21 @@
-import { Card, CardContent } from "@/components/ui/card"
-import type { LucideIcon } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card";
+import type { LucideIcon } from "lucide-react";
 
 interface MetricCardProps {
-  title: string
-  value: string
-  change?: string
-  isPositiveOutcome: boolean
-  icon: LucideIcon
+  title: string;
+  value: string;
+  change?: string;
+  isPositiveOutcome: boolean;
+  icon: LucideIcon;
 }
 
-export function MetricCard({ title, value, change, isPositiveOutcome, icon: Icon }: MetricCardProps) {
+export function MetricCard({
+  title,
+  value,
+  change,
+  isPositiveOutcome,
+  icon: Icon,
+}: MetricCardProps) {
   return (
     <Card className="bg-card border border-border cursor-pointer  transition-shadow">
       <CardContent className="p-5">
@@ -23,8 +29,11 @@ export function MetricCard({ title, value, change, isPositiveOutcome, icon: Icon
         <div className="flex items-center gap-2">
           {change && (
             <span
-              className={`text-xs font-medium ${isPositiveOutcome ? "text-(--color-positive)" : "text-(--color-negative)"
-                }`}
+              className={`text-xs font-medium ${
+                isPositiveOutcome
+                  ? "text-(--color-positive)"
+                  : "text-(--color-negative)"
+              }`}
             >
               {change} WoW
             </span>
@@ -32,5 +41,5 @@ export function MetricCard({ title, value, change, isPositiveOutcome, icon: Icon
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

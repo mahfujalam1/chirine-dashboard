@@ -1,9 +1,16 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 import React, { useMemo, useState } from "react";
-
 
 export type SortOrder = "asc" | "desc" | null;
 
@@ -37,7 +44,6 @@ export interface DataTableProps<T extends object = Record<string, unknown>> {
   stickyHeader?: boolean;
 }
 
-
 function getAlignClass(align?: "left" | "center" | "right") {
   return align === "right"
     ? "text-right"
@@ -46,7 +52,10 @@ function getAlignClass(align?: "left" | "center" | "right") {
       : "text-left";
 }
 
-function getCellValue<T extends object>(record: T, key: keyof T | (keyof T)[]): string {
+function getCellValue<T extends object>(
+  record: T,
+  key: keyof T | (keyof T)[],
+): string {
   const r = record as Record<keyof T, unknown>;
   if (Array.isArray(key)) {
     return key
@@ -57,19 +66,20 @@ function getCellValue<T extends object>(record: T, key: keyof T | (keyof T)[]): 
   return r[key] != null ? String(r[key]) : "";
 }
 
-
 function SkeletonRow({ colCount }: { colCount: number }) {
   return (
     <tr className="border-b border-border">
       {Array.from({ length: colCount }).map((_, i) => (
         <td key={i} className="py-3 px-3">
-          <div className="h-4 rounded bg-muted animate-pulse" style={{ width: `${60 + Math.random() * 30}%` }} />
+          <div
+            className="h-4 rounded bg-muted animate-pulse"
+            style={{ width: `${60 + Math.random() * 30}%` }}
+          />
         </td>
       ))}
     </tr>
   );
 }
-
 
 interface PaginationProps {
   page: number;
@@ -83,12 +93,17 @@ function Pagination({ page, total, limit, onChange }: PaginationProps) {
   const from = Math.min((page - 1) * limit + 1, total);
   const to = Math.min(page * limit, total);
 
-
   const pages = useMemo<(number | "…")[]>(() => {
-    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    if (totalPages <= 7)
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
     const arr: (number | "…")[] = [1];
     if (page > 3) arr.push("…");
-    for (let p = Math.max(2, page - 1); p <= Math.min(totalPages - 1, page + 1); p++) arr.push(p);
+    for (
+      let p = Math.max(2, page - 1);
+      p <= Math.min(totalPages - 1, page + 1);
+      p++
+    )
+      arr.push(p);
     if (page < totalPages - 2) arr.push("…");
     arr.push(totalPages);
     return arr;
@@ -96,38 +111,57 @@ function Pagination({ page, total, limit, onChange }: PaginationProps) {
 
   return (
     <div className="flex items-center justify-between gap-1 pt-4 flex-wrap">
-      <p className="text-sm text-muted-foreground">
+      {/* <p className="text-sm text-muted-foreground">
         Showing <span className="font-medium text-foreground">{from}–{to}</span> of{" "}
         <span className="font-medium text-foreground">{total}</span> results
-      </p>
+      </p> */}
       <div className="flex items-center gap-1">
         {/* First */}
-        <PagBtn onClick={() => onChange(1)} disabled={page === 1} title="First page">
+        <PagBtn
+          onClick={() => onChange(1)}
+          disabled={page === 1}
+          title="First page"
+        >
           <ChevronsLeft className="h-3.5 w-3.5" />
         </PagBtn>
         {/* Prev */}
-        <PagBtn onClick={() => onChange(page - 1)} disabled={page === 1} title="Previous page">
+        <PagBtn
+          onClick={() => onChange(page - 1)}
+          disabled={page === 1}
+          title="Previous page"
+        >
           <ChevronLeft className="h-3.5 w-3.5" />
         </PagBtn>
 
         {pages.map((p, i) =>
           p === "…" ? (
-            <span key={`ellipsis-${i}`} className="px-1 text-muted-foreground text-sm select-none">
+            <span
+              key={`ellipsis-${i}`}
+              className="px-1 text-muted-foreground text-sm select-none"
+            >
               …
             </span>
           ) : (
             <PagBtn key={p} onClick={() => onChange(p)} active={p === page}>
               {p}
             </PagBtn>
-          )
+          ),
         )}
 
         {/* Next */}
-        <PagBtn onClick={() => onChange(page + 1)} disabled={page === totalPages} title="Next page">
+        <PagBtn
+          onClick={() => onChange(page + 1)}
+          disabled={page === totalPages}
+          title="Next page"
+        >
           <ChevronRight className="h-3.5 w-3.5" />
         </PagBtn>
         {/* Last */}
-        <PagBtn onClick={() => onChange(totalPages)} disabled={page === totalPages} title="Last page">
+        <PagBtn
+          onClick={() => onChange(totalPages)}
+          disabled={page === totalPages}
+          title="Last page"
+        >
           <ChevronsRight className="h-3.5 w-3.5" />
         </PagBtn>
       </div>
@@ -159,7 +193,7 @@ function PagBtn({
         active
           ? "bg-primary text-primary-foreground "
           : "text-foreground hover:bg-muted",
-        disabled && "opacity-40 pointer-events-none"
+        disabled && "opacity-40 pointer-events-none",
       )}
     >
       {children}
@@ -167,13 +201,12 @@ function PagBtn({
   );
 }
 
-
 function SortIcon({ order }: { order: SortOrder }) {
   if (order === "asc") return <ArrowUp className="h-3.5 w-3.5 text-primary" />;
-  if (order === "desc") return <ArrowDown className="h-3.5 w-3.5 text-primary" />;
+  if (order === "desc")
+    return <ArrowDown className="h-3.5 w-3.5 text-primary" />;
   return <ArrowUpDown className="h-3.5 w-3.5 opacity-40" />;
 }
-
 
 export function DataTable<T extends object>({
   data,
@@ -188,7 +221,6 @@ export function DataTable<T extends object>({
   className,
   stickyHeader = false,
 }: DataTableProps<T>) {
-
   const [internalPage, setInternalPage] = useState(1);
 
   const [sortKey, setSortKey] = useState<keyof T | null>(null);
@@ -197,10 +229,8 @@ export function DataTable<T extends object>({
   const isServerPaginated = !!onPageChange;
   const currentPage = meta ? (isServerPaginated ? meta.page : internalPage) : 1;
 
-
   const processedData = useMemo(() => {
     let rows = [...data];
-
 
     if (!onSortChange && sortKey && sortOrder) {
       rows.sort((a, b) => {
@@ -214,14 +244,21 @@ export function DataTable<T extends object>({
       });
     }
 
-
     if (meta && !isServerPaginated) {
       const start = (internalPage - 1) * meta.limit;
       rows = rows.slice(start, start + meta.limit);
     }
 
     return rows;
-  }, [data, sortKey, sortOrder, onSortChange, meta, isServerPaginated, internalPage]);
+  }, [
+    data,
+    sortKey,
+    sortOrder,
+    onSortChange,
+    meta,
+    isServerPaginated,
+    internalPage,
+  ]);
 
   function handleSort(col: ColumnDef<T>) {
     if (!col.sortKey) return;
@@ -243,9 +280,7 @@ export function DataTable<T extends object>({
   }
 
   const showPagination = !!meta;
-  const effectiveMeta = meta
-    ? { ...meta, page: currentPage }
-    : null;
+  const effectiveMeta = meta ? { ...meta, page: currentPage } : null;
 
   return (
     <div className={cn("w-full space-y-0", className)}>
@@ -253,7 +288,12 @@ export function DataTable<T extends object>({
       <div className={cn("w-full overflow-auto rounded border border-border")}>
         <table className="w-full bg-white caption-bottom text-sm">
           {/* ── Head ── */}
-          <thead className={cn(stickyHeader && "sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60")}>
+          <thead
+            className={cn(
+              stickyHeader &&
+                "sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60",
+            )}
+          >
             <tr className="border-b border-border bg-muted/40">
               {columns.map((col, ci) => {
                 const isSorted = col.sortKey && sortKey === col.sortKey;
@@ -264,13 +304,21 @@ export function DataTable<T extends object>({
                       "py-3 px-3 font-medium text-muted-foreground whitespace-nowrap",
                       getAlignClass(col.align),
                       col.width,
-                      col.sortKey && "cursor-pointer select-none hover:text-foreground transition-colors"
+                      col.sortKey &&
+                        "cursor-pointer select-none hover:text-foreground transition-colors",
                     )}
                     onClick={() => handleSort(col)}
                   >
-                    <div className={cn("inline-flex items-center gap-1.5", col.align === "right" && "flex-row-reverse")}>
+                    <div
+                      className={cn(
+                        "inline-flex items-center gap-1.5",
+                        col.align === "right" && "flex-row-reverse",
+                      )}
+                    >
                       {col.title}
-                      {col.sortKey && <SortIcon order={isSorted ? sortOrder : null} />}
+                      {col.sortKey && (
+                        <SortIcon order={isSorted ? sortOrder : null} />
+                      )}
                     </div>
                   </th>
                 );
@@ -286,7 +334,10 @@ export function DataTable<T extends object>({
               ))
             ) : processedData.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="py-16 text-center text-muted-foreground">
+                <td
+                  colSpan={columns.length}
+                  className="py-16 text-center text-muted-foreground"
+                >
                   {emptyText}
                 </td>
               </tr>
@@ -299,7 +350,7 @@ export function DataTable<T extends object>({
                     onClick={() => onRowClick?.(record, rowIndex)}
                     className={cn(
                       "border-b border-border last:border-0 transition-colors",
-                      onRowClick && "cursor-pointer hover:bg-muted/50"
+                      onRowClick && "cursor-pointer hover:bg-muted/50",
                     )}
                   >
                     {columns.map((col, ci) => (
@@ -308,7 +359,7 @@ export function DataTable<T extends object>({
                         className={cn(
                           "py-3 px-3 align-middle",
                           getAlignClass(col.align),
-                          col.className
+                          col.className,
                         )}
                       >
                         {col.renderItem
