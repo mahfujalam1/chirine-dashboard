@@ -8,18 +8,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/DataTable"
 import { Input } from "@/components/ui/input"
 import UserDetails from "@/components/ui/user-details"
+import { useDebounce } from '@/hooks/use-debounce'
 import { getStatusColor } from '@/lib/utils'
 import { User } from '@/types/userApis'
 import { Eye, ListTodo, Search, ShieldBan, ShieldCheck, Users } from "lucide-react"
 import { useRouter } from 'next/navigation'
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 type FilterType = 'All' | 'Pending' | 'Active' | 'Blocked'
 
 export default function TherapistsClientView() {
   const [activeFilter, setActiveFilter] = useState<FilterType>('All')
   const [searchQuery, setSearchQuery] = useState("")
+  const [page, setPage] = useState(1)
+  const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const router = useRouter()
+
+  useEffect(() => {
+    setPage(1)
+  }, [activeFilter, debouncedSearchQuery])
 
   const getApiStatus = (filter: FilterType): string => {
     switch (filter) {
@@ -37,7 +44,8 @@ export default function TherapistsClientView() {
 
   const { data, isLoading, error, isFetching } = useGetAllTherapistsQuery({
     status: getApiStatus(activeFilter),
-    searchTerm: searchQuery
+    searchTerm: debouncedSearchQuery,
+    page,
   })
 
   const userData: User[] = useMemo(() => data?.data?.result ?? [], [data])
@@ -204,9 +212,10 @@ export default function TherapistsClientView() {
               ]}
               meta={{
                 limit: data?.data?.meta?.limit || 10,
-                total: data?.data?.meta?.totalPage || 0,
-                page: data?.data?.meta?.page || 1,
+                total: data?.data?.meta?.total || 0,
+                page: data?.data?.meta?.page || page,
               }}
+              onPageChange={setPage}
             />
           </CardContent>
         </Card>

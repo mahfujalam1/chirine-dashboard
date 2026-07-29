@@ -31,12 +31,13 @@ import {
   Trash2,
   X,
 } from "lucide-react"
-import { useMemo, useState } from "react"
+import { useDeferredValue, useMemo, useState } from "react"
 import { toast } from 'sonner'
 
 export default function ChatAssetsClientView() {
   const [selectedFolder, setSelectedFolder] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState("")
+  const deferredSearchQuery = useDeferredValue(searchQuery)
   const [selectedTag, setSelectedTag] = useState<string>("all")
   const [selectedAssetIds, setSelectedAssetIds] = useState<string[]>([])
 
@@ -69,8 +70,8 @@ export default function ChatAssetsClientView() {
     return assets.filter((asset: any) => {
       if (selectedFolder !== "all" && asset.folderName !== selectedFolder) return false;
       if (selectedTag !== "all" && !asset.tags?.includes(selectedTag)) return false;
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase()
+      if (deferredSearchQuery.trim()) {
+        const q = deferredSearchQuery.toLowerCase()
         const matchLabel = asset.label?.toLowerCase().includes(q)
         const matchFolder = asset.folderName?.toLowerCase().includes(q)
         const matchTags = asset.tags?.some((t: string) => t.toLowerCase().includes(q))
@@ -78,7 +79,7 @@ export default function ChatAssetsClientView() {
       }
       return true
     })
-  }, [assets, selectedFolder, selectedTag, searchQuery])
+  }, [assets, selectedFolder, selectedTag, deferredSearchQuery])
 
   const isAllSelected =
     filteredAssets.length > 0 &&

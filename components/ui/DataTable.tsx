@@ -286,7 +286,7 @@ export function DataTable<T extends object>({
     <div className={cn("w-full space-y-0", className)}>
       {/* Table wrapper */}
       <div className={cn("w-full overflow-auto rounded border border-border")}>
-        <table className="w-full bg-white caption-bottom text-sm">
+        <table className="w-full bg-card caption-bottom text-sm">
           {/* ── Head ── */}
           <thead
             className={cn(

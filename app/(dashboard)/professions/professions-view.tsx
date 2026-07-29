@@ -38,7 +38,7 @@ export default function ProfessionsClientView() {
   const [formOpen, setFormOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Profession | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Profession | null>(null);
-  const limit = 999;
+  const limit = 10;
 
   const professionsQuery = useGetProfessionsQuery({ page, limit });
   const [createProfession, createState] = useCreateProfessionMutation();

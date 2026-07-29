@@ -1,7 +1,9 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 
-export const baseUrl = "https://v59d514q-8000.aue.devtunnels.ms/api/v1";
+export const baseUrl =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://v59d514q-8000.aue.devtunnels.ms/api/v1";
 
 const getCookie = (name: string) => {
   if (typeof document === "undefined") return null;
@@ -35,7 +37,8 @@ const baseApis = createApi({
     "report",
     "profile",
     "profession",
-    "governingBody"
+    "governingBody",
+    "dashboard",
   ],
   endpoints: () => ({}),
 });

@@ -8,6 +8,7 @@ const dashboardApis = baseApis.injectEndpoints({
         method: 'GET',
         params,
       }),
+      providesTags: ['dashboard'],
     }),
   }),
 })
