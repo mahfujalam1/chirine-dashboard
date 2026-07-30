@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import * as React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import {
   ChevronDown,
   LayoutDashboard,
@@ -18,31 +18,32 @@ import {
   Menu,
   LogOut,
   User,
-} from "lucide-react"
+  Settings,
+} from "lucide-react";
 
-import { useGetMyProfileQuery } from "@/lib/redux/services/profileApis"
-import { removeAuthToken } from "@/lib/actions/auth"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { useGetMyProfileQuery } from "@/lib/redux/services/profileApis";
+import { removeAuthToken } from "@/lib/actions/auth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet"
+} from "@/components/ui/sheet";
 
 export interface NavItem {
-  label: string
-  href: string
-  icon: React.ComponentType<{ className?: string }>
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 const navItems: NavItem[] = [
@@ -55,38 +56,38 @@ const navItems: NavItem[] = [
   { label: "Reports", href: "/reports", icon: FileText },
   { label: "Chat Management", href: "/chat-management", icon: MessageSquare },
   { label: "Chat Assets", href: "/chat-assets", icon: FolderKanban },
-]
+];
 
 const fallbackAvatar =
-  "https://static.vecteezy.com/system/resources/previews/042/332/098/non_2x/default-avatar-profile-icon-grey-photo-placeholder-female-no-photo-images-for-unfilled-user-profile-greyscale-illustration-for-socail-media-web-vector.jpg"
+  "https://static.vecteezy.com/system/resources/previews/042/332/098/non_2x/default-avatar-profile-icon-grey-photo-placeholder-female-no-photo-images-for-unfilled-user-profile-greyscale-illustration-for-socail-media-web-vector.jpg";
 
 function HeaderInner() {
-  const pathname = usePathname()
-  const router = useRouter()
-  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
-  const { data, isLoading } = useGetMyProfileQuery()
-  const profile = data?.data
+  const pathname = usePathname();
+  const router = useRouter();
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const { data, isLoading } = useGetMyProfileQuery();
+  const profile = data?.data;
 
   // Close mobile drawer on route change
   React.useEffect(() => {
-    setMobileMenuOpen(false)
-  }, [pathname])
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   const isActive = React.useCallback(
     (href: string) => {
-      if (href === "/") return pathname === "/"
-      return pathname === href || pathname.startsWith(`${href}/`)
+      if (href === "/") return pathname === "/";
+      return pathname === href || pathname.startsWith(`${href}/`);
     },
-    [pathname]
-  )
+    [pathname],
+  );
 
   const handleLogout = React.useCallback(async () => {
-    localStorage.removeItem("accessToken")
-    localStorage.removeItem("refreshToken")
-    localStorage.removeItem("user")
-    await removeAuthToken()
-    router.push("/login")
-  }, [router])
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
+    await removeAuthToken();
+    router.push("/login");
+  }, [router]);
 
   return (
     <header className="flex items-center justify-between mb-6 md:mb-8">
@@ -108,7 +109,7 @@ function HeaderInner() {
       {/* Desktop Navigation (Preserved for Desktop View) */}
       <nav className="hidden xl:flex items-center bg-card rounded-full px-2 py-1.5 border border-border shadow-xs">
         {navItems.map((item) => {
-          const active = isActive(item.href)
+          const active = isActive(item.href);
           return (
             <Link
               key={item.href}
@@ -121,7 +122,7 @@ function HeaderInner() {
             >
               {item.label}
             </Link>
-          )
+          );
         })}
       </nav>
 
@@ -175,6 +176,12 @@ function HeaderInner() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
+              <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
+                <Link href="/settings" className="flex items-center gap-2">
+                  <Settings className="w-4 h-4 text-muted-foreground" />
+                  <span>Setting</span>
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={handleLogout}
                 className="text-destructive focus:text-destructive cursor-pointer flex items-center gap-2"
@@ -199,11 +206,18 @@ function HeaderInner() {
                 <Menu className="h-5 w-5 text-foreground" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[85vw] max-w-sm p-0 flex flex-col justify-between">
+            <SheetContent
+              side="right"
+              className="w-[85vw] max-w-sm p-0 flex flex-col justify-between"
+            >
               <div>
                 {/* Mobile Drawer Header */}
                 <SheetHeader className="p-4 border-b border-border flex flex-row items-center justify-between">
-                  <Link href="/" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                  <Link
+                    href="/"
+                    className="flex items-center gap-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
                     <Image
                       src="/brand.svg"
                       width={36}
@@ -221,7 +235,10 @@ function HeaderInner() {
                 {profile && (
                   <div className="p-4 bg-muted/40 border-b border-border flex items-center gap-3">
                     <Avatar className="h-10 w-10 border border-border shrink-0">
-                      <AvatarImage src={profile?.profileImage || fallbackAvatar} alt={profile?.fullName} />
+                      <AvatarImage
+                        src={profile?.profileImage || fallbackAvatar}
+                        alt={profile?.fullName}
+                      />
                       <AvatarFallback className="bg-primary/10 text-primary font-semibold">
                         {profile?.fullName?.charAt(0)?.toUpperCase()}
                       </AvatarFallback>
@@ -230,7 +247,9 @@ function HeaderInner() {
                       <p className="text-sm font-semibold text-foreground truncate">
                         {profile?.fullName}
                       </p>
-                      <p className="text-xs text-muted-foreground">Admin Account</p>
+                      <p className="text-xs text-muted-foreground">
+                        Admin Account
+                      </p>
                     </div>
                   </div>
                 )}
@@ -238,8 +257,8 @@ function HeaderInner() {
                 {/* Mobile Scrollable Navigation Links */}
                 <div className="p-3 space-y-1 max-h-[calc(100vh-220px)] overflow-y-auto">
                   {navItems.map((item) => {
-                    const active = isActive(item.href)
-                    const IconComponent = item.icon
+                    const active = isActive(item.href);
+                    const IconComponent = item.icon;
                     return (
                       <Link
                         key={item.href}
@@ -251,13 +270,15 @@ function HeaderInner() {
                             : "text-muted-foreground hover:bg-accent hover:text-foreground"
                         }`}
                       >
-                        <IconComponent className={`h-4 w-4 shrink-0 ${active ? "text-white" : "text-muted-foreground"}`} />
+                        <IconComponent
+                          className={`h-4 w-4 shrink-0 ${active ? "text-white" : "text-muted-foreground"}`}
+                        />
                         <span className="flex-1 truncate">{item.label}</span>
                         {active && (
                           <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
                         )}
                       </Link>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -274,8 +295,8 @@ function HeaderInner() {
                 </Link>
                 <button
                   onClick={() => {
-                    setMobileMenuOpen(false)
-                    handleLogout()
+                    setMobileMenuOpen(false);
+                    handleLogout();
                   }}
                   className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
                 >
@@ -288,7 +309,7 @@ function HeaderInner() {
         </div>
       </div>
     </header>
-  )
+  );
 }
 
-export const Header = React.memo(HeaderInner)
+export const Header = React.memo(HeaderInner);
