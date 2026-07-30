@@ -15,6 +15,8 @@ import { Eye, ListTodo, Search, ShieldBan, ShieldCheck, Users } from "lucide-rea
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from "react"
 
+import { MetricCard } from "@/components/dashboard/metric-card"
+
 type FilterType = 'All' | 'Pending' | 'Active' | 'Blocked'
 
 export default function TherapistsClientView() {
@@ -67,61 +69,26 @@ export default function TherapistsClientView() {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <Card className="bg-card border border-border">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Total Therapists</span>
-              <div className="p-2 bg-muted rounded">
-                <Users className="w-4 h-4 text-muted-foreground" />
-              </div>
-            </div>
-            <p className="text-3xl font-semibold">
-              {data?.data?.stats?.totalTherapists ?? data?.data?.meta?.total ?? 0}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border border-border">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Pending</span>
-              <div className="p-2 bg-muted rounded">
-                <ListTodo className="w-4 h-4 text-muted-foreground" />
-              </div>
-            </div>
-            <p className="text-3xl font-semibold">
-              {data?.data?.stats?.pendingTherapists ?? 0}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border border-border">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Active</span>
-              <div className="p-2 bg-muted rounded">
-                <ShieldCheck className="w-4 h-4 text-muted-foreground" />
-              </div>
-            </div>
-            <p className="text-3xl font-semibold">
-              {data?.data?.stats?.activeTherapists ?? 0}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border border-border">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Blocked</span>
-              <div className="p-2 bg-muted rounded">
-                <ShieldBan className="w-4 h-4 text-muted-foreground" />
-              </div>
-            </div>
-            <p className="text-3xl font-semibold">
-              {data?.data?.stats?.blockedTherapists ?? 0}
-            </p>
-          </CardContent>
-        </Card>
+        <MetricCard
+          title="Total Therapists"
+          value={data?.data?.stats?.totalTherapists ?? data?.data?.meta?.total ?? 0}
+          icon={Users}
+        />
+        <MetricCard
+          title="Pending"
+          value={data?.data?.stats?.pendingTherapists ?? 0}
+          icon={ListTodo}
+        />
+        <MetricCard
+          title="Active"
+          value={data?.data?.stats?.activeTherapists ?? 0}
+          icon={ShieldCheck}
+        />
+        <MetricCard
+          title="Blocked"
+          value={data?.data?.stats?.blockedTherapists ?? 0}
+          icon={ShieldBan}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-6">

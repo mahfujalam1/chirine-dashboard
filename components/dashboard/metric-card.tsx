@@ -3,9 +3,9 @@ import type { LucideIcon } from "lucide-react";
 
 interface MetricCardProps {
   title: string;
-  value: string;
+  value: string | number;
   change?: string;
-  isPositiveOutcome: boolean;
+  isPositiveOutcome?: boolean;
   icon: LucideIcon;
 }
 
@@ -13,11 +13,11 @@ export function MetricCard({
   title,
   value,
   change,
-  isPositiveOutcome,
+  isPositiveOutcome = true,
   icon: Icon,
 }: MetricCardProps) {
   return (
-    <Card className="bg-card border border-border cursor-pointer  transition-shadow">
+    <Card className="bg-card border border-border cursor-pointer transition-shadow">
       <CardContent className="p-5">
         <div className="flex items-start justify-between mb-2">
           <span className="text-sm text-muted-foreground">{title}</span>

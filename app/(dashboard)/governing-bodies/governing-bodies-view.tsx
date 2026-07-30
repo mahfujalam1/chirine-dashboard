@@ -30,11 +30,7 @@ import { Plus, RefreshCw } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 
-function getErrorMessage(error: unknown, fallback: string) {
-  if (typeof error !== "object" || error === null) return fallback
-  const apiError = error as { data?: { message?: string }; message?: string }
-  return apiError.data?.message || apiError.message || fallback
-}
+import { getErrorMessage } from "@/lib/utils"
 
 export default function GoverningBodiesClientView() {
   const [professionId, setProfessionId] = useState("")

@@ -9,13 +9,9 @@ import { EventRow, EventType, normalizeEvent } from "@/components/dashboard/even
 import { useMemo } from "react"
 import { toast } from "sonner"
 
-interface ApiResponse { message?: string }
+import { getErrorMessage } from "@/lib/utils"
 
-function getErrorMessage(error: unknown, fallback: string) {
-  if (typeof error !== "object" || error === null) return fallback
-  const candidate = error as { data?: { message?: string }; message?: string }
-  return candidate.data?.message || candidate.message || fallback
-}
+interface ApiResponse { message?: string }
 
 export function useEventManagement(type: EventType) {
   const coffeeQuery = useGetCoffeConnectQuery(undefined, { skip: type !== "coffee" })
