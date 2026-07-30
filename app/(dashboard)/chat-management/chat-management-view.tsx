@@ -162,7 +162,7 @@ export default function ChatManagementClientView() {
               ))}
             </div>
             <div className="text-xs">
-              <p className="font-medium text-foreground truncate max-w-[120px]">
+              <p className="font-medium text-foreground truncate max-w-30">
                 {chat.participants[0]?.fullName || "User"}
               </p>
               <p className="text-muted-foreground text-[10px]">
