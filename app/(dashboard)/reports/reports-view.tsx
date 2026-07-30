@@ -59,22 +59,20 @@ function formatDate(value: string) {
   );
 }
 
+import { useDebounce } from "@/hooks/use-debounce";
+
 export default function ReportsClientView() {
   const [status, setStatus] = useState<ReportStatus | null>(null);
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
+  const debouncedSearch = useDebounce(search.trim(), 300);
   const [details, setDetails] = useState<Report | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
   const limit = 10;
 
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setDebouncedSearch(search.trim());
-      setPage(1);
-    }, 500);
-    return () => window.clearTimeout(timer);
-  }, [search]);
+    setPage(1);
+  }, [debouncedSearch]);
 
   const { data, isLoading, isFetching, isError, refetch } =
     useGetAllReportsQuery({

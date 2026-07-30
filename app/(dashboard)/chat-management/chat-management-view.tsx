@@ -1,6 +1,6 @@
 "use client";
 
-import { ActiveTherapist } from "@/components/dashboard/active-therapist";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { PageHeader } from "@/components/dashboard/page-header";
 import {
   AlertDialog,
@@ -25,234 +25,276 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
-  Boxes,
-  Crown,
   Eye,
-  Hash,
   MessageCircleMore,
   Search,
   ShieldCheck,
   ShieldOff,
-  X,
+  Users,
+  MessageSquare,
+  RefreshCw,
+  AlertCircle,
+  Ban,
+  UserCheck,
 } from "lucide-react";
-import { useMemo, useState, useCallback } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
-import {
-  ChatRoom,
-  ChatRoomUser,
-  ChatMessage,
-  mockChatRooms,
-} from "@/lib/mock-data/chat-rooms";
+import { getErrorMessage, getStatusColor } from "@/lib/utils";
 import {
   useBlockUnblockMutation,
   useGetChatsListQuery,
+  ChatItem,
 } from "@/lib/redux/services/chatsApis";
+import { toast } from "sonner";
 
-export type { ChatRoom, ChatRoomUser, ChatMessage };
+type StatusFilter = "All" | "Active" | "Blocked";
 
 export default function ChatManagementClientView() {
-  
-  const { data } = useGetChatsListQuery({});
-  const [
-    blockUnblock,
-    { isLoading: blockUnblockLoading, error: blockUnblockError },
-  ] = useBlockUnblockMutation();
-
-
-  const [rooms, setRooms] = useState<ChatRoom[]>(mockChatRooms);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
-  const [categoryFilter, setCategoryFilter] = useState<string>("All");
-  const [statusFilter, setStatusFilter] = useState<string>("All");
 
-  const [selectedRoom, setSelectedRoom] = useState<ChatRoom | null>(null);
-  const [actionRoom, setActionRoom] = useState<{
-    room: ChatRoom;
-    action: "pause" | "activate" | "archive";
+  const [selectedChat, setSelectedChat] = useState<ChatItem | null>(null);
+  const [actionChat, setActionChat] = useState<{
+    chat: ChatItem;
+    action: "block" | "unblock";
   } | null>(null);
 
-  const categories = useMemo(() => {
-    const set = new Set<string>();
-    rooms.forEach((r) => set.add(r.category));
-    return Array.from(set);
-  }, [rooms]);
+  // Reset page to 1 on filter or search change
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter, debouncedSearchQuery]);
 
-  const filteredRooms = useMemo(() => {
-    return rooms.filter((room) => {
-      if (categoryFilter !== "All" && room.category !== categoryFilter)
-        return false;
-      if (statusFilter !== "All" && room.status !== statusFilter) return false;
-      if (debouncedSearchQuery.trim()) {
-        const q = debouncedSearchQuery.toLowerCase();
-        const matchName = room.name.toLowerCase().includes(q);
-        const matchHost = room.host.name.toLowerCase().includes(q);
-        const matchTags = room.tags.some((t) => t.toLowerCase().includes(q));
-        if (!matchName && !matchHost && !matchTags) return false;
-      }
-      return true;
+  // RTK Query hooks
+  const { data, isLoading, isFetching, isError, refetch } =
+    useGetChatsListQuery({
+      status: statusFilter,
+      searchTerm: debouncedSearchQuery,
+      page,
+      limit: 10,
     });
-  }, [rooms, categoryFilter, statusFilter, debouncedSearchQuery]);
 
-  const stats = useMemo(() => {
-    const total = rooms.length;
-    const active = rooms.filter((r) => r.status === "Active").length;
-    const paused = rooms.filter((r) => r.status === "Paused").length;
-    const totalParticipants = rooms.reduce(
-      (acc, curr) => acc + curr.participantsCount,
-      0,
-    );
-    return { total, active, paused, totalParticipants };
-  }, [rooms]);
+  const [blockUnblock, { isLoading: isMutating }] = useBlockUnblockMutation();
 
-  const handleStatusChange = () => {
-    if (!actionRoom) return;
-    const { room, action } = actionRoom;
-    const nextStatus =
-      action === "pause"
-        ? "Paused"
-        : action === "activate"
-          ? "Active"
-          : "Archived";
+  const chats = useMemo(() => data?.data?.result ?? [], [data]);
+  const stats = data?.data?.stats;
+  const meta = data?.data?.meta;
 
-    setRooms((prev) =>
-      prev.map((r) => (r.id === room.id ? { ...r, status: nextStatus } : r)),
-    );
-    setActionRoom(null);
-  };
+  const handleBlockToggle = useCallback(async () => {
+    if (!actionChat) return;
+    const { chat, action } = actionChat;
+    const isBlocked = action === "block";
 
-  const getStatusBadge = useCallback((status: ChatRoom["status"]) => {
-    switch (status) {
-      case "Active":
-        return (
-          <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25 border-emerald-500/20">
-            Active
-          </Badge>
-        );
-      case "Paused":
-        return (
-          <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500/25 border-amber-500/20">
-            Paused
-          </Badge>
-        );
-      case "Archived":
-        return <Badge variant="secondary">Archived</Badge>;
+    try {
+      const res = await blockUnblock({
+        id: chat._id,
+        body: { isBlocked },
+      }).unwrap();
+
+      toast.success(
+        res?.message ||
+          `Chat channel has been ${action === "block" ? "blocked" : "unblocked"} successfully.`,
+      );
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, `Failed to ${action} chat channel.`));
+    } finally {
+      setActionChat(null);
     }
-  }, []);
+  }, [actionChat, blockUnblock]);
 
-  const columns: ColumnDef<ChatRoom>[] = useMemo(
+  const columns = useMemo<ColumnDef<ChatItem>[]>(
     () => [
       {
-        key: "name",
-        title: "Chat Room",
-        renderItem: (room) => (
-          <div className="flex items-center gap-3">
-            <div className="size-10 rounded-lg bg-teal-500/10 text-[#00ACA7] flex items-center justify-center font-bold text-sm shrink-0">
-              #
+        key: "isGroup",
+        title: "Channel / Participants",
+        renderItem: (chat) => {
+          const title = chat.isGroup
+            ? chat.groupName || "Group Chat"
+            : chat.participants.map((p) => p.fullName).join(" & ") ||
+              "Direct Chat";
+          const subtitle = chat.lastMessage?.text || "No recent messages";
+
+          return (
+            <div className="flex items-center gap-3">
+              <div className="size-10 rounded-lg bg-teal-500/10 text-[#00ACA7] flex items-center justify-center font-bold text-sm shrink-0">
+                {chat.isGroup ? "#" : <MessageSquare className="size-4" />}
+              </div>
+              <div className="max-w-xs overflow-hidden">
+                <p className="font-semibold text-sm leading-tight text-foreground truncate">
+                  {title}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                  {subtitle}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="font-semibold text-sm leading-tight text-foreground">
-                {room.name}
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5 max-w-xs truncate">
-                {room.description}
-              </p>
-            </div>
-          </div>
-        ),
+          );
+        },
       },
       {
-        key: "category",
-        title: "Category",
-        renderItem: (room) => (
+        key: "isGroup",
+        title: "Type",
+        renderItem: (chat) => (
           <Badge variant="outline" className="font-normal">
-            {room.category}
+            {chat.isGroup ? "Group Chat" : "Direct Chat"}
           </Badge>
         ),
       },
       {
-        key: "host",
-        title: "Host / Moderator",
-        renderItem: (room) => (
+        key: "participants",
+        title: "Participants",
+        renderItem: (chat) => (
           <div className="flex items-center gap-2">
-            <Avatar className="size-7">
-              <AvatarImage src={room.host.avatar} />
-              <AvatarFallback className="text-xs">
-                {room.host.name.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
+            <div className="flex -space-x-2 overflow-hidden">
+              {chat.participants.slice(0, 3).map((p) => (
+                <Avatar
+                  key={p._id}
+                  className="size-7 border-2 border-background shrink-0"
+                >
+                  <AvatarImage
+                    src={p.profileImage || undefined}
+                    alt={p.fullName}
+                  />
+                  <AvatarFallback className="text-[10px] bg-muted">
+                    {p.fullName?.charAt(0)?.toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar>
+              ))}
+            </div>
             <div className="text-xs">
-              <p className="font-medium">{room.host.name}</p>
+              <p className="font-medium text-foreground truncate max-w-[120px]">
+                {chat.participants[0]?.fullName || "User"}
+              </p>
               <p className="text-muted-foreground text-[10px]">
-                {room.host.role}
+                {chat.participants.length} member
+                {chat.participants.length > 1 ? "s" : ""}
               </p>
             </div>
           </div>
         ),
       },
       {
-        key: "participantsCount",
-        title: "Members",
-        renderItem: (room) => (
-          <span className="text-xs font-medium">
-            {room.participantsCount} / {room.maxParticipants}
+        key: "isBlocked",
+        title: "Status",
+        renderItem: (chat) => (
+          <Badge
+            className={getStatusColor(chat.isBlocked ? "BLOCKED" : "ACTIVE")}
+          >
+            {chat.isBlocked ? "Blocked" : "Active"}
+          </Badge>
+        ),
+      },
+      {
+        key: "createdAt",
+        title: "Created Date",
+        renderItem: (chat) => (
+          <span className="text-xs text-muted-foreground text-nowrap">
+            {chat.createdAt
+              ? new Date(chat.createdAt).toLocaleDateString()
+              : "-"}
           </span>
         ),
       },
       {
-        key: "status",
-        title: "Status",
-        renderItem: (room) => getStatusBadge(room.status),
-      },
-      {
-        key: "id",
+        key: "_id",
         title: "Actions",
         align: "right",
-        renderItem: (room) => (
+        renderItem: (chat) => (
           <div className="flex items-center justify-end gap-1">
             <Button
               size="icon"
               variant="ghost"
-              title="Inspect Chat Room"
-              onClick={() => setSelectedRoom(room)}
+              aria-label="Inspect chat channel"
+              title="Inspect Chat Channel"
+              className="cursor-pointer"
+              onClick={() => setSelectedChat(chat)}
             >
               <Eye className="size-4" />
             </Button>
 
-            {room.status === "Active" ? (
+            {chat.isBlocked ? (
               <Button
                 size="icon"
                 variant="ghost"
-                title="Pause Room"
-                className="text-amber-600 hover:text-amber-700"
-                onClick={() => setActionRoom({ room, action: "pause" })}
+                aria-label="Unblock chat channel"
+                title="Unblock Channel"
+                className="text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                onClick={() => setActionChat({ chat, action: "unblock" })}
               >
-                <ShieldOff className="size-4" />
+                <ShieldCheck className="size-4" />
               </Button>
             ) : (
               <Button
                 size="icon"
                 variant="ghost"
-                title="Activate Room"
-                className="text-emerald-600 hover:text-emerald-700"
-                onClick={() => setActionRoom({ room, action: "activate" })}
+                aria-label="Block chat channel"
+                title="Block Channel"
+                className="text-red-600 hover:text-red-700 cursor-pointer"
+                onClick={() => setActionChat({ chat, action: "block" })}
               >
-                <ShieldCheck className="size-4" />
+                <ShieldOff className="size-4" />
               </Button>
             )}
           </div>
         ),
       },
     ],
-    [getStatusBadge],
+    [],
   );
+
+  const filterButtons: {
+    label: string;
+    value: StatusFilter;
+    icon: React.ReactNode;
+  }[] = [
+    {
+      label: "All Channels",
+      value: "All",
+      icon: <MessageCircleMore className="w-4 h-4" />,
+    },
+    {
+      label: "Active",
+      value: "Active",
+      icon: <UserCheck className="w-4 h-4" />,
+    },
+    { label: "Blocked", value: "Blocked", icon: <Ban className="w-4 h-4" /> },
+  ];
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-125 p-6 text-center">
+        <div className="p-4 bg-red-500/10 text-red-500 rounded-full mb-4 animate-bounce">
+          <AlertCircle className="w-12 h-12" />
+        </div>
+        <h3 className="text-xl font-semibold mb-2">
+          Failed to load chat channels
+        </h3>
+        <p className="text-muted-foreground max-w-md mb-4">
+          We encountered an issue while connecting to the chat management
+          servers.
+        </p>
+        <Button
+          onClick={() => refetch()}
+          className="flex items-center gap-2 bg-[#00ACA7] hover:bg-[#009691] text-white transition-colors cursor-pointer"
+          disabled={isFetching}
+        >
+          <RefreshCw
+            className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`}
+          />
+          {isFetching ? "Retrying..." : "Try Again"}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <>
       <PageHeader
         title="Chat Management & Supervision"
-        description="Monitor peer support chat channels, inspect activity logs, and moderate active discussions."
+        description="Monitor active chat channels, direct messages, and participant safety."
       />
 
+      {/* Top Metrics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card className="bg-card border-border">
           <CardContent className="p-5 flex items-center justify-between">
@@ -260,10 +302,12 @@ export default function ChatManagementClientView() {
               <p className="text-xs text-muted-foreground font-medium">
                 Total Chat Channels
               </p>
-              <h3 className="text-2xl font-bold mt-1">{stats.total}</h3>
+              <h3 className="text-2xl font-bold mt-1">
+                {stats?.totalRooms ?? meta?.total ?? 0}
+              </h3>
             </div>
             <div className="size-10 rounded-xl bg-teal-500/10 text-[#00ACA7] flex items-center justify-center">
-              <Boxes className="size-5" />
+              <MessageSquare className="size-5" />
             </div>
           </CardContent>
         </Card>
@@ -275,7 +319,7 @@ export default function ChatManagementClientView() {
                 Active Channels
               </p>
               <h3 className="text-2xl font-bold mt-1 text-emerald-600">
-                {stats.active}
+                {(stats?.totalRooms ?? 0) - (stats?.blockedRooms ?? 0)}
               </h3>
             </div>
             <div className="size-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
@@ -288,13 +332,13 @@ export default function ChatManagementClientView() {
           <CardContent className="p-5 flex items-center justify-between">
             <div>
               <p className="text-xs text-muted-foreground font-medium">
-                Paused Channels
+                Blocked Channels
               </p>
-              <h3 className="text-2xl font-bold mt-1 text-amber-600">
-                {stats.paused}
+              <h3 className="text-2xl font-bold mt-1 text-red-600">
+                {stats?.blockedRooms ?? 0}
               </h3>
             </div>
-            <div className="size-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
+            <div className="size-10 rounded-xl bg-red-500/10 text-red-600 flex items-center justify-center">
               <ShieldOff className="size-5" />
             </div>
           </CardContent>
@@ -304,184 +348,214 @@ export default function ChatManagementClientView() {
           <CardContent className="p-5 flex items-center justify-between">
             <div>
               <p className="text-xs text-muted-foreground font-medium">
-                Active Participants
+                Group Channels
               </p>
-              <h3 className="text-2xl font-bold mt-1">
-                {stats.totalParticipants}
+              <h3 className="text-2xl font-bold mt-1 text-blue-600">
+                {stats?.totalGroups ?? 0}
               </h3>
             </div>
             <div className="size-10 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center">
-              <MessageCircleMore className="size-5" />
+              <Users className="size-5" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <div className="lg:col-span-8">
-          <Card className="bg-card border-border">
-            <CardHeader className="pb-3">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <CardTitle className="text-base font-semibold">
-                  Live Chat Rooms
-                </CardTitle>
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <div className="relative flex-1 sm:w-64">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search channels or hosts..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-9 h-9 text-xs"
-                    />
-                  </div>
-                  <select
-                    value={categoryFilter}
-                    onChange={(e) => setCategoryFilter(e.target.value)}
-                    className="h-9 bg-muted border border-border text-xs rounded-md px-2 focus:outline-none cursor-pointer"
-                  >
-                    <option value="All">All Categories</option>
-                    {categories.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+      {/* Main Table Card */}
+      <Card className="bg-card border-border">
+        <CardHeader className="pb-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <CardTitle className="text-base font-semibold">
+              Live Chat Channels
+            </CardTitle>
+
+            {/* Search Input */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="relative flex-1 sm:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search channel or user..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 bg-background"
+                />
               </div>
-            </CardHeader>
-            <CardContent>
-              <DataTable
-                data={filteredRooms}
-                columns={columns}
-                rowKey={(r) => r.id}
-                emptyText="No chat rooms found matching your query."
-              />
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </div>
 
-        <div className="lg:col-span-4">
-          <ActiveTherapist />
-        </div>
-      </div>
+          {/* Filter Status Tabs */}
+          <div className="flex items-center gap-2 pt-3 overflow-x-auto">
+            {filterButtons.map((tab) => (
+              <Button
+                key={tab.value}
+                variant={statusFilter === tab.value ? "default" : "outline"}
+                size="sm"
+                onClick={() => setStatusFilter(tab.value)}
+                className={`flex items-center gap-2 rounded-full cursor-pointer transition-all ${
+                  statusFilter === tab.value
+                    ? "bg-[#00ACA7] text-white hover:bg-[#009691]"
+                    : "hover:bg-muted"
+                }`}
+              >
+                {tab.icon}
+                <span>{tab.label}</span>
+              </Button>
+            ))}
+          </div>
+        </CardHeader>
 
-      {selectedRoom && (
+        <CardContent className="pt-2">
+          <DataTable
+            data={chats}
+            loading={isLoading || isFetching}
+            columns={columns}
+            meta={
+              meta
+                ? {
+                    page: meta.page,
+                    limit: meta.limit,
+                    total: meta.total,
+                  }
+                : undefined
+            }
+            onPageChange={(p) => setPage(p)}
+            emptyText="No chat channels found."
+          />
+        </CardContent>
+      </Card>
+
+      {/* Inspect Dialog */}
+      {selectedChat && (
         <Dialog
-          open={!!selectedRoom}
-          onOpenChange={(o) => !o && setSelectedRoom(null)}
+          open={!!selectedChat}
+          onOpenChange={(o) => !o && setSelectedChat(null)}
         >
           <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0 overflow-hidden">
             <DialogHeader className="p-6 pb-4 border-b border-border bg-muted/20">
               <div className="flex items-start justify-between">
                 <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Badge variant="outline">{selectedRoom.category}</Badge>
-                    {getStatusBadge(selectedRoom.status)}
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge variant="outline">
+                      {selectedChat.isGroup ? "Group Chat" : "Direct Chat"}
+                    </Badge>
+                    <Badge
+                      className={getStatusColor(
+                        selectedChat.isBlocked ? "BLOCKED" : "ACTIVE",
+                      )}
+                    >
+                      {selectedChat.isBlocked ? "Blocked" : "Active"}
+                    </Badge>
                   </div>
                   <DialogTitle className="text-xl font-bold">
-                    {selectedRoom.name}
+                    {selectedChat.isGroup
+                      ? selectedChat.groupName || "Group Chat"
+                      : selectedChat.participants
+                          .map((p) => p.fullName)
+                          .join(" & ")}
                   </DialogTitle>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {selectedRoom.description}
-                  </p>
                 </div>
               </div>
             </DialogHeader>
 
-            <div className="p-6 overflow-y-auto space-y-6 flex-1">
+            <div className="p-6 space-y-6 overflow-y-auto flex-1">
+              {/* Participants */}
               <div>
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                  Channel Host & Details
+                  Participants ({selectedChat.participants.length})
                 </h4>
-                <div className="grid grid-cols-2 gap-4 bg-muted/40 p-4 rounded-xl border border-border">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="size-10">
-                      <AvatarImage src={selectedRoom.host.avatar} />
-                      <AvatarFallback>
-                        {selectedRoom.host.name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="text-xs font-semibold">
-                        {selectedRoom.host.name}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">
-                        {selectedRoom.host.role}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="space-y-1 text-xs">
-                    <p className="text-muted-foreground">
-                      Capacity:{" "}
-                      <span className="font-semibold text-foreground">
-                        {selectedRoom.participantsCount} /{" "}
-                        {selectedRoom.maxParticipants}
-                      </span>
-                    </p>
-                    <p className="text-muted-foreground">
-                      Created:{" "}
-                      <span className="font-semibold text-foreground">
-                        {selectedRoom.createdAt}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                  Recent Messages Log ({selectedRoom.recentMessages.length})
-                </h4>
-                <div className="space-y-3 bg-muted/20 p-4 rounded-xl border border-border max-h-60 overflow-y-auto">
-                  {selectedRoom.recentMessages.map((msg) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {selectedChat.participants.map((participant) => (
                     <div
-                      key={msg.id}
-                      className="text-xs space-y-1 border-b border-border/50 pb-2.5 last:border-0 last:pb-0"
+                      key={participant._id}
+                      className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card"
                     >
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="font-semibold text-foreground flex items-center gap-1.5">
-                          {msg.senderName}
-                          <Badge
-                            variant="secondary"
-                            className="text-[9px] py-0 px-1 font-normal"
-                          >
-                            {msg.senderRole}
-                          </Badge>
-                        </span>
-                        <span className="text-muted-foreground">
-                          {msg.timestamp}
-                        </span>
+                      <Avatar className="size-10 border border-border shrink-0">
+                        <AvatarImage
+                          src={participant.profileImage || undefined}
+                        />
+                        <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                          {participant.fullName?.charAt(0)?.toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold truncate text-foreground">
+                          {participant.fullName}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {participant.email}
+                        </p>
                       </div>
-                      <p className="text-muted-foreground">{msg.content}</p>
                     </div>
                   ))}
                 </div>
               </div>
+
+              {/* Last Message Preview */}
+              {selectedChat.lastMessage && (
+                <div>
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                    Recent Message Preview
+                  </h4>
+                  <div className="p-4 rounded-xl bg-muted/40 border border-border space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-foreground">
+                        {selectedChat.lastMessage.sender?.fullName || "Sender"}
+                      </span>
+                      <span className="text-muted-foreground">
+                        {selectedChat.lastMessage.createdAt
+                          ? new Date(
+                              selectedChat.lastMessage.createdAt,
+                            ).toLocaleString()
+                          : ""}
+                      </span>
+                    </div>
+                    <p className="text-sm text-foreground">
+                      {selectedChat.lastMessage.text || "No text content"}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </DialogContent>
         </Dialog>
       )}
 
-      {actionRoom && (
+      {/* Block / Unblock Confirmation Modal */}
+      {actionChat && (
         <AlertDialog
-          open={!!actionRoom}
-          onOpenChange={(o) => !o && setActionRoom(null)}
+          open={!!actionChat}
+          onOpenChange={(o) => !o && setActionChat(null)}
         >
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle className="capitalize">
-                {actionRoom.action} Chat Room?
+                {actionChat.action} Chat Channel
               </AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to {actionRoom.action} channel &quot;
-                {actionRoom.room.name}&quot;? Members will be notified.
+                Are you sure you want to {actionChat.action} this chat channel?{" "}
+                {actionChat.action === "block"
+                  ? "Participants will no longer be able to send or receive messages in this channel."
+                  : "Participants will be restored and allowed to communicate."}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleStatusChange}>
-                Confirm
+              <AlertDialogCancel disabled={isMutating}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleBlockToggle}
+                disabled={isMutating}
+                className={
+                  actionChat.action === "block"
+                    ? "bg-red-600 hover:bg-red-700 text-white"
+                    : "bg-[#00ACA7] hover:bg-[#009691] text-white"
+                }
+              >
+                {isMutating
+                  ? "Processing..."
+                  : actionChat.action === "block"
+                    ? "Yes, Block Channel"
+                    : "Yes, Unblock Channel"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

@@ -43,6 +43,7 @@ const baseApis = createApi({
     "profession",
     "governingBody",
     "dashboard",
+    "chat",
   ],
   endpoints: () => ({}),
 });

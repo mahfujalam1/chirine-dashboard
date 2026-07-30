@@ -35,22 +35,20 @@ function formatDateTime(value: string) {
   return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value))
 }
 
+import { useDebounce } from "@/hooks/use-debounce"
+
 export default function EventRequestsClientView() {
   const [status, setStatus] = useState<RequestEvent["status"] | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
-  const [debouncedSearch, setDebouncedSearch] = useState("")
   const [page, setPage] = useState(1)
+  const debouncedSearch = useDebounce(searchTerm.trim(), 300)
   const [selectedEvent, setSelectedEvent] = useState<RequestEvent | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<RequestEvent | null>(null)
   const limit = 10
 
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setDebouncedSearch(searchTerm.trim())
-      setPage(1)
-    }, 500)
-    return () => window.clearTimeout(timer)
-  }, [searchTerm])
+    setPage(1)
+  }, [debouncedSearch])
 
   const { data, isLoading, isFetching } = useGetAllRequestEventsQuery({
     page,

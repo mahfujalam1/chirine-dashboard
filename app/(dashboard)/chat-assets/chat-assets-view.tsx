@@ -31,13 +31,14 @@ import {
   Trash2,
   X,
 } from "lucide-react"
-import { useDeferredValue, useMemo, useState } from "react"
+import { useDebounce } from "@/hooks/use-debounce"
+import { useMemo, useState } from "react"
 import { toast } from 'sonner'
 
 export default function ChatAssetsClientView() {
   const [selectedFolder, setSelectedFolder] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState("")
-  const deferredSearchQuery = useDeferredValue(searchQuery)
+  const deferredSearchQuery = useDebounce(searchQuery, 300)
   const [selectedTag, setSelectedTag] = useState<string>("all")
   const [selectedAssetIds, setSelectedAssetIds] = useState<string[]>([])
 
