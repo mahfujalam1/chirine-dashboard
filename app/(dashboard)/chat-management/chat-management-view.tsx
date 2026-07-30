@@ -35,7 +35,7 @@ import {
   ShieldOff,
   X,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 
 // Types
 export interface ChatRoomUser {
@@ -291,7 +291,7 @@ export default function ChatManagementClientView() {
     setActionRoom(null);
   };
 
-  const getStatusBadge = (status: ChatRoom["status"]) => {
+  const getStatusBadge = useCallback((status: ChatRoom["status"]) => {
     switch (status) {
       case "Active":
         return <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25 border-emerald-500/20">Active</Badge>;
@@ -300,99 +300,102 @@ export default function ChatManagementClientView() {
       case "Archived":
         return <Badge variant="secondary">Archived</Badge>;
     }
-  };
+  }, []);
 
-  const columns: ColumnDef<ChatRoom>[] = [
-    {
-      key: "name",
-      title: "Chat Room",
-      renderItem: (room) => (
-        <div className="flex items-center gap-3">
-          <div className="size-10 rounded-lg bg-teal-500/10 text-[#00ACA7] flex items-center justify-center font-bold text-sm shrink-0">
-            #
+  const columns: ColumnDef<ChatRoom>[] = useMemo(
+    () => [
+      {
+        key: "name",
+        title: "Chat Room",
+        renderItem: (room) => (
+          <div className="flex items-center gap-3">
+            <div className="size-10 rounded-lg bg-teal-500/10 text-[#00ACA7] flex items-center justify-center font-bold text-sm shrink-0">
+              #
+            </div>
+            <div>
+              <p className="font-semibold text-sm leading-tight text-foreground">{room.name}</p>
+              <p className="text-xs text-muted-foreground mt-0.5 max-w-xs truncate">{room.description}</p>
+            </div>
           </div>
-          <div>
-            <p className="font-semibold text-sm leading-tight text-foreground">{room.name}</p>
-            <p className="text-xs text-muted-foreground mt-0.5 max-w-xs truncate">{room.description}</p>
+        ),
+      },
+      {
+        key: "category",
+        title: "Category",
+        renderItem: (room) => <Badge variant="outline" className="font-normal">{room.category}</Badge>,
+      },
+      {
+        key: "host",
+        title: "Host / Moderator",
+        renderItem: (room) => (
+          <div className="flex items-center gap-2">
+            <Avatar className="size-7">
+              <AvatarImage src={room.host.avatar} />
+              <AvatarFallback className="text-xs">{room.host.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div className="text-xs">
+              <p className="font-medium">{room.host.name}</p>
+              <p className="text-muted-foreground text-[10px]">{room.host.role}</p>
+            </div>
           </div>
-        </div>
-      ),
-    },
-    {
-      key: "category",
-      title: "Category",
-      renderItem: (room) => <Badge variant="outline" className="font-normal">{room.category}</Badge>,
-    },
-    {
-      key: "host",
-      title: "Host / Moderator",
-      renderItem: (room) => (
-        <div className="flex items-center gap-2">
-          <Avatar className="size-7">
-            <AvatarImage src={room.host.avatar} />
-            <AvatarFallback className="text-xs">{room.host.name.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <div className="text-xs">
-            <p className="font-medium">{room.host.name}</p>
-            <p className="text-muted-foreground text-[10px]">{room.host.role}</p>
-          </div>
-        </div>
-      ),
-    },
-    {
-      key: "participantsCount",
-      title: "Members",
-      renderItem: (room) => (
-        <span className="text-xs font-medium">
-          {room.participantsCount} / {room.maxParticipants}
-        </span>
-      ),
-    },
-    {
-      key: "status",
-      title: "Status",
-      renderItem: (room) => getStatusBadge(room.status),
-    },
-    {
-      key: "id",
-      title: "Actions",
-      align: "right",
-      renderItem: (room) => (
-        <div className="flex items-center justify-end gap-1">
-          <Button
-            size="icon"
-            variant="ghost"
-            title="Inspect Chat Room"
-            onClick={() => setSelectedRoom(room)}
-          >
-            <Eye className="size-4" />
-          </Button>
-
-          {room.status === "Active" ? (
+        ),
+      },
+      {
+        key: "participantsCount",
+        title: "Members",
+        renderItem: (room) => (
+          <span className="text-xs font-medium">
+            {room.participantsCount} / {room.maxParticipants}
+          </span>
+        ),
+      },
+      {
+        key: "status",
+        title: "Status",
+        renderItem: (room) => getStatusBadge(room.status),
+      },
+      {
+        key: "id",
+        title: "Actions",
+        align: "right",
+        renderItem: (room) => (
+          <div className="flex items-center justify-end gap-1">
             <Button
               size="icon"
               variant="ghost"
-              title="Pause Room"
-              className="text-amber-600 hover:text-amber-700"
-              onClick={() => setActionRoom({ room, action: "pause" })}
+              title="Inspect Chat Room"
+              onClick={() => setSelectedRoom(room)}
             >
-              <ShieldOff className="size-4" />
+              <Eye className="size-4" />
             </Button>
-          ) : (
-            <Button
-              size="icon"
-              variant="ghost"
-              title="Activate Room"
-              className="text-emerald-600 hover:text-emerald-700"
-              onClick={() => setActionRoom({ room, action: "activate" })}
-            >
-              <ShieldCheck className="size-4" />
-            </Button>
-          )}
-        </div>
-      ),
-    },
-  ];
+
+            {room.status === "Active" ? (
+              <Button
+                size="icon"
+                variant="ghost"
+                title="Pause Room"
+                className="text-amber-600 hover:text-amber-700"
+                onClick={() => setActionRoom({ room, action: "pause" })}
+              >
+                <ShieldOff className="size-4" />
+              </Button>
+            ) : (
+              <Button
+                size="icon"
+                variant="ghost"
+                title="Activate Room"
+                className="text-emerald-600 hover:text-emerald-700"
+                onClick={() => setActionRoom({ room, action: "activate" })}
+              >
+                <ShieldCheck className="size-4" />
+              </Button>
+            )}
+          </div>
+        ),
+      },
+    ],
+    [getStatusBadge]
+  );
 
   return (
     <>

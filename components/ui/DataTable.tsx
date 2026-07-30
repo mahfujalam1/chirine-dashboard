@@ -10,7 +10,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 
 export type SortOrder = "asc" | "desc" | null;
 
@@ -88,10 +88,13 @@ interface PaginationProps {
   onChange: (p: number) => void;
 }
 
-function Pagination({ page, total, limit, onChange }: PaginationProps) {
+const Pagination = React.memo(function Pagination({
+  page,
+  total,
+  limit,
+  onChange,
+}: PaginationProps) {
   const totalPages = Math.max(1, Math.ceil(total / limit));
-  const from = Math.min((page - 1) * limit + 1, total);
-  const to = Math.min(page * limit, total);
 
   const pages = useMemo<(number | "…")[]>(() => {
     if (totalPages <= 7)
@@ -111,12 +114,7 @@ function Pagination({ page, total, limit, onChange }: PaginationProps) {
 
   return (
     <div className="flex items-center justify-between gap-1 pt-4 flex-wrap">
-      {/* <p className="text-sm text-muted-foreground">
-        Showing <span className="font-medium text-foreground">{from}–{to}</span> of{" "}
-        <span className="font-medium text-foreground">{total}</span> results
-      </p> */}
       <div className="flex items-center gap-1">
-        {/* First */}
         <PagBtn
           onClick={() => onChange(1)}
           disabled={page === 1}
@@ -124,7 +122,6 @@ function Pagination({ page, total, limit, onChange }: PaginationProps) {
         >
           <ChevronsLeft className="h-3.5 w-3.5" />
         </PagBtn>
-        {/* Prev */}
         <PagBtn
           onClick={() => onChange(page - 1)}
           disabled={page === 1}
@@ -148,7 +145,6 @@ function Pagination({ page, total, limit, onChange }: PaginationProps) {
           ),
         )}
 
-        {/* Next */}
         <PagBtn
           onClick={() => onChange(page + 1)}
           disabled={page === totalPages}
@@ -156,7 +152,6 @@ function Pagination({ page, total, limit, onChange }: PaginationProps) {
         >
           <ChevronRight className="h-3.5 w-3.5" />
         </PagBtn>
-        {/* Last */}
         <PagBtn
           onClick={() => onChange(totalPages)}
           disabled={page === totalPages}
@@ -167,7 +162,7 @@ function Pagination({ page, total, limit, onChange }: PaginationProps) {
       </div>
     </div>
   );
-}
+});
 
 function PagBtn({
   children,
@@ -188,7 +183,7 @@ function PagBtn({
       disabled={disabled}
       title={title}
       className={cn(
-        "inline-flex items-center justify-center h-8 min-w-[2rem] px-1.5 rounded text-sm font-medium transition-colors",
+        "inline-flex items-center justify-center h-8 min-w-[2rem] px-1.5 rounded text-sm font-medium transition-colors cursor-pointer",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         active
           ? "bg-primary text-primary-foreground "
@@ -208,7 +203,52 @@ function SortIcon({ order }: { order: SortOrder }) {
   return <ArrowUpDown className="h-3.5 w-3.5 opacity-40" />;
 }
 
-export function DataTable<T extends object>({
+interface DataTableRowProps<T extends object> {
+  record: T;
+  rowIndex: number;
+  columns: ColumnDef<T>[];
+  onRowClick?: (record: T, index: number) => void;
+}
+
+const DataTableRow = React.memo(function DataTableRow<T extends object>({
+  record,
+  rowIndex,
+  columns,
+  onRowClick,
+}: DataTableRowProps<T>) {
+  const handleClick = useCallback(() => {
+    if (onRowClick) onRowClick(record, rowIndex);
+  }, [onRowClick, record, rowIndex]);
+
+  return (
+    <tr
+      onClick={handleClick}
+      className={cn(
+        "border-b border-border last:border-0 transition-colors",
+        onRowClick && "cursor-pointer hover:bg-muted/50",
+      )}
+    >
+      {columns.map((col, ci) => (
+        <td
+          key={ci}
+          className={cn(
+            "py-3 px-3 align-middle",
+            getAlignClass(col.align),
+            col.className,
+          )}
+        >
+          {col.renderItem
+            ? col.renderItem(record, rowIndex)
+            : col.key
+              ? getCellValue(record, col.key)
+              : null}
+        </td>
+      ))}
+    </tr>
+  );
+}) as <T extends object>(props: DataTableRowProps<T>) => React.ReactElement;
+
+function DataTableInner<T extends object>({
   data,
   columns,
   meta,
@@ -222,7 +262,6 @@ export function DataTable<T extends object>({
   stickyHeader = false,
 }: DataTableProps<T>) {
   const [internalPage, setInternalPage] = useState(1);
-
   const [sortKey, setSortKey] = useState<keyof T | null>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>(null);
 
@@ -230,6 +269,7 @@ export function DataTable<T extends object>({
   const currentPage = meta ? (isServerPaginated ? meta.page : internalPage) : 1;
 
   const processedData = useMemo(() => {
+    if (!data || data.length === 0) return [];
     let rows = [...data];
 
     if (!onSortChange && sortKey && sortOrder) {
@@ -260,27 +300,36 @@ export function DataTable<T extends object>({
     internalPage,
   ]);
 
-  function handleSort(col: ColumnDef<T>) {
-    if (!col.sortKey) return;
-    let next: SortOrder = "asc";
-    if (sortKey === col.sortKey) {
-      next = sortOrder === "asc" ? "desc" : sortOrder === "desc" ? null : "asc";
-    }
-    setSortKey(next ? col.sortKey : null);
-    setSortOrder(next);
-    if (onSortChange) onSortChange(col.sortKey, next);
-  }
+  const handleSort = useCallback(
+    (col: ColumnDef<T>) => {
+      if (!col.sortKey) return;
+      let next: SortOrder = "asc";
+      if (sortKey === col.sortKey) {
+        next = sortOrder === "asc" ? "desc" : sortOrder === "desc" ? null : "asc";
+      }
+      setSortKey(next ? col.sortKey : null);
+      setSortOrder(next);
+      if (onSortChange) onSortChange(col.sortKey, next);
+    },
+    [sortKey, sortOrder, onSortChange],
+  );
 
-  function handlePageChange(p: number) {
-    if (isServerPaginated) {
-      onPageChange!(p);
-    } else {
-      setInternalPage(p);
-    }
-  }
+  const handlePageChange = useCallback(
+    (p: number) => {
+      if (isServerPaginated) {
+        onPageChange!(p);
+      } else {
+        setInternalPage(p);
+      }
+    },
+    [isServerPaginated, onPageChange],
+  );
 
   const showPagination = !!meta;
-  const effectiveMeta = meta ? { ...meta, page: currentPage } : null;
+  const effectiveMeta = useMemo(
+    () => (meta ? { ...meta, page: currentPage } : null),
+    [meta, currentPage],
+  );
 
   return (
     <div className={cn("w-full space-y-0", className)}>
@@ -345,31 +394,13 @@ export function DataTable<T extends object>({
               processedData.map((record, rowIndex) => {
                 const key = rowKey ? rowKey(record, rowIndex) : rowIndex;
                 return (
-                  <tr
+                  <DataTableRow
                     key={key}
-                    onClick={() => onRowClick?.(record, rowIndex)}
-                    className={cn(
-                      "border-b border-border last:border-0 transition-colors",
-                      onRowClick && "cursor-pointer hover:bg-muted/50",
-                    )}
-                  >
-                    {columns.map((col, ci) => (
-                      <td
-                        key={ci}
-                        className={cn(
-                          "py-3 px-3 align-middle",
-                          getAlignClass(col.align),
-                          col.className,
-                        )}
-                      >
-                        {col.renderItem
-                          ? col.renderItem(record, rowIndex)
-                          : col.key
-                            ? getCellValue(record, col.key)
-                            : null}
-                      </td>
-                    ))}
-                  </tr>
+                    record={record}
+                    rowIndex={rowIndex}
+                    columns={columns}
+                    onRowClick={onRowClick}
+                  />
                 );
               })
             )}
@@ -389,3 +420,5 @@ export function DataTable<T extends object>({
     </div>
   );
 }
+
+export const DataTable = React.memo(DataTableInner) as typeof DataTableInner;

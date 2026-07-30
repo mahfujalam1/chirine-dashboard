@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MoreHorizontal } from "lucide-react";
@@ -65,13 +66,17 @@ interface UsersMatrixProps {
   activeYear?: string;
 }
 
-export function UsersMatrix({ data: apiData, activeYear = "2026" }: UsersMatrixProps) {
-  const data =
-    apiData && apiData.length > 0
-      ? apiData.map((item) => ({ month: item.month, users: item.totalUsers }))
-      : yearlyData[activeYear as YearKey] || yearlyData["2026"];
+function UsersMatrixInner({ data: apiData, activeYear = "2026" }: UsersMatrixProps) {
+  const data = useMemo(() => {
+    if (apiData && apiData.length > 0) {
+      return apiData.map((item) => ({ month: item.month, users: item.totalUsers }));
+    }
+    return yearlyData[activeYear as YearKey] || yearlyData["2026"];
+  }, [apiData, activeYear]);
 
-  const totalUsers = data.reduce((acc, curr) => acc + curr.users, 0);
+  const totalUsers = useMemo(() => {
+    return data.reduce((acc, curr) => acc + curr.users, 0);
+  }, [data]);
 
   return (
     <Card className="bg-card border-border h-full flex flex-col">
@@ -84,7 +89,7 @@ export function UsersMatrix({ data: apiData, activeYear = "2026" }: UsersMatrixP
           <span className="text-xs font-semibold px-2 py-1 bg-muted border border-border rounded text-muted-foreground">
             {activeYear}
           </span>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
+          <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">
             <MoreHorizontal className="w-4 h-4" />
           </Button>
         </div>
@@ -138,7 +143,7 @@ export function UsersMatrix({ data: apiData, activeYear = "2026" }: UsersMatrixP
                 strokeWidth={3}
                 fillOpacity={1}
                 fill="url(#colorUsers)"
-                animationDuration={1500}
+                animationDuration={300}
                 animationEasing="ease-in-out"
               />
             </AreaChart>
@@ -148,3 +153,5 @@ export function UsersMatrix({ data: apiData, activeYear = "2026" }: UsersMatrixP
     </Card>
   );
 }
+
+export const UsersMatrix = memo(UsersMatrixInner);

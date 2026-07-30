@@ -9,6 +9,7 @@ const dashboardApis = baseApis.injectEndpoints({
         params,
       }),
       providesTags: ['dashboard'],
+      keepUnusedDataFor: 60,
     }),
   }),
 })

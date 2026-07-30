@@ -1,6 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-
 export const baseUrl =
   process.env.NEXT_PUBLIC_API_URL ||
   "https://v59d514q-8000.aue.devtunnels.ms/api/v1";
@@ -29,6 +28,10 @@ const baseQuery = fetchBaseQuery({
 const baseApis = createApi({
   reducerPath: "api",
   baseQuery,
+  keepUnusedDataFor: 300, // Retain unused cache data for 5 minutes
+  refetchOnMountOrArgChange: 30, // Background re-verify if data is older than 30s upon re-mounting
+  refetchOnReconnect: true, // Refetch when network connection is restored
+  refetchOnFocus: true, // Refetch when window regains focus
   tagTypes: [
     "auth",
     "chatAssets",

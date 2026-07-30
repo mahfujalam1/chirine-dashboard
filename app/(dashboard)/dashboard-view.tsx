@@ -31,7 +31,7 @@ import UserDetails from "@/components/ui/user-details";
 import { getStatusColor } from "@/lib/utils";
 import { AlertCircle, Brain, Calendar, CalendarDays, DollarSign, RefreshCw, Users } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 export default function DashboardClientView() {
   const [selectedYear, setSelectedYear] = useState<string>("2026");
@@ -58,6 +58,46 @@ export default function DashboardClientView() {
   };
 
   const therapists = therapistsData?.data?.result ?? [];
+
+  const therapistColumns = useMemo(
+    () => [
+      {
+        key: "fullName",
+        title: "Therapist",
+        renderItem: (value: any) => (
+          <UserDetails name={value?.fullName || ""} email={value?.email || ""} />
+        ),
+      },
+      {
+        key: "isBlocked",
+        title: "Status",
+        renderItem: (value: any) => (
+          <Badge className={getStatusColor(value?.isBlocked ? "BLOCKED" : "ACTIVE")}>
+            {value?.isBlocked ? "Blocked" : "Active"}
+          </Badge>
+        ),
+      },
+      {
+        key: "createdAt",
+        title: "Joined",
+        renderItem: (value: any) => (
+          <span className="text-nowrap">
+            {value?.createdAt ? new Date(value.createdAt).toLocaleDateString() : ""}
+          </span>
+        ),
+      },
+      {
+        key: "_id",
+        title: "Actions",
+        renderItem: (value: any) => (
+          <Link href={`/therapists/${value?._id}`}>
+            <Button variant="outline" size="sm">View</Button>
+          </Link>
+        ),
+      },
+    ],
+    []
+  );
 
   if (isError || isTherapistsError) {
     return (
@@ -249,42 +289,7 @@ export default function DashboardClientView() {
           <DataTable
             data={therapists}
             loading={isFetching || isTherapistsFetching}
-            columns={[
-              {
-                key: "fullName",
-                title: "Therapist",
-                renderItem: (value: any) => (
-                  <UserDetails name={value?.fullName || ""} email={value?.email || ""} />
-                ),
-              },
-              {
-                key: "isBlocked",
-                title: "Status",
-                renderItem: (value) => (
-                  <Badge className={getStatusColor(value?.isBlocked ? "BLOCKED" : "ACTIVE")}>
-                    {value?.isBlocked ? "Blocked" : "Active"}
-                  </Badge>
-                ),
-              },
-              {
-                key: "createdAt",
-                title: "Joined",
-                renderItem: (value) => (
-                  <span className="text-nowrap">
-                    {value?.createdAt ? new Date(value.createdAt).toLocaleDateString() : ""}
-                  </span>
-                ),
-              },
-              {
-                key: "_id",
-                title: "Actions",
-                renderItem: (value) => (
-                  <Link href={`/therapists/${value?._id}`}>
-                    <Button variant="outline" size="sm">View</Button>
-                  </Link>
-                ),
-              },
-            ]}
+            columns={therapistColumns}
           />
         </CardContent>
       </Card>

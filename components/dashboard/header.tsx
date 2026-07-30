@@ -57,7 +57,10 @@ const navItems: NavItem[] = [
   { label: "Chat Assets", href: "/chat-assets", icon: FolderKanban },
 ]
 
-export function Header() {
+const fallbackAvatar =
+  "https://static.vecteezy.com/system/resources/previews/042/332/098/non_2x/default-avatar-profile-icon-grey-photo-placeholder-female-no-photo-images-for-unfilled-user-profile-greyscale-illustration-for-socail-media-web-vector.jpg"
+
+function HeaderInner() {
   const pathname = usePathname()
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
@@ -69,21 +72,21 @@ export function Header() {
     setMobileMenuOpen(false)
   }, [pathname])
 
-  const isActive = (href: string) => {
-    if (href === "/") return pathname === "/"
-    return pathname === href || pathname.startsWith(`${href}/`)
-  }
+  const isActive = React.useCallback(
+    (href: string) => {
+      if (href === "/") return pathname === "/"
+      return pathname === href || pathname.startsWith(`${href}/`)
+    },
+    [pathname]
+  )
 
-  const handleLogout = async () => {
+  const handleLogout = React.useCallback(async () => {
     localStorage.removeItem("accessToken")
     localStorage.removeItem("refreshToken")
     localStorage.removeItem("user")
     await removeAuthToken()
     router.push("/login")
-  }
-
-  const fallbackAvatar =
-    "https://static.vecteezy.com/system/resources/previews/042/332/098/non_2x/default-avatar-profile-icon-grey-photo-placeholder-female-no-photo-images-for-unfilled-user-profile-greyscale-illustration-for-socail-media-web-vector.jpg"
+  }, [router])
 
   return (
     <header className="flex items-center justify-between mb-6 md:mb-8">
@@ -287,3 +290,5 @@ export function Header() {
     </header>
   )
 }
+
+export const Header = React.memo(HeaderInner)

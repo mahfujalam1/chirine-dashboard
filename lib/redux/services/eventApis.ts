@@ -69,7 +69,7 @@ const eventApis = baseApis.injectEndpoints({
           method: 'PATCH',
           body: { status },
         }),
-        invalidatesTags: ["event"],
+        invalidatesTags: ["event", "dashboard"],
       }
     ),
 
@@ -78,7 +78,7 @@ const eventApis = baseApis.injectEndpoints({
         url: `/dashboard/events/${eventId}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ["event"],
+      invalidatesTags: ["event", "dashboard"],
     }),
   }),
 })
