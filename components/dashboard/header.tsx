@@ -1,7 +1,29 @@
 "use client"
 
-import { useGetMyProfileQuery } from '@/lib/redux/services/profileApis'
+import * as React from "react"
+import Image from "next/image"
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import {
+  ChevronDown,
+  LayoutDashboard,
+  Users,
+  Briefcase,
+  Building2,
+  Calendar,
+  GitPullRequest,
+  FileText,
+  MessageSquare,
+  FolderKanban,
+  Menu,
+  LogOut,
+  User,
+} from "lucide-react"
+
+import { useGetMyProfileQuery } from "@/lib/redux/services/profileApis"
+import { removeAuthToken } from "@/lib/actions/auth"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,116 +31,259 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronDown } from "lucide-react"
-import Image from 'next/image'
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 
-const navItems = [
-  { label: "Dashboard", href: "/" },
-  { label: "Therapists", href: "/therapists" },
-  { label: "Professions", href: "/professions" },
-  { label: "Governing Bodies", href: "/governing-bodies" },
-  { label: "Events", href: "/events" },
-  { label: "Requests", href: "/events-requests" },
-  { label: "Reports", href: "/reports" },
-  { label: "Chat Management", href: "/chat-management" },
-  { label: "Chat Assets", href: "/chat-assets" },
+export interface NavItem {
+  label: string
+  href: string
+  icon: React.ComponentType<{ className?: string }>
+}
+
+const navItems: NavItem[] = [
+  { label: "Dashboard", href: "/", icon: LayoutDashboard },
+  { label: "Therapists", href: "/therapists", icon: Users },
+  { label: "Professions", href: "/professions", icon: Briefcase },
+  { label: "Governing Bodies", href: "/governing-bodies", icon: Building2 },
+  { label: "Events", href: "/events", icon: Calendar },
+  { label: "Requests", href: "/events-requests", icon: GitPullRequest },
+  { label: "Reports", href: "/reports", icon: FileText },
+  { label: "Chat Management", href: "/chat-management", icon: MessageSquare },
+  { label: "Chat Assets", href: "/chat-assets", icon: FolderKanban },
 ]
-
-import { removeAuthToken } from "@/lib/actions/auth";
 
 export function Header() {
   const pathname = usePathname()
+  const router = useRouter()
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const { data, isLoading } = useGetMyProfileQuery()
   const profile = data?.data
-  const router = useRouter()
+
+  // Close mobile drawer on route change
+  React.useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [pathname])
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/"
     return pathname === href || pathname.startsWith(`${href}/`)
   }
 
+  const handleLogout = async () => {
+    localStorage.removeItem("accessToken")
+    localStorage.removeItem("refreshToken")
+    localStorage.removeItem("user")
+    await removeAuthToken()
+    router.push("/login")
+  }
+
+  const fallbackAvatar =
+    "https://static.vecteezy.com/system/resources/previews/042/332/098/non_2x/default-avatar-profile-icon-grey-photo-placeholder-female-no-photo-images-for-unfilled-user-profile-greyscale-illustration-for-socail-media-web-vector.jpg"
+
   return (
-    <header className="flex items-center justify-between mb-8">
-      <Link href="/" className="flex items-center gap-2">
-        <Image src={"/brand.svg"} width={40} height={30} alt='MindShift Peer Connect' />
+    <header className="flex items-center justify-between mb-6 md:mb-8">
+      {/* Brand Logo */}
+      <Link
+        href="/"
+        className="flex items-center gap-2 transition-transform hover:scale-[1.02] focus-visible:outline-none"
+      >
+        <Image
+          src="/brand.svg"
+          width={40}
+          height={30}
+          alt="MindShift Peer Connect"
+          priority
+          className="h-8 w-auto md:h-10"
+        />
       </Link>
 
-      <nav className="hidden md:flex items-center bg-card rounded-full px-2 py-1.5 border border-border">
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${isActive(item.href)
-              ? "bg-[#00ACA7] text-white"
-              : "text-muted-foreground hover:text-foreground"
+      {/* Desktop Navigation (Preserved for Desktop View) */}
+      <nav className="hidden xl:flex items-center bg-card rounded-full px-2 py-1.5 border border-border shadow-xs">
+        {navItems.map((item) => {
+          const active = isActive(item.href)
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                active
+                  ? "bg-[#00ACA7] text-white shadow-xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               }`}
-          >
-            {item.label}
-          </Link>
-        ))}
+            >
+              {item.label}
+            </Link>
+          )
+        })}
       </nav>
 
-      {
-        isLoading ? (
-          <div className="flex items-center gap-1">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 cursor-pointer">
-                  <Avatar className="h-9 w-9">
-                    <AvatarImage src={"https://static.vecteezy.com/system/resources/previews/042/332/098/non_2x/default-avatar-profile-icon-grey-photo-placeholder-female-no-photo-images-for-unfilled-user-profile-greyscale-illustration-for-socail-media-web-vector.jpg"} />
-                    <AvatarFallback>----</AvatarFallback>
-                  </Avatar>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground hidden sm:block" />
-                </button>
-              </DropdownMenuTrigger>
-            </DropdownMenu>
-            <div className="hidden sm:block text-left">
-              <p className="text-sm font-medium">...</p>
-              <p className="text-xs text-muted-foreground">...</p>
+      {/* Right Controls & Profile */}
+      <div className="flex items-center gap-2">
+        {/* User Profile Dropdown */}
+        {isLoading ? (
+          <div className="flex items-center gap-2">
+            <div className="h-9 w-9 rounded-full bg-muted animate-pulse" />
+            <div className="hidden sm:block text-left space-y-1">
+              <div className="h-3 w-16 bg-muted rounded animate-pulse" />
+              <div className="h-2.5 w-10 bg-muted rounded animate-pulse" />
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-1">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 cursor-pointer">
-                  <Avatar className="h-9 w-9">
-                    <AvatarImage src={profile?.profileImage || "https://static.vecteezy.com/system/resources/previews/042/332/098/non_2x/default-avatar-profile-icon-grey-photo-placeholder-female-no-photo-images-for-unfilled-user-profile-greyscale-illustration-for-socail-media-web-vector.jpg"} />
-                    <AvatarFallback>{profile?.fullName.charAt(0).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                  <div className="hidden sm:block text-left">
-                    <p className="text-sm font-medium">{profile?.fullName}</p>
-                    <p className="text-xs text-muted-foreground">Admin</p>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="flex items-center gap-2 p-1 rounded-full hover:bg-muted/60 transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label="User menu"
+              >
+                <Avatar className="h-9 w-9 border border-border">
+                  <AvatarImage
+                    src={profile?.profileImage || fallbackAvatar}
+                    alt={profile?.fullName || "User Avatar"}
+                  />
+                  <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
+                    {profile?.fullName?.charAt(0)?.toUpperCase() || "A"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="hidden sm:block text-left pr-1">
+                  <p className="text-sm font-medium leading-none text-foreground">
+                    {profile?.fullName || "Admin User"}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Admin</p>
+                </div>
+                <ChevronDown className="w-4 h-4 text-muted-foreground hidden sm:block" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              <div className="px-2 py-1.5 sm:hidden border-b mb-1">
+                <p className="text-sm font-medium text-foreground truncate">
+                  {profile?.fullName || "Admin User"}
+                </p>
+                <p className="text-xs text-muted-foreground">Admin</p>
+              </div>
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <Link href="/profile" className="flex items-center gap-2">
+                  <User className="w-4 h-4 text-muted-foreground" />
+                  <span>Profile</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="text-destructive focus:text-destructive cursor-pointer flex items-center gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+
+        {/* Mobile & Tablet Drawer Trigger (< xl screens) */}
+        <div className="xl:hidden">
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-9 w-9 border-border bg-card hover:bg-accent"
+                aria-label="Open navigation menu"
+              >
+                <Menu className="h-5 w-5 text-foreground" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[85vw] max-w-sm p-0 flex flex-col justify-between">
+              <div>
+                {/* Mobile Drawer Header */}
+                <SheetHeader className="p-4 border-b border-border flex flex-row items-center justify-between">
+                  <Link href="/" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                    <Image
+                      src="/brand.svg"
+                      width={36}
+                      height={27}
+                      alt="MindShift Peer Connect"
+                      className="h-7 w-auto"
+                    />
+                    <SheetTitle className="text-base font-bold text-foreground">
+                      MindShift Admin
+                    </SheetTitle>
+                  </Link>
+                </SheetHeader>
+
+                {/* Profile Card Header in Mobile Menu */}
+                {profile && (
+                  <div className="p-4 bg-muted/40 border-b border-border flex items-center gap-3">
+                    <Avatar className="h-10 w-10 border border-border shrink-0">
+                      <AvatarImage src={profile?.profileImage || fallbackAvatar} alt={profile?.fullName} />
+                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                        {profile?.fullName?.charAt(0)?.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="overflow-hidden">
+                      <p className="text-sm font-semibold text-foreground truncate">
+                        {profile?.fullName}
+                      </p>
+                      <p className="text-xs text-muted-foreground">Admin Account</p>
+                    </div>
                   </div>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground hidden sm:block" />
+                )}
+
+                {/* Mobile Scrollable Navigation Links */}
+                <div className="p-3 space-y-1 max-h-[calc(100vh-220px)] overflow-y-auto">
+                  {navItems.map((item) => {
+                    const active = isActive(item.href)
+                    const IconComponent = item.icon
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                          active
+                            ? "bg-[#00ACA7] text-white shadow-xs"
+                            : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                        }`}
+                      >
+                        <IconComponent className={`h-4 w-4 shrink-0 ${active ? "text-white" : "text-muted-foreground"}`} />
+                        <span className="flex-1 truncate">{item.label}</span>
+                        {active && (
+                          <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                        )}
+                      </Link>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Mobile Drawer Footer Actions */}
+              <div className="p-4 border-t border-border bg-card space-y-2">
+                <Link
+                  href="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium text-foreground hover:bg-accent transition-colors"
+                >
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <span>Profile Settings</span>
+                </Link>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false)
+                    handleLogout()
+                  }}
+                  className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Log Out</span>
                 </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem asChild>
-                  <Link href="/profile">Profile</Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild className="text-destructive">
-                  <button
-                    className="w-full text-left cursor-pointer"
-                    onClick={async () => {
-                      localStorage.removeItem("accessToken")
-                      localStorage.removeItem("refreshToken")
-                      localStorage.removeItem("user")
-                      await removeAuthToken()
-                      router.push("/login")
-                    }}
-                  >
-                    Log out
-                  </button>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        )
-      }
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </div>
     </header>
   )
 }
