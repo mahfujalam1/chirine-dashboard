@@ -7,17 +7,31 @@ import { PageHeader } from "@/components/dashboard/page-header";
 import dynamic from "next/dynamic";
 
 const ProfitChart = dynamic(
-  () => import("@/components/dashboard/profit-chart").then((m) => m.ProfitChart),
-  { ssr: false, loading: () => <Skeleton className="h-[280px] w-full rounded-xl" /> }
+  () =>
+    import("@/components/dashboard/profit-chart").then((m) => m.ProfitChart),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-70 w-full rounded-xl" />,
+  },
 );
 
 const UsersMatrix = dynamic(
-  () => import("@/components/dashboard/users-matrix").then((m) => m.UsersMatrix),
-  { ssr: false, loading: () => <Skeleton className="h-[280px] w-full rounded-xl" /> }
+  () =>
+    import("@/components/dashboard/users-matrix").then((m) => m.UsersMatrix),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-70 w-full rounded-xl" />,
+  },
 );
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { DataTable } from "@/components/ui/DataTable";
 import {
   Select,
@@ -29,13 +43,22 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import UserDetails from "@/components/ui/user-details";
 import { getStatusColor } from "@/lib/utils";
-import { AlertCircle, Brain, Calendar, CalendarDays, DollarSign, RefreshCw, Users } from "lucide-react";
+import {
+  AlertCircle,
+  Brain,
+  Calendar,
+  CalendarDays,
+  DollarSign,
+  RefreshCw,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 import { useState, useMemo } from "react";
 
 export default function DashboardClientView() {
   const [selectedYear, setSelectedYear] = useState<string>("2026");
-  const { data, isLoading, isFetching, isError, refetch } = useGetDashboardStatsQuery({ year: selectedYear });
+  const { data, isLoading, isFetching, isError, refetch } =
+    useGetDashboardStatsQuery({ year: selectedYear });
 
   const {
     data: therapistsData,
@@ -65,14 +88,19 @@ export default function DashboardClientView() {
         key: "fullName",
         title: "Therapist",
         renderItem: (value: any) => (
-          <UserDetails name={value?.fullName || ""} email={value?.email || ""} />
+          <UserDetails
+            name={value?.fullName || ""}
+            email={value?.email || ""}
+          />
         ),
       },
       {
         key: "isBlocked",
         title: "Status",
         renderItem: (value: any) => (
-          <Badge className={getStatusColor(value?.isBlocked ? "BLOCKED" : "ACTIVE")}>
+          <Badge
+            className={getStatusColor(value?.isBlocked ? "BLOCKED" : "ACTIVE")}
+          >
             {value?.isBlocked ? "Blocked" : "Active"}
           </Badge>
         ),
@@ -82,7 +110,9 @@ export default function DashboardClientView() {
         title: "Joined",
         renderItem: (value: any) => (
           <span className="text-nowrap">
-            {value?.createdAt ? new Date(value.createdAt).toLocaleDateString() : ""}
+            {value?.createdAt
+              ? new Date(value.createdAt).toLocaleDateString()
+              : ""}
           </span>
         ),
       },
@@ -91,23 +121,26 @@ export default function DashboardClientView() {
         title: "Actions",
         renderItem: (value: any) => (
           <Link href={`/therapists/${value?._id}`}>
-            <Button variant="outline" size="sm">View</Button>
+            <Button variant="outline" size="sm">
+              View
+            </Button>
           </Link>
         ),
       },
     ],
-    []
+    [],
   );
 
   if (isError || isTherapistsError) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[500px] p-6 text-center">
+      <div className="flex flex-col items-center justify-center min-h-125 p-6 text-center">
         <div className="p-4 bg-red-500/10 text-red-500 rounded-full mb-4 animate-bounce">
           <AlertCircle className="w-12 h-12" />
         </div>
         <h3 className="text-xl font-semibold mb-2">Something went wrong</h3>
         <p className="text-muted-foreground max-w-md mb-4">
-          We encountered an error while fetching your dashboard analytics or recent therapists.
+          We encountered an error while fetching your dashboard analytics or
+          recent therapists.
         </p>
         <Button
           onClick={() => {
@@ -117,7 +150,9 @@ export default function DashboardClientView() {
           className="flex items-center gap-2 bg-[#00ACA7] hover:bg-[#009691] text-white transition-colors"
           disabled={isFetching || isTherapistsFetching}
         >
-          <RefreshCw className={`w-4 h-4 ${isFetching || isTherapistsFetching ? "animate-spin" : ""}`} />
+          <RefreshCw
+            className={`w-4 h-4 ${isFetching || isTherapistsFetching ? "animate-spin" : ""}`}
+          />
           {isFetching || isTherapistsFetching ? "Retrying..." : "Try Again"}
         </Button>
       </div>
@@ -159,7 +194,7 @@ export default function DashboardClientView() {
               </div>
               <Skeleton className="h-8 w-8 rounded" />
             </div>
-            <Skeleton className="h-[200px] w-full" />
+            <Skeleton className="h-50 w-full" />
           </Card>
           <Card className="bg-card border-border p-6">
             <div className="flex items-center justify-between mb-2">
@@ -169,7 +204,7 @@ export default function DashboardClientView() {
               </div>
               <Skeleton className="h-8 w-8 rounded" />
             </div>
-            <Skeleton className="h-[150px] w-full mt-4" />
+            <Skeleton className="h-37.5 w-full mt-4" />
           </Card>
         </div>
 
@@ -186,7 +221,10 @@ export default function DashboardClientView() {
           <CardContent className="pt-4">
             <div className="space-y-4">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                <div
+                  key={i}
+                  className="flex items-center justify-between py-2 border-b border-border last:border-0"
+                >
                   <div className="flex items-center gap-3">
                     <Skeleton className="h-10 w-10 rounded-full" />
                     <div className="space-y-1">
@@ -207,7 +245,8 @@ export default function DashboardClientView() {
     );
   }
 
-  const isGrowthPositive = !data?.data?.totalConsultation?.growthPercentage?.startsWith("-");
+  const isGrowthPositive =
+    !data?.data?.totalConsultation?.growthPercentage?.startsWith("-");
 
   return (
     <>
@@ -223,7 +262,7 @@ export default function DashboardClientView() {
             </span>
           )}
           <Select value={selectedYear} onValueChange={setSelectedYear}>
-            <SelectTrigger className="w-[120px] bg-transparent border-border text-sm">
+            <SelectTrigger className="w-30 bg-transparent border-border text-sm">
               <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
               <SelectValue placeholder="Year" />
             </SelectTrigger>
@@ -269,7 +308,10 @@ export default function DashboardClientView() {
           <ProfitChart data={data?.data?.totalEarningOverview} />
         </div>
         <div className="h-full">
-          <UsersMatrix data={data?.data?.usersGrowthMatrix} activeYear={selectedYear} />
+          <UsersMatrix
+            data={data?.data?.usersGrowthMatrix}
+            activeYear={selectedYear}
+          />
         </div>
       </div>
 
@@ -277,11 +319,17 @@ export default function DashboardClientView() {
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-base font-medium">Recent Therapists</CardTitle>
-              <CardDescription>Latest therapists added to the platform</CardDescription>
+              <CardTitle className="text-base font-medium">
+                Recent Therapists
+              </CardTitle>
+              <CardDescription>
+                Latest therapists added to the platform
+              </CardDescription>
             </div>
             <Link href="/therapists">
-              <Button variant="outline" size="sm">View All</Button>
+              <Button variant="outline" size="sm">
+                View All
+              </Button>
             </Link>
           </div>
         </CardHeader>

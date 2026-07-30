@@ -66,10 +66,16 @@ interface UsersMatrixProps {
   activeYear?: string;
 }
 
-function UsersMatrixInner({ data: apiData, activeYear = "2026" }: UsersMatrixProps) {
+function UsersMatrixInner({
+  data: apiData,
+  activeYear = "2026",
+}: UsersMatrixProps) {
   const data = useMemo(() => {
     if (apiData && apiData.length > 0) {
-      return apiData.map((item) => ({ month: item.month, users: item.totalUsers }));
+      return apiData.map((item) => ({
+        month: item.month,
+        users: item.totalUsers,
+      }));
     }
     return yearlyData[activeYear as YearKey] || yearlyData["2026"];
   }, [apiData, activeYear]);
@@ -82,14 +88,22 @@ function UsersMatrixInner({ data: apiData, activeYear = "2026" }: UsersMatrixPro
     <Card className="bg-card border-border h-full flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div className="space-y-1">
-          <CardTitle className="text-base font-medium">Users Growth Matrix</CardTitle>
-          <p className="text-xs text-muted-foreground">Monthly user acquisition</p>
+          <CardTitle className="text-base font-medium">
+            Users Growth Matrix
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Monthly user acquisition
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold px-2 py-1 bg-muted border border-border rounded text-muted-foreground">
             {activeYear}
           </span>
-          <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 cursor-pointer"
+          >
             <MoreHorizontal className="w-4 h-4" />
           </Button>
         </div>
@@ -99,18 +113,27 @@ function UsersMatrixInner({ data: apiData, activeYear = "2026" }: UsersMatrixPro
           <p className="text-3xl font-semibold tracking-tight">
             {totalUsers.toLocaleString()}
           </p>
-          <p className="text-sm text-muted-foreground mt-1">Total users in {activeYear}</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Total users in {activeYear}
+          </p>
         </div>
-        <div className="h-[150px] w-full mt-4">
+        <div className="h-37.5 w-full mt-4">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <AreaChart
+              data={data}
+              margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+            >
               <defs>
                 <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#00ACA7" stopOpacity={0.3} />
                   <stop offset="95%" stopColor="#00ACA7" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                stroke="#E5E7EB"
+              />
               <XAxis
                 dataKey="month"
                 axisLine={false}
@@ -122,7 +145,9 @@ function UsersMatrixInner({ data: apiData, activeYear = "2026" }: UsersMatrixPro
                 axisLine={false}
                 tickLine={false}
                 tick={{ fontSize: 12, fill: "#6B7280" }}
-                tickFormatter={(value: number) => (value >= 1000 ? `${value / 1000}k` : `${value}`)}
+                tickFormatter={(value: number) =>
+                  value >= 1000 ? `${value / 1000}k` : `${value}`
+                }
               />
               <Tooltip
                 contentStyle={{
@@ -133,7 +158,10 @@ function UsersMatrixInner({ data: apiData, activeYear = "2026" }: UsersMatrixPro
                   fontSize: "12px",
                 }}
                 itemStyle={{ color: "#111827", fontWeight: 500 }}
-                formatter={(value: any) => [Number(value).toLocaleString(), "Users"]}
+                formatter={(value: any) => [
+                  Number(value).toLocaleString(),
+                  "Users",
+                ]}
                 labelStyle={{ color: "#6B7280", marginBottom: "4px" }}
               />
               <Area

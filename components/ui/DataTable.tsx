@@ -183,7 +183,7 @@ function PagBtn({
       disabled={disabled}
       title={title}
       className={cn(
-        "inline-flex items-center justify-center h-8 min-w-[2rem] px-1.5 rounded text-sm font-medium transition-colors cursor-pointer",
+        "inline-flex items-center justify-center h-8 min-w-8 px-1.5 rounded text-sm font-medium transition-colors cursor-pointer",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         active
           ? "bg-primary text-primary-foreground "
@@ -305,7 +305,8 @@ function DataTableInner<T extends object>({
       if (!col.sortKey) return;
       let next: SortOrder = "asc";
       if (sortKey === col.sortKey) {
-        next = sortOrder === "asc" ? "desc" : sortOrder === "desc" ? null : "asc";
+        next =
+          sortOrder === "asc" ? "desc" : sortOrder === "desc" ? null : "asc";
       }
       setSortKey(next ? col.sortKey : null);
       setSortOrder(next);
