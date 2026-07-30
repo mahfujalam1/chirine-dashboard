@@ -1,4 +1,4 @@
-import baseApis from '../baseApis';
+import baseApis from "../baseApis";
 
 const userApis = baseApis.injectEndpoints({
   endpoints: (builder) => ({
@@ -6,7 +6,7 @@ const userApis = baseApis.injectEndpoints({
       query: (params: any) => ({
         url: "/dashboard/therapists",
         method: "GET",
-        params
+        params,
       }),
       providesTags: ["user"],
     }),
@@ -17,7 +17,26 @@ const userApis = baseApis.injectEndpoints({
       }),
       providesTags: ["user"],
     }),
+    verifyTherapist: builder.mutation({
+      query: ({ id }: { id: string }) => ({
+        url: `/dashboard/therapists/${id}/verify`,
+        method: "POST",
+      }),
+      invalidatesTags: ["user"],
+    }),
+    blockTherapist: builder.mutation({
+      query: ({ id }: { id: string }) => ({
+        url: `/dashboard/therapists/${id}/block`,
+        method: "POST",
+      }),
+      invalidatesTags: ["user"],
+    }),
   }),
 });
 
-export const { useGetAllTherapistsQuery, useGetSingleUserQuery } = userApis;
+export const {
+  useGetAllTherapistsQuery,
+  useGetSingleUserQuery,
+  useVerifyTherapistMutation,
+  useBlockTherapistMutation,
+} = userApis;

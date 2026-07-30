@@ -1,6 +1,11 @@
 "use client"
 
-import { useGetSingleUserQuery } from '@/lib/redux/services/userApis'
+import { useState } from 'react'
+import {
+  useGetSingleUserQuery,
+  useVerifyTherapistMutation,
+  useBlockTherapistMutation
+} from '@/lib/redux/services/userApis'
 import { PageHeader } from "@/components/dashboard/page-header"
 import { LoadingScreen } from '@/components/loading-screen'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -8,16 +13,31 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import {
   ArrowLeft,
   BadgeCheck,
   Building2,
   CalendarClock,
+  Check,
   Hash,
+  Loader2,
   Mail,
   MapPin,
-  Phone
+  Phone,
+  ShieldAlert,
+  ShieldCheck
 } from "lucide-react"
 import { useParams, useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 
 interface NamedRef {
   _id: string
@@ -28,7 +48,11 @@ export default function TherapistDetailsClientView() {
   const { id } = useParams()
   const router = useRouter()
 
+  const [confirmModal, setConfirmModal] = useState<'verify' | 'block' | 'unblock' | null>(null)
+
   const { data, isLoading, error } = useGetSingleUserQuery(id as string, { skip: !id })
+  const [verifyTherapist, { isLoading: isVerifying }] = useVerifyTherapistMutation()
+  const [blockTherapist, { isLoading: isBlocking }] = useBlockTherapistMutation()
 
   if (!id) {
     return (
@@ -80,6 +104,49 @@ export default function TherapistDetailsClientView() {
   }
 
   const therapist = data.data
+
+  const handleEmailClick = () => {
+    if (therapist?.email) {
+      window.open(
+        `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(therapist.email)}`,
+        '_blank'
+      )
+    } else {
+      toast.error('No email address available for this therapist.')
+    }
+  }
+
+  const handleConfirmVerify = async () => {
+    if (!id) return
+    try {
+      const res: any = await verifyTherapist({ id: id as string }).unwrap()
+      toast.success(res?.message || 'Therapist verified successfully')
+      setConfirmModal(null)
+    } catch (err: any) {
+      toast.error(err?.data?.message || err?.message || 'Failed to verify therapist')
+    }
+  }
+
+  const handleConfirmBlockToggle = async () => {
+    if (!id) return
+    const isCurrentlyBlocked = therapist?.isBlocked
+    try {
+      const res: any = await blockTherapist({ id: id as string }).unwrap()
+      toast.success(
+        res?.message ||
+          (isCurrentlyBlocked
+            ? 'Therapist unblocked successfully'
+            : 'Therapist blocked successfully')
+      )
+      setConfirmModal(null)
+    } catch (err: any) {
+      toast.error(
+        err?.data?.message ||
+          err?.message ||
+          `Failed to ${isCurrentlyBlocked ? 'unblock' : 'block'} therapist`
+      )
+    }
+  }
 
   const getInitials = (name: string) => {
     return name
@@ -264,21 +331,113 @@ export default function TherapistDetailsClientView() {
                 </div>
               </div>
               <div className="flex flex-wrap gap-1.5 mt-4 pt-4 border-t">
-                <Button variant="outline" size="sm" className="text-xs h-8">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-8"
+                  onClick={handleEmailClick}
+                >
                   <Mail className="w-3 h-3 mr-1.5" />
                   Email
                 </Button>
-                <Button variant="outline" size="sm" className="text-xs h-8">
-                  Verify
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-8"
+                  onClick={() => setConfirmModal('verify')}
+                  disabled={therapist.isVerified || isVerifying}
+                >
+                  {isVerifying ? (
+                    <>
+                      <Loader2 className="w-3 h-3 mr-1.5 animate-spin" />
+                      Verifying...
+                    </>
+                  ) : therapist.isVerified ? (
+                    <>
+                      <Check className="w-3 h-3 mr-1.5 text-green-600" />
+                      Verified
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="w-3 h-3 mr-1.5" />
+                      Verify
+                    </>
+                  )}
                 </Button>
-                <Button variant="outline" size="sm" className="text-xs h-8">
-                  {therapist.isBlocked ? 'Unblock' : 'Block'}
+                <Button
+                  variant={therapist.isBlocked ? "outline" : "destructive"}
+                  size="sm"
+                  className="text-xs h-8"
+                  onClick={() => setConfirmModal(therapist.isBlocked ? 'unblock' : 'block')}
+                  disabled={isBlocking}
+                >
+                  {isBlocking ? (
+                    <>
+                      <Loader2 className="w-3 h-3 mr-1.5 animate-spin" />
+                      {therapist.isBlocked ? 'Unblocking...' : 'Blocking...'}
+                    </>
+                  ) : therapist.isBlocked ? (
+                    <>
+                      <ShieldCheck className="w-3 h-3 mr-1.5 text-green-600" />
+                      Unblock
+                    </>
+                  ) : (
+                    <>
+                      <ShieldAlert className="w-3 h-3 mr-1.5" />
+                      Block
+                    </>
+                  )}
                 </Button>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      <AlertDialog open={!!confirmModal} onOpenChange={(open) => !open && setConfirmModal(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {confirmModal === 'verify' && 'Verify Therapist'}
+              {confirmModal === 'block' && 'Block Therapist'}
+              {confirmModal === 'unblock' && 'Unblock Therapist'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmModal === 'verify' &&
+                `Are you sure you want to verify ${therapist.fullName || 'this therapist'}? This will mark their profile as verified.`}
+              {confirmModal === 'block' &&
+                `Are you sure you want to block ${therapist.fullName || 'this therapist'}? They will be restricted from platform activities.`}
+              {confirmModal === 'unblock' &&
+                `Are you sure you want to unblock ${therapist.fullName || 'this therapist'}? Their access will be restored.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isVerifying || isBlocking}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className={
+                confirmModal === 'block'
+                  ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
+                  : ''
+              }
+              disabled={isVerifying || isBlocking}
+              onClick={(e) => {
+                e.preventDefault()
+                if (confirmModal === 'verify') handleConfirmVerify()
+                else if (confirmModal === 'block' || confirmModal === 'unblock') handleConfirmBlockToggle()
+              }}
+            >
+              {(isVerifying || isBlocking) && (
+                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+              )}
+              {confirmModal === 'verify' && (isVerifying ? 'Verifying...' : 'Confirm Verification')}
+              {confirmModal === 'block' && (isBlocking ? 'Blocking...' : 'Confirm Block')}
+              {confirmModal === 'unblock' && (isBlocking ? 'Unblocking...' : 'Confirm Unblock')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
