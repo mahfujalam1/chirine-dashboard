@@ -19,6 +19,7 @@ import {
   LogOut,
   User,
   Settings,
+  HelpCircle,
 } from "lucide-react";
 
 import { useGetMyProfileQuery } from "@/lib/redux/services/profileApis";
@@ -54,6 +55,7 @@ const navItems: NavItem[] = [
   { label: "Events", href: "/events", icon: Calendar },
   { label: "Requests", href: "/events-requests", icon: GitPullRequest },
   { label: "Reports", href: "/reports", icon: FileText },
+  { label: "Support", href: "/support", icon: HelpCircle },
   { label: "Chat Management", href: "/chat-management", icon: MessageSquare },
   { label: "Chat Assets", href: "/chat-assets", icon: FolderKanban },
 ];

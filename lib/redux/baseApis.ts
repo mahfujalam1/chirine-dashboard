@@ -19,6 +19,7 @@ const baseQuery = fetchBaseQuery({
       (typeof window !== "undefined"
         ? localStorage.getItem("accessToken")
         : null) || getCookie("accessToken");
+    // console.log(token);
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
     }
@@ -44,6 +45,7 @@ const baseApis = createApi({
     "governingBody",
     "dashboard",
     "chat",
+    "customerSupport",
   ],
   endpoints: () => ({}),
 });
