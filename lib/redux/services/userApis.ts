@@ -27,7 +27,7 @@ const userApis = baseApis.injectEndpoints({
     blockTherapist: builder.mutation({
       query: ({ id }: { id: string }) => ({
         url: `/dashboard/therapists/${id}/block`,
-        method: "POST",
+        method: "PATCH",
       }),
       invalidatesTags: ["user"],
     }),
