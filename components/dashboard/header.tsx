@@ -1,29 +1,29 @@
 "use client";
 
-import * as React from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 import {
-  ChevronDown,
-  LayoutDashboard,
-  Users,
   Briefcase,
   Building2,
   Calendar,
-  GitPullRequest,
+  ChevronDown,
   FileText,
-  MessageSquare,
   FolderKanban,
-  Menu,
-  LogOut,
-  User,
-  Settings,
+  GitPullRequest,
   HelpCircle,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  MessageSquare,
+  MoreHorizontal,
+  Settings,
+  Target,
+  User,
+  Users,
 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import * as React from "react";
 
-import { useGetMyProfileQuery } from "@/lib/redux/services/profileApis";
-import { removeAuthToken } from "@/lib/actions/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,6 +40,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { removeAuthToken } from "@/lib/actions/auth";
+import { useGetMyProfileQuery } from "@/lib/redux/services/profileApis";
 
 export interface NavItem {
   label: string;
@@ -52,6 +54,7 @@ const navItems: NavItem[] = [
   { label: "Therapists", href: "/therapists", icon: Users },
   { label: "Professions", href: "/professions", icon: Briefcase },
   { label: "Governing Bodies", href: "/governing-bodies", icon: Building2 },
+  { label: "Area Of Focus", href: "/area-of-focus", icon: Target },
   { label: "Events", href: "/events", icon: Calendar },
   { label: "Requests", href: "/events-requests", icon: GitPullRequest },
   { label: "Reports", href: "/reports", icon: FileText },
@@ -70,6 +73,10 @@ function HeaderInner() {
   const { data, isLoading } = useGetMyProfileQuery();
   const profile = data?.data;
 
+  // Split nav items: 6 main items on header, remaining in 3-dots dropdown
+  const primaryNavItems = React.useMemo(() => navItems.slice(0, 6), []);
+  const overflowNavItems = React.useMemo(() => navItems.slice(6), []);
+
   // Close mobile drawer on route change
   React.useEffect(() => {
     setMobileMenuOpen(false);
@@ -81,6 +88,11 @@ function HeaderInner() {
       return pathname === href || pathname.startsWith(`${href}/`);
     },
     [pathname],
+  );
+
+  const isOverflowActive = React.useMemo(
+    () => overflowNavItems.some((item) => isActive(item.href)),
+    [overflowNavItems, isActive],
   );
 
   const handleLogout = React.useCallback(async () => {
@@ -108,24 +120,59 @@ function HeaderInner() {
         />
       </Link>
 
-      {/* Desktop Navigation (Preserved for Desktop View) */}
-      <nav className="hidden xl:flex items-center bg-card rounded-full px-2 py-1.5 border border-border shadow-xs">
-        {navItems.map((item) => {
+      {/* Desktop Navigation */}
+      <nav className="hidden lg:flex items-center bg-card rounded-full px-2 py-1.5 border border-border shadow-xs gap-1">
+        {primaryNavItems.map((item) => {
           const active = isActive(item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-                active
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${active
                   ? "bg-[#00ACA7] text-white shadow-xs"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              }`}
+                }`}
             >
               {item.label}
             </Link>
           );
         })}
+
+        {/* 3-Dots Dropdown for Overflow Nav Items */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors flex items-center justify-center cursor-pointer outline-none ${isOverflowActive
+                  ? "bg-[#00ACA7] text-white shadow-xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                }`}
+              aria-label="More navigation options"
+            >
+              <MoreHorizontal className="w-5 h-5" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-52">
+            {overflowNavItems.map((item) => {
+              const active = isActive(item.href);
+              const IconComponent = item.icon;
+              return (
+                <DropdownMenuItem key={item.href} asChild className="cursor-pointer">
+                  <Link
+                    href={item.href}
+                    className={`flex items-center gap-2.5 w-full ${active ? "font-semibold text-[#00ACA7]" : ""
+                      }`}
+                  >
+                    <IconComponent
+                      className={`w-4 h-4 ${active ? "text-[#00ACA7]" : "text-muted-foreground"
+                        }`}
+                    />
+                    <span>{item.label}</span>
+                  </Link>
+                </DropdownMenuItem>
+              );
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </nav>
 
       {/* Right Controls & Profile */}
@@ -195,8 +242,8 @@ function HeaderInner() {
           </DropdownMenu>
         )}
 
-        {/* Mobile & Tablet Drawer Trigger (< xl screens) */}
-        <div className="xl:hidden">
+        {/* Mobile & Tablet Drawer Trigger (< lg screens) */}
+        <div className="lg:hidden">
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button
@@ -266,11 +313,10 @@ function HeaderInner() {
                         key={item.href}
                         href={item.href}
                         onClick={() => setMobileMenuOpen(false)}
-                        className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                          active
+                        className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${active
                             ? "bg-[#00ACA7] text-white shadow-xs"
                             : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                        }`}
+                          }`}
                       >
                         <IconComponent
                           className={`h-4 w-4 shrink-0 ${active ? "text-white" : "text-muted-foreground"}`}
