@@ -46,7 +46,8 @@ const baseApis = createApi({
     "dashboard",
     "chat",
     "customerSupport",
-    "setting"
+    "setting",
+    "expertise"
   ],
   endpoints: () => ({}),
 });

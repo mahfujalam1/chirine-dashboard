@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState, useCallback, useEffect } from "react";
 import { PageHeader } from "@/components/dashboard/page-header";
+import { CallSettingsCard } from "@/components/dashboard/chat-management/call-settings-card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,28 +24,29 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { useDebounce } from "@/hooks/use-debounce";
 import {
+  ChatItem,
+  useBlockUnblockMutation,
+  useGetChatsListQuery,
+} from "@/lib/redux/services/chatsApis";
+import { getErrorMessage, getStatusColor } from "@/lib/utils";
+import {
+  AlertCircle,
+  Ban,
   Eye,
   MessageCircleMore,
+  MessageSquare,
+  RefreshCw,
   Search,
   ShieldCheck,
   ShieldOff,
-  Users,
-  MessageSquare,
-  RefreshCw,
-  AlertCircle,
-  Ban,
   UserCheck,
+  Users,
 } from "lucide-react";
-import { useDebounce } from "@/hooks/use-debounce";
-import { getErrorMessage, getStatusColor } from "@/lib/utils";
-import {
-  useBlockUnblockMutation,
-  useGetChatsListQuery,
-  ChatItem,
-} from "@/lib/redux/services/chatsApis";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-
+import "./switch.css";
 type StatusFilter = "All" | "Active" | "Blocked";
 
 export default function ChatManagementClientView() {
@@ -93,7 +94,7 @@ export default function ChatManagementClientView() {
 
       toast.success(
         res?.message ||
-          `Chat channel has been ${action === "block" ? "blocked" : "unblocked"} successfully.`,
+        `Chat channel has been ${action === "block" ? "blocked" : "unblocked"} successfully.`,
       );
     } catch (err: unknown) {
       toast.error(getErrorMessage(err, `Failed to ${action} chat channel.`));
@@ -111,7 +112,7 @@ export default function ChatManagementClientView() {
           const title = chat.isGroup
             ? chat.groupName || "Group Chat"
             : chat.participants.map((p) => p.fullName).join(" & ") ||
-              "Direct Chat";
+            "Direct Chat";
           const subtitle = chat.lastMessage?.text || "No recent messages";
 
           return (
@@ -247,18 +248,18 @@ export default function ChatManagementClientView() {
     value: StatusFilter;
     icon: React.ReactNode;
   }[] = [
-    {
-      label: "All Channels",
-      value: "All",
-      icon: <MessageCircleMore className="w-4 h-4" />,
-    },
-    {
-      label: "Active",
-      value: "Active",
-      icon: <UserCheck className="w-4 h-4" />,
-    },
-    { label: "Blocked", value: "Blocked", icon: <Ban className="w-4 h-4" /> },
-  ];
+      {
+        label: "All Channels",
+        value: "All",
+        icon: <MessageCircleMore className="w-4 h-4" />,
+      },
+      {
+        label: "Active",
+        value: "Active",
+        icon: <UserCheck className="w-4 h-4" />,
+      },
+      { label: "Blocked", value: "Blocked", icon: <Ban className="w-4 h-4" /> },
+    ];
 
   if (isError) {
     return (
@@ -311,7 +312,6 @@ export default function ChatManagementClientView() {
             </div>
           </CardContent>
         </Card>
-
         <Card className="bg-card border-border">
           <CardContent className="p-5 flex items-center justify-between">
             <div>
@@ -360,7 +360,7 @@ export default function ChatManagementClientView() {
           </CardContent>
         </Card>
       </div>
-
+      <CallSettingsCard />
       {/* Main Table Card */}
       <Card className="bg-card border-border">
         <CardHeader className="pb-3">
@@ -391,11 +391,10 @@ export default function ChatManagementClientView() {
                 variant={statusFilter === tab.value ? "default" : "outline"}
                 size="sm"
                 onClick={() => setStatusFilter(tab.value)}
-                className={`flex items-center gap-2 rounded-full cursor-pointer transition-all ${
-                  statusFilter === tab.value
-                    ? "bg-[#00ACA7] text-white hover:bg-[#009691]"
-                    : "hover:bg-muted"
-                }`}
+                className={`flex items-center gap-2 rounded-full cursor-pointer transition-all ${statusFilter === tab.value
+                  ? "bg-[#00ACA7] text-white hover:bg-[#009691]"
+                  : "hover:bg-muted"
+                  }`}
               >
                 {tab.icon}
                 <span>{tab.label}</span>
@@ -412,10 +411,10 @@ export default function ChatManagementClientView() {
             meta={
               meta
                 ? {
-                    page: meta.page,
-                    limit: meta.limit,
-                    total: meta.total,
-                  }
+                  page: meta.page,
+                  limit: meta.limit,
+                  total: meta.total,
+                }
                 : undefined
             }
             onPageChange={(p) => setPage(p)}
@@ -450,8 +449,8 @@ export default function ChatManagementClientView() {
                     {selectedChat.isGroup
                       ? selectedChat.groupName || "Group Chat"
                       : selectedChat.participants
-                          .map((p) => p.fullName)
-                          .join(" & ")}
+                        .map((p) => p.fullName)
+                        .join(" & ")}
                   </DialogTitle>
                 </div>
               </div>
@@ -504,8 +503,8 @@ export default function ChatManagementClientView() {
                       <span className="text-muted-foreground">
                         {selectedChat.lastMessage.createdAt
                           ? new Date(
-                              selectedChat.lastMessage.createdAt,
-                            ).toLocaleString()
+                            selectedChat.lastMessage.createdAt,
+                          ).toLocaleString()
                           : ""}
                       </span>
                     </div>

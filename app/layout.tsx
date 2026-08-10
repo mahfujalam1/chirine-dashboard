@@ -2,6 +2,7 @@ import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import type React from "react";
+import { Toaster } from "sonner";
 import "./globals.css";
 import ReduxWrapper from "@/lib/redux/ReduxWrapper";
 
@@ -98,6 +99,12 @@ export default function RootLayout({
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="font-sans antialiased bg-background text-foreground min-h-screen">
         <ReduxWrapper>{children}</ReduxWrapper>
+        <Toaster
+          position="top-right"
+          richColors
+          closeButton
+          duration={4000}
+        />
         <Analytics />
       </body>
     </html>
