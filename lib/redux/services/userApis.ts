@@ -20,7 +20,7 @@ const userApis = baseApis.injectEndpoints({
     verifyTherapist: builder.mutation({
       query: ({ id }: { id: string }) => ({
         url: `/dashboard/therapists/${id}/verify`,
-        method: "POST",
+        method: "PATCH",
       }),
       invalidatesTags: ["user"],
     }),

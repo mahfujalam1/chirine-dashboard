@@ -1,17 +1,7 @@
 "use client"
 
-import { useState } from 'react'
-import {
-  useGetSingleUserQuery,
-  useVerifyTherapistMutation,
-  useBlockTherapistMutation
-} from '@/lib/redux/services/userApis'
 import { PageHeader } from "@/components/dashboard/page-header"
 import { LoadingScreen } from '@/components/loading-screen'
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from '@/components/ui/badge'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +12,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from '@/components/ui/badge'
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardTitle } from "@/components/ui/card"
+import {
+  useBlockTherapistMutation,
+  useGetSingleUserQuery,
+  useVerifyTherapistMutation
+} from '@/lib/redux/services/userApis'
 import {
   ArrowLeft,
   BadgeCheck,
@@ -37,6 +36,7 @@ import {
   ShieldCheck
 } from "lucide-react"
 import { useParams, useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { toast } from 'sonner'
 
 interface NamedRef {
@@ -134,16 +134,16 @@ export default function TherapistDetailsClientView() {
       const res: any = await blockTherapist({ id: id as string }).unwrap()
       toast.success(
         res?.message ||
-          (isCurrentlyBlocked
-            ? 'Therapist unblocked successfully'
-            : 'Therapist blocked successfully')
+        (isCurrentlyBlocked
+          ? 'Therapist unblocked successfully'
+          : 'Therapist blocked successfully')
       )
       setConfirmModal(null)
     } catch (err: any) {
       toast.error(
         err?.data?.message ||
-          err?.message ||
-          `Failed to ${isCurrentlyBlocked ? 'unblock' : 'block'} therapist`
+        err?.message ||
+        `Failed to ${isCurrentlyBlocked ? 'unblock' : 'block'} therapist`
       )
     }
   }
