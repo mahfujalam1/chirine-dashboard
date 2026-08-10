@@ -39,6 +39,7 @@ export interface SocialEvent {
   entryRequirements: string[];
   startTime: string;
   endTime: string;
+  timezone?: string;
   maxParticipants: number;
   participants: SocialEventParticipant[];
   isExpired: boolean;

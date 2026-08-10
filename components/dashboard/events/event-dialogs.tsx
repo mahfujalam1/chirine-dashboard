@@ -14,6 +14,7 @@ export function EventFormDialog({ open, event, tab, saving, onOpenChange, onSubm
   onOpenChange: (open: boolean) => void
   onSubmit: (data: EventFormData) => Promise<void>
 }) {
+  const defaultTz = (typeof window !== "undefined" && Intl.DateTimeFormat().resolvedOptions().timeZone) || "UTC"
   const initial: EventFormData = event
     ? {
       title: event.title,
@@ -21,6 +22,7 @@ export function EventFormDialog({ open, event, tab, saving, onOpenChange, onSubm
       date: event.date,
       start_time: event.source.startTime,
       end_time: event.source.endTime,
+      timezone: event.source.timezone || defaultTz,
       location: event.venue === "Zoom" ? "" : event.venue,
       description: event.description
     }
@@ -30,6 +32,7 @@ export function EventFormDialog({ open, event, tab, saving, onOpenChange, onSubm
       date: "",
       start_time: "",
       end_time: "",
+      timezone: defaultTz,
       location: "",
       description: ""
     }

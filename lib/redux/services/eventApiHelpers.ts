@@ -5,6 +5,7 @@ export interface CreateEventPayload {
   date: string;
   startTime: string;
   endTime: string;
+  timezone: string;
   location: string;
 }
 
