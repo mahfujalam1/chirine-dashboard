@@ -51,7 +51,7 @@ export interface NavItem {
 
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
-  { label: "Therapists", href: "/therapists", icon: Users },
+  { label: "User", href: "/therapists", icon: Users },
   { label: "Professions", href: "/professions", icon: Briefcase },
   { label: "Governing Bodies", href: "/governing-bodies", icon: Building2 },
   { label: "Area Of Focus", href: "/area-of-focus", icon: Target },
@@ -129,8 +129,8 @@ function HeaderInner() {
               key={item.href}
               href={item.href}
               className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${active
-                  ? "bg-[#00ACA7] text-white shadow-xs"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                ? "bg-[#00ACA7] text-white shadow-xs"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 }`}
             >
               {item.label}
@@ -143,8 +143,8 @@ function HeaderInner() {
           <DropdownMenuTrigger asChild>
             <button
               className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors flex items-center justify-center cursor-pointer outline-none ${isOverflowActive
-                  ? "bg-[#00ACA7] text-white shadow-xs"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                ? "bg-[#00ACA7] text-white shadow-xs"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 }`}
               aria-label="More navigation options"
             >
@@ -314,8 +314,8 @@ function HeaderInner() {
                         href={item.href}
                         onClick={() => setMobileMenuOpen(false)}
                         className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${active
-                            ? "bg-[#00ACA7] text-white shadow-xs"
-                            : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                          ? "bg-[#00ACA7] text-white shadow-xs"
+                          : "text-muted-foreground hover:bg-accent hover:text-foreground"
                           }`}
                       >
                         <IconComponent

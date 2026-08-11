@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import TherapistsClientView from "./therapists-view";
 
 export const metadata: Metadata = {
-  title: "Therapists",
+  title: "User",
   description: "Manage and view your therapist base, status, and verification details.",
 };
 

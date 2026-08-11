@@ -7,6 +7,7 @@ export interface CreateEventPayload {
   endTime: string;
   timezone: string;
   location: string;
+  entryRequirements?: string[];
 }
 
 export type UpdateEventPayload = Omit<CreateEventPayload, 'eventImage'> & {

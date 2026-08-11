@@ -1,6 +1,5 @@
 "use client"
 
-import { useGetAllTherapistsQuery } from '@/lib/redux/services/userApis'
 import { PageHeader } from "@/components/dashboard/page-header"
 import { Badge } from '@/components/ui/badge'
 import { Button } from "@/components/ui/button"
@@ -9,6 +8,7 @@ import { DataTable } from "@/components/ui/DataTable"
 import { Input } from "@/components/ui/input"
 import UserDetails from "@/components/ui/user-details"
 import { useDebounce } from '@/hooks/use-debounce'
+import { useGetAllTherapistsQuery } from '@/lib/redux/services/userApis'
 import { getStatusColor } from '@/lib/utils'
 import { User } from '@/types/userApis'
 import { Eye, ListTodo, Search, ShieldBan, ShieldCheck, Users } from "lucide-react"
@@ -55,7 +55,7 @@ export default function TherapistsClientView() {
   if (error) return <div className="text-red-500 p-6">Failed to load therapists.</div>;
 
   const filterButtons: { label: string; value: FilterType; icon: React.ReactNode }[] = [
-    { label: 'All Therapists', value: 'All', icon: <Users className="w-4 h-4" /> },
+    { label: 'All User', value: 'All', icon: <Users className="w-4 h-4" /> },
     { label: 'Pending', value: 'Pending', icon: <ListTodo className="w-4 h-4" /> },
     { label: 'Active', value: 'Active', icon: <ShieldCheck className="w-4 h-4" /> },
     { label: 'Blocked', value: 'Blocked', icon: <ShieldBan className="w-4 h-4" /> },
@@ -64,13 +64,13 @@ export default function TherapistsClientView() {
   return (
     <>
       <PageHeader
-        title="Therapists"
+        title="User"
         description="Manage and view your therapist base."
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <MetricCard
-          title="Total Therapists"
+          title="Total User"
           value={data?.data?.stats?.totalTherapists ?? data?.data?.meta?.total ?? 0}
           icon={Users}
         />
@@ -95,7 +95,7 @@ export default function TherapistsClientView() {
         <Card className="lg:col-span-3 bg-card border border-border">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base font-medium">All Therapists</CardTitle>
+              <CardTitle className="text-base font-medium">All User</CardTitle>
               <div className="relative w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input

@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Plus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -37,6 +38,7 @@ interface Event {
   end_time: string;
   timezone: string;
   location: string;
+  entryRequirements: string[];
   description: string;
   status: "Pending" | "Approved" | "Rejected";
   requested_by?: string;
@@ -75,6 +77,7 @@ const EMPTY_FORM: EventFormData = {
   end_time: "",
   timezone: typeof window !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC" : "UTC",
   location: "",
+  entryRequirements: [],
   description: "",
 };
 
@@ -86,9 +89,14 @@ export function EventForm({
   isSubmitting = false,
   existingImage,
 }: EventFormProps) {
-  const [form, setForm] = useState<EventFormData>(initial);
+  const [form, setForm] = useState<EventFormData>(() => ({
+    ...EMPTY_FORM,
+    ...initial,
+    entryRequirements: initial.entryRequirements ?? [],
+  }));
   const [error, setError] = useState("");
   const [imagePreview, setImagePreview] = useState(existingImage ?? "");
+  const [requirementInput, setRequirementInput] = useState("");
 
   useEffect(() => {
     return () => {
@@ -117,7 +125,25 @@ export function EventForm({
       return;
     }
 
-    await onSubmit(form);
+    const pendingRequirement = requirementInput.trim();
+    const shouldIncludePendingRequirement =
+      form.event_type === "social_event" &&
+      pendingRequirement.length > 0 &&
+      !form.entryRequirements.some(
+        (item) => item.toLowerCase() === pendingRequirement.toLowerCase(),
+      );
+
+    await onSubmit(
+      shouldIncludePendingRequirement
+        ? {
+            ...form,
+            entryRequirements: [
+              ...form.entryRequirements,
+              pendingRequirement,
+            ],
+          }
+        : form,
+    );
   }
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -137,6 +163,30 @@ export function EventForm({
     setError("");
     set("eventImage", file);
     setImagePreview(URL.createObjectURL(file));
+  }
+
+  function addEntryRequirement() {
+    const requirement = requirementInput.trim();
+    if (!requirement) return;
+
+    const alreadyExists = form.entryRequirements.some(
+      (item) => item.toLowerCase() === requirement.toLowerCase(),
+    );
+    if (alreadyExists) {
+      setError("This entry requirement has already been added.");
+      return;
+    }
+
+    set("entryRequirements", [...form.entryRequirements, requirement]);
+    setRequirementInput("");
+    setError("");
+  }
+
+  function removeEntryRequirement(index: number) {
+    set(
+      "entryRequirements",
+      form.entryRequirements.filter((_, itemIndex) => itemIndex !== index),
+    );
   }
 
   return (
@@ -176,6 +226,58 @@ export function EventForm({
           </SelectContent>
         </Select>
       </div>
+
+      {form.event_type === "social_event" && (
+        <div className="space-y-2">
+          <Label htmlFor="entry_requirement">Entry Requirements</Label>
+          <div className="flex gap-2">
+            <Input
+              id="entry_requirement"
+              placeholder="e.g. ID Card"
+              value={requirementInput}
+              onChange={(e) => setRequirementInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addEntryRequirement();
+                }
+              }}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={addEntryRequirement}
+              disabled={!requirementInput.trim()}
+            >
+              <Plus className="h-4 w-4" />
+              Add
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Add each item separately. Press Enter or select Add.
+          </p>
+          {form.entryRequirements.length > 0 && (
+            <div className="flex flex-wrap gap-2 rounded-md border bg-muted/30 p-3">
+              {form.entryRequirements.map((requirement, index) => (
+                <span
+                  key={`${requirement}-${index}`}
+                  className="inline-flex items-center gap-1 rounded-full border bg-background px-3 py-1 text-sm"
+                >
+                  {requirement}
+                  <button
+                    type="button"
+                    className="rounded-full text-muted-foreground transition-colors hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    onClick={() => removeEntryRequirement(index)}
+                    aria-label={`Remove ${requirement}`}
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="event_image">

@@ -24,6 +24,7 @@ export function EventFormDialog({ open, event, tab, saving, onOpenChange, onSubm
       end_time: event.source.endTime,
       timezone: event.source.timezone || defaultTz,
       location: event.venue === "Zoom" ? "" : event.venue,
+      entryRequirements: event.requirements,
       description: event.description
     }
     : {
@@ -34,6 +35,7 @@ export function EventFormDialog({ open, event, tab, saving, onOpenChange, onSubm
       end_time: "",
       timezone: defaultTz,
       location: "",
+      entryRequirements: [],
       description: ""
     }
 

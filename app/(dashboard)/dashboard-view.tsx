@@ -1,28 +1,7 @@
 "use client";
 
-import { useGetAllTherapistsQuery } from "@/lib/redux/services/userApis";
-import { useGetDashboardStatsQuery } from "@/lib/redux/services/dashboardApis";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { PageHeader } from "@/components/dashboard/page-header";
-import dynamic from "next/dynamic";
-
-const ProfitChart = dynamic(
-  () =>
-    import("@/components/dashboard/profit-chart").then((m) => m.ProfitChart),
-  {
-    ssr: false,
-    loading: () => <Skeleton className="h-70 w-full rounded-xl" />,
-  },
-);
-
-const UsersMatrix = dynamic(
-  () =>
-    import("@/components/dashboard/users-matrix").then((m) => m.UsersMatrix),
-  {
-    ssr: false,
-    loading: () => <Skeleton className="h-70 w-full rounded-xl" />,
-  },
-);
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,6 +21,8 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import UserDetails from "@/components/ui/user-details";
+import { useGetDashboardStatsQuery } from "@/lib/redux/services/dashboardApis";
+import { useGetAllTherapistsQuery } from "@/lib/redux/services/userApis";
 import { getStatusColor } from "@/lib/utils";
 import {
   AlertCircle,
@@ -52,8 +33,27 @@ import {
   RefreshCw,
   Users,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
+
+const ProfitChart = dynamic(
+  () =>
+    import("@/components/dashboard/profit-chart").then((m) => m.ProfitChart),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-70 w-full rounded-xl" />,
+  },
+);
+
+const UsersMatrix = dynamic(
+  () =>
+    import("@/components/dashboard/users-matrix").then((m) => m.UsersMatrix),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-70 w-full rounded-xl" />,
+  },
+);
 
 export default function DashboardClientView() {
   const [selectedYear, setSelectedYear] = useState<string>("2026");
@@ -320,7 +320,7 @@ export default function DashboardClientView() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-base font-medium">
-                Recent Therapists
+                Recent User
               </CardTitle>
               <CardDescription>
                 Latest therapists added to the platform

@@ -90,6 +90,11 @@ export function useEventManagement(type: EventType) {
       endTime: data.end_time,
       timezone: data.timezone,
       location: data.location.trim(),
+      ...(data.event_type === "social_event" && {
+        entryRequirements: data.entryRequirements
+          .map((requirement) => requirement.trim())
+          .filter(Boolean),
+      }),
     };
   }
 
