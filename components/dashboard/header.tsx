@@ -225,12 +225,12 @@ function HeaderInner() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
-                <Link href="/settings" className="flex items-center gap-2">
+              <Link href="/settings" className="flex items-center gap-2 w-full hover:bg-green-100">
+                <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
                   <Settings className="w-4 h-4 text-muted-foreground" />
                   <span>Setting</span>
-                </Link>
-              </DropdownMenuItem>
+                </DropdownMenuItem>
+              </Link>
               <DropdownMenuItem
                 onClick={handleLogout}
                 className="text-destructive focus:text-destructive cursor-pointer flex items-center gap-2"
