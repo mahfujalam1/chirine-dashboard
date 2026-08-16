@@ -1,5 +1,7 @@
-import { memo, useRef, useEffect, useState, useMemo } from 'react';
-import JoditEditor from 'jodit-react';
+"use client";
+
+import { memo, useRef, useEffect, useState, useMemo } from "react";
+import JoditEditor from "jodit-react";
 
 const JoditComponent = ({ content, setContent }: { content: string, setContent: (content: string) => void }) => {
   const editor = useRef(null);
@@ -55,7 +57,8 @@ const JoditComponent = ({ content, setContent }: { content: string, setContent: 
     () => (
       <JoditEditor
         ref={editor}
-        value={content || ''}
+        value={content || ""}
+        onChange={(newContent) => setContent(newContent)}
         onBlur={(newContent) => setContent(newContent)}
         config={config}
         tabIndex={1}

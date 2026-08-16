@@ -14,10 +14,11 @@ import {
   Menu,
   MessageSquare,
   MoreHorizontal,
-  Settings,
+  ScrollText,
+  ShieldCheck,
   Target,
   User,
-  Users,
+  Users
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -61,6 +62,8 @@ const navItems: NavItem[] = [
   { label: "Support", href: "/support", icon: HelpCircle },
   { label: "Chat Management", href: "/chat-management", icon: MessageSquare },
   { label: "Chat Assets", href: "/chat-assets", icon: FolderKanban },
+  { label: "Privacy Policy", href: "/privacy-policy", icon: ShieldCheck },
+  { label: "Terms & Conditions", href: "/terms-conditions", icon: ScrollText },
 ];
 
 const fallbackAvatar =
@@ -225,12 +228,6 @@ function HeaderInner() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <Link href="/settings" className="flex items-center gap-2 w-full hover:bg-green-100">
-                <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
-                  <Settings className="w-4 h-4 text-muted-foreground" />
-                  <span>Setting</span>
-                </DropdownMenuItem>
-              </Link>
               <DropdownMenuItem
                 onClick={handleLogout}
                 className="text-destructive focus:text-destructive cursor-pointer flex items-center gap-2"
