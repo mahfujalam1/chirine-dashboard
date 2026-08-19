@@ -89,11 +89,16 @@ export function useEventManagement(type: EventType) {
       startTime: data.start_time,
       endTime: data.end_time,
       timezone: data.timezone,
-      location: data.location.trim(),
+      ...(data.event_type !== "coffee_connect" && {
+        location: data.location.trim(),
+      }),
       ...(data.event_type === "social_event" && {
         entryRequirements: data.entryRequirements
           .map((requirement) => requirement.trim())
           .filter(Boolean),
+      }),
+      ...(data.event_type === "lunch_and_learn" && {
+        speakerName: data.speakerName.trim(),
       }),
     };
   }

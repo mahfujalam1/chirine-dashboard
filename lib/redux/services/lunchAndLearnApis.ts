@@ -17,6 +17,7 @@ export interface LunchAndLearnEvent {
   startTime: string;
   endTime: string;
   timezone?: string;
+  speakerName?: string;
   zoomMeetingId: string;
   zoomMeetingPassword: string;
   zoomJoinUrl: string;

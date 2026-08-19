@@ -6,8 +6,9 @@ export interface CreateEventPayload {
   startTime: string;
   endTime: string;
   timezone: string;
-  location: string;
+  location?: string;
   entryRequirements?: string[];
+  speakerName?: string;
 }
 
 export type UpdateEventPayload = Omit<CreateEventPayload, 'eventImage'> & {

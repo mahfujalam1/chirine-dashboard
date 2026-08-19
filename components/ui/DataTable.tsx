@@ -327,6 +327,7 @@ function DataTableInner<T extends object>({
   );
 
   const showPagination = !!meta;
+  const showInitialLoader = loading && data.length === 0;
   const effectiveMeta = useMemo(
     () => (meta ? { ...meta, page: currentPage } : null),
     [meta, currentPage],
@@ -336,7 +337,10 @@ function DataTableInner<T extends object>({
     <div className={cn("w-full space-y-0", className)}>
       {/* Table wrapper */}
       <div className={cn("w-full overflow-auto rounded border border-border")}>
-        <table className="w-full bg-card caption-bottom text-sm">
+        <table
+          className="w-full bg-card caption-bottom text-sm"
+          aria-busy={showInitialLoader}
+        >
           {/* ── Head ── */}
           <thead
             className={cn(
@@ -378,7 +382,7 @@ function DataTableInner<T extends object>({
 
           {/* ── Body ── */}
           <tbody>
-            {loading ? (
+            {showInitialLoader ? (
               Array.from({ length: meta?.limit ?? 5 }).map((_, i) => (
                 <SkeletonRow key={i} colCount={columns.length} />
               ))

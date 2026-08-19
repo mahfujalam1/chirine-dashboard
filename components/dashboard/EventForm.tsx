@@ -39,6 +39,7 @@ interface Event {
   timezone: string;
   location: string;
   entryRequirements: string[];
+  speakerName: string;
   description: string;
   status: "Pending" | "Approved" | "Rejected";
   requested_by?: string;
@@ -78,6 +79,7 @@ const EMPTY_FORM: EventFormData = {
   timezone: typeof window !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC" : "UTC",
   location: "",
   entryRequirements: [],
+  speakerName: "",
   description: "",
 };
 
@@ -122,6 +124,13 @@ export function EventForm({
     }
     if (form.end_time <= form.start_time) {
       setError("End time must be later than start time.");
+      return;
+    }
+    if (
+      form.event_type === "lunch_and_learn" &&
+      !form.speakerName.trim()
+    ) {
+      setError("Speaker name is required for HotCast events.");
       return;
     }
 
@@ -279,6 +288,21 @@ export function EventForm({
         </div>
       )}
 
+      {form.event_type === "lunch_and_learn" && (
+        <div className="space-y-1.5">
+          <Label htmlFor="speaker_name">
+            Speaker Name <span className="text-destructive">*</span>
+          </Label>
+          <Input
+            id="speaker_name"
+            placeholder="e.g. Dr. Jane Smith"
+            value={form.speakerName}
+            onChange={(e) => set("speakerName", e.target.value)}
+            required
+          />
+        </div>
+      )}
+
       <div className="space-y-2">
         <Label htmlFor="event_image">
           Event Image {!isEdit && <span className="text-destructive">*</span>}
@@ -310,7 +334,11 @@ export function EventForm({
       </div>
 
       {/* Date + Location */}
-      <div className="grid grid-cols-2 gap-1">
+      <div
+        className={`grid gap-1 ${
+          form.event_type === "coffee_connect" ? "grid-cols-1" : "grid-cols-2"
+        }`}
+      >
         <div className="space-y-1.5">
           <Label htmlFor="date">
             Date <span className="text-destructive">*</span>
@@ -323,18 +351,20 @@ export function EventForm({
             required
           />
         </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="location">
-            Location <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="location"
-            placeholder="e.g. Room 3B, HQ"
-            value={form.location}
-            onChange={(e) => set("location", e.target.value)}
-            required
-          />
-        </div>
+        {form.event_type !== "coffee_connect" && (
+          <div className="space-y-1.5">
+            <Label htmlFor="location">
+              Location <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="location"
+              placeholder="e.g. Room 3B, HQ"
+              value={form.location}
+              onChange={(e) => set("location", e.target.value)}
+              required
+            />
+          </div>
+        )}
       </div>
 
       {/* Start / End time */}
