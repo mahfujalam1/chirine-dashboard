@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const baseUrl =
   process.env.NEXT_PUBLIC_API_URL ||
-  "https://v59d514q-8000.aue.devtunnels.ms/api/v1";
+  "http://15.157.222.174:8000/api/v1";
 
 const getCookie = (name: string) => {
   if (typeof document === "undefined") return null;
