@@ -2,6 +2,7 @@ import { GoverningBody } from "@/lib/redux/services/governingBodyApis"
 import { Button } from "@/components/ui/button"
 import { ColumnDef, DataTable } from "@/components/ui/DataTable"
 import { Pencil, Trash2 } from "lucide-react"
+import { formatUsDate } from "@/lib/date-utils"
 
 interface GoverningBodiesTableProps {
   governingBodies: GoverningBody[]
@@ -16,13 +17,12 @@ export function GoverningBodiesTable({
   onEdit,
   onDelete,
 }: GoverningBodiesTableProps) {
-  const dateFormatter = new Intl.DateTimeFormat("en", { dateStyle: "medium" })
 
   const columns: ColumnDef<GoverningBody>[] = [
     { title: "Governing Body", key: "name" },
     { title: "Profession", renderItem: (item) => item.profession.name },
-    { title: "Created", renderItem: (item) => dateFormatter.format(new Date(item.createdAt)) },
-    { title: "Updated", renderItem: (item) => dateFormatter.format(new Date(item.updatedAt)) },
+    { title: "Created", renderItem: (item) => formatUsDate(item.createdAt) },
+    { title: "Updated", renderItem: (item) => formatUsDate(item.updatedAt) },
     {
       title: "Actions",
       align: "right",

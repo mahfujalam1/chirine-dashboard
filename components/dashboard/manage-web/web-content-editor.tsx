@@ -15,6 +15,7 @@ import { AlertCircle, RefreshCw, RotateCcw, Save } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { formatUsDateTime } from "@/lib/date-utils";
 
 const JoditComponent = dynamic(
   () => import("@/components/dashboard/JoditComponent"),
@@ -36,15 +37,6 @@ interface WebContentEditorProps {
   isSaving: boolean;
   refetch: () => void;
   onSave: (description: string) => Promise<{ message?: string }>;
-}
-
-function formatUpdatedAt(value?: string) {
-  if (!value) return "Not available";
-
-  return new Intl.DateTimeFormat("en", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
 }
 
 export function WebContentEditor({
@@ -120,7 +112,7 @@ export function WebContentEditor({
           <CardHeader className="border-b">
             <CardTitle>Edit {documentLabel}</CardTitle>
             <CardDescription>
-              Use the editor below to format the content shown to users. Last updated: {isLoading ? "Loading..." : formatUpdatedAt(updatedAt)}
+              Use the editor below to format the content shown to users. Last updated: {isLoading ? "Loading..." : formatUsDateTime(updatedAt, "Not available")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">

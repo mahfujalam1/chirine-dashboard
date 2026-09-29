@@ -36,6 +36,7 @@ import {
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { formatUsDate } from "@/lib/date-utils";
 
 const ProfitChart = dynamic(
   () =>
@@ -110,9 +111,7 @@ export default function DashboardClientView() {
         title: "Joined",
         renderItem: (value: any) => (
           <span className="text-nowrap">
-            {value?.createdAt
-              ? new Date(value.createdAt).toLocaleDateString()
-              : ""}
+            {formatUsDate(value?.createdAt, "")}
           </span>
         ),
       },

@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { formatUsDate } from "@/lib/date-utils";
 
 function initials(name: string) {
   return name
@@ -36,13 +37,6 @@ function initials(name: string) {
     .join("")
     .slice(0, 2)
     .toUpperCase();
-}
-
-function joinedDate(value: string) {
-  return new Intl.DateTimeFormat("en", {
-    month: "long",
-    year: "numeric",
-  }).format(new Date(value));
 }
 
 export default function ProfileClientView() {
@@ -171,7 +165,7 @@ export default function ProfileClientView() {
                 </p>
                 <p className="flex items-center gap-3">
                   <Calendar className="h-4 w-4 shrink-0 text-muted-foreground" />
-                  <span>Joined {joinedDate(profile.createdAt)}</span>
+                  <span>Joined {formatUsDate(profile.createdAt)}</span>
                 </p>
               </div>
             </div>

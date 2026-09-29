@@ -32,6 +32,8 @@ import {
 } from "@/components/ui/card";
 import { ColumnDef, DataTable } from "@/components/ui/DataTable";
 import { Input } from "@/components/ui/input";
+import { formatUsDate } from "@/lib/date-utils";
+import { useDebounce } from "@/hooks/use-debounce";
 import {
   Bug,
   CheckCircle,
@@ -52,14 +54,6 @@ const STATUS_STYLES: Record<ReportStatus, string> = {
   Resolved: "border-emerald-200 bg-emerald-50 text-emerald-700",
   Rejected: "border-red-200 bg-red-50 text-red-700",
 };
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(
-    new Date(value),
-  );
-}
-
-import { useDebounce } from "@/hooks/use-debounce";
 
 export default function ReportsClientView() {
   const [status, setStatus] = useState<ReportStatus | null>(null);
@@ -148,7 +142,7 @@ export default function ReportsClientView() {
       title: "Date",
       renderItem: (report) => (
         <span className="text-muted-foreground">
-          {formatDate(report.createdAt)}
+          {formatUsDate(report.createdAt)}
         </span>
       ),
     },

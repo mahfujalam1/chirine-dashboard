@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
+import { formatUsDate } from "@/lib/date-utils";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -73,7 +74,7 @@ function AssetCard({ asset, onDelete, view }: AssetCardProps) {
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <p className="text-xs text-muted-foreground hidden sm:block">
-            {asset?.createdAt}
+            {formatUsDate(asset?.createdAt)}
           </p>
           <Button
             variant="ghost"

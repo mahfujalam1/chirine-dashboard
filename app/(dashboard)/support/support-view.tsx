@@ -50,6 +50,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
+import { formatUsDate } from "@/lib/date-utils";
 
 const STATUS_STYLES: Record<TicketStatus, string> = {
   Pending: "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-950 dark:bg-amber-900/20 dark:text-amber-400",
@@ -59,17 +60,6 @@ const STATUS_STYLES: Record<TicketStatus, string> = {
 
 const fallbackAvatar =
   "https://static.vecteezy.com/system/resources/previews/042/332/098/non_2x/default-avatar-profile-icon-grey-photo-placeholder-female-no-photo-images-for-unfilled-user-profile-greyscale-illustration-for-socail-media-web-vector.jpg";
-
-function formatDate(value: string) {
-  if (!value) return "N/A";
-  try {
-    return new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(
-      new Date(value)
-    );
-  } catch {
-    return value;
-  }
-}
 
 export default function SupportClientView() {
   const [status, setStatus] = useState<TicketStatus | null>(null);
@@ -194,7 +184,7 @@ export default function SupportClientView() {
       title: "Date",
       renderItem: (ticket) => (
         <span className="text-xs text-muted-foreground whitespace-nowrap">
-          {formatDate(ticket.createdAt)}
+          {formatUsDate(ticket.createdAt)}
         </span>
       ),
     },

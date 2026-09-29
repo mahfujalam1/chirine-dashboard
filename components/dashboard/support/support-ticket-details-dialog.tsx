@@ -24,6 +24,7 @@ import {
   Trash2,
   User,
 } from "lucide-react";
+import { formatUsDateTime } from "@/lib/date-utils";
 
 const STATUS_STYLES: Record<TicketStatus, string> = {
   Pending: "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-950 dark:bg-amber-900/20 dark:text-amber-400",
@@ -33,18 +34,6 @@ const STATUS_STYLES: Record<TicketStatus, string> = {
 
 const fallbackAvatar =
   "https://static.vecteezy.com/system/resources/previews/042/332/098/non_2x/default-avatar-profile-icon-grey-photo-placeholder-female-no-photo-images-for-unfilled-user-profile-greyscale-illustration-for-socail-media-web-vector.jpg";
-
-function formatDateTime(value: string) {
-  if (!value) return "N/A";
-  try {
-    return new Intl.DateTimeFormat("en", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(new Date(value));
-  } catch {
-    return value;
-  }
-}
 
 interface SupportTicketDetailsDialogProps {
   ticket: SupportTicket | null;
@@ -134,7 +123,7 @@ export function SupportTicketDetailsDialog({
                 {ticket.repliedAt && (
                   <span className="text-xs text-muted-foreground flex items-center gap-1">
                     <Clock className="h-3 w-3" />
-                    {formatDateTime(ticket.repliedAt)}
+                    {formatUsDateTime(ticket.repliedAt)}
                   </span>
                 )}
               </div>
@@ -148,11 +137,11 @@ export function SupportTicketDetailsDialog({
           <div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2 pt-1 border-t border-border">
             <p className="flex items-center gap-1.5">
               <Calendar className="h-3.5 w-3.5" /> Created:{" "}
-              {formatDateTime(ticket.createdAt)}
+              {formatUsDateTime(ticket.createdAt)}
             </p>
             <p className="flex items-center gap-1.5">
               <Clock className="h-3.5 w-3.5" /> Updated:{" "}
-              {formatDateTime(ticket.updatedAt)}
+              {formatUsDateTime(ticket.updatedAt)}
             </p>
           </div>
         </div>

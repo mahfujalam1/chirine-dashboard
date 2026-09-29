@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { ColumnDef, DataTable } from "@/components/ui/DataTable"
 import { Pencil, Trash2 } from "lucide-react"
 import Image from "next/image"
+import { formatUsDate } from "@/lib/date-utils"
 
 interface ProfessionsTableProps {
   professions: Profession[]
@@ -41,8 +42,7 @@ export function ProfessionsTable({
     { title: "Profession", key: "name" },
     {
       title: "Created",
-      renderItem: (profession) => new Intl.DateTimeFormat("en", { dateStyle: "medium" })
-        .format(new Date(profession.createdAt)),
+      renderItem: (profession) => formatUsDate(profession.createdAt),
     },
     {
       title: "Actions",

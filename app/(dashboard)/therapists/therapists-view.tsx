@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from "react"
 
 import { MetricCard } from "@/components/dashboard/metric-card"
+import { formatUsDate } from "@/lib/date-utils"
 
 type FilterType = 'All' | 'Pending' | 'Active' | 'Blocked'
 
@@ -165,7 +166,7 @@ export default function TherapistsClientView() {
                   title: "Joined",
                   renderItem: (value) => (
                     <span className='text-nowrap'>
-                      {new Date(value?.createdAt).toLocaleDateString()}
+                      {formatUsDate(value?.createdAt)}
                     </span>
                   )
                 },

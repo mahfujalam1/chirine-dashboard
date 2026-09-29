@@ -46,6 +46,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { formatUsDate, formatUsDateTime } from "@/lib/date-utils";
 import "./switch.css";
 type StatusFilter = "All" | "Active" | "Blocked";
 
@@ -190,9 +191,7 @@ export default function ChatManagementClientView() {
         title: "Created Date",
         renderItem: (chat) => (
           <span className="text-xs text-muted-foreground text-nowrap">
-            {chat.createdAt
-              ? new Date(chat.createdAt).toLocaleDateString()
-              : "-"}
+            {formatUsDate(chat.createdAt, "-")}
           </span>
         ),
       },
@@ -501,11 +500,10 @@ export default function ChatManagementClientView() {
                         {selectedChat.lastMessage.sender?.fullName || "Sender"}
                       </span>
                       <span className="text-muted-foreground">
-                        {selectedChat.lastMessage.createdAt
-                          ? new Date(
-                            selectedChat.lastMessage.createdAt,
-                          ).toLocaleString()
-                          : ""}
+                        {formatUsDateTime(
+                          selectedChat.lastMessage.createdAt,
+                          "",
+                        )}
                       </span>
                     </div>
                     <p className="text-sm text-foreground">

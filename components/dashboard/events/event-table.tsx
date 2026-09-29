@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { ColumnDef, DataTable } from "@/components/ui/DataTable"
 import { ExternalLink, Pencil, Trash2 } from "lucide-react"
 import Image from "next/image"
+import { formatUsDate } from "@/lib/date-utils"
 
 export function EventsTable({ rows, type, loading, emptyText, onEdit, onDelete, onParticipants }: {
   rows: EventRow[]
@@ -27,7 +28,7 @@ export function EventsTable({ rows, type, loading, emptyText, onEdit, onDelete, 
         <div className="min-w-0"><p className="font-medium">{event.title}</p><p className="max-w-72 truncate text-xs text-muted-foreground">{event.description}</p></div>
       </div>,
     },
-    { title: "Date", key: "date" },
+    { title: "Date", renderItem: (event) => formatUsDate(event.date) },
     { title: "Time", key: "time" },
     { title: "Venue", key: "venue" },
     {

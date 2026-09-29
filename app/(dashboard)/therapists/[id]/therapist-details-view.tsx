@@ -1,6 +1,7 @@
 "use client"
 
 import { PageHeader } from "@/components/dashboard/page-header"
+import { formatUsDate, formatUsDateTime } from "@/lib/date-utils"
 import { LoadingScreen } from '@/components/loading-screen'
 import {
   AlertDialog,
@@ -167,14 +168,7 @@ export default function TherapistDetailsClientView() {
   const governingBodyName = getName(therapist?.governingBody?.name)
 
   const formatDate = (date: string, withTime = false) =>
-    date
-      ? new Date(date).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        ...(withTime ? { hour: '2-digit', minute: '2-digit' } : {}),
-      })
-      : 'N/A'
+    withTime ? formatUsDateTime(date) : formatUsDate(date)
 
   const InfoRow = ({ label, value, icon: Icon }: { label: string; value?: string | null; icon?: any }) => (
     <div className="space-y-0.5">

@@ -48,6 +48,7 @@ import {
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { formatUsDate, formatUsDateTime } from "@/lib/date-utils";
 
 const EVENT_LABELS: Record<RequestEvent["eventType"], string> = {
   CoffeeConnect: "Coffee Connect",
@@ -60,13 +61,6 @@ const STATUS_STYLES: Record<RequestEvent["status"], string> = {
   Accepted: "border-emerald-200 bg-emerald-50 text-emerald-700",
   Rejected: "border-red-200 bg-red-50 text-red-700",
 };
-
-function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat("en", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-}
 
 import { useDebounce } from "@/hooks/use-debounce";
 
@@ -155,7 +149,7 @@ export default function EventRequestsClientView() {
       title: "Type",
       renderItem: (event) => <span>{EVENT_LABELS[event.eventType]}</span>,
     },
-    { title: "Date", key: "date" },
+    { title: "Date", renderItem: (event) => formatUsDate(event.date) },
     {
       title: "Requested By",
       renderItem: (event) => (
@@ -346,7 +340,9 @@ export default function EventRequestsClientView() {
                   <Calendar className="mt-0.5 h-4 w-4 text-muted-foreground" />
                   <div>
                     <p className="text-xs text-muted-foreground">Date</p>
-                    <p className="font-medium">{selectedEvent.date}</p>
+                    <p className="font-medium">
+                      {formatUsDate(selectedEvent.date)}
+                    </p>
                   </div>
                 </div>
                 <div className="flex gap-3">
@@ -406,8 +402,8 @@ export default function EventRequestsClientView() {
                 )}
               </div>
               <div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
-                <p>Submitted: {formatDateTime(selectedEvent.createdAt)}</p>
-                <p>Last updated: {formatDateTime(selectedEvent.updatedAt)}</p>
+                <p>Submitted: {formatUsDateTime(selectedEvent.createdAt)}</p>
+                <p>Last updated: {formatUsDateTime(selectedEvent.updatedAt)}</p>
               </div>
               <DialogFooter className="flex-wrap sm:justify-between">
                 <Button
