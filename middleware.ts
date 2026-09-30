@@ -17,6 +17,7 @@ export function middleware(request: NextRequest) {
     pathname === "/" ||
     pathname.startsWith("/chat-assets") ||
     pathname.startsWith("/chat-management") ||
+    pathname.startsWith("/app-version") ||
     pathname.startsWith("/events") ||
     pathname.startsWith("/events-requests") ||
     pathname.startsWith("/governing-bodies") ||
@@ -47,6 +48,7 @@ export const config = {
     "/reset-password",
     "/chat-assets/:path*",
     "/chat-management/:path*",
+    "/app-version/:path*",
     "/events/:path*",
     "/events-requests/:path*",
     "/governing-bodies/:path*",

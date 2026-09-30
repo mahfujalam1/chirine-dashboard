@@ -210,14 +210,14 @@ function AssetForm({ onCancel }: AssetFormProps) {
       formData.append("tags", JSON.stringify(form.tags))
 
       // Log the form data for debugging (remove in production)
-      console.log("Uploading asset:", {
-        label: form.label.trim(),
-        type: form.type,
-        tags: form.tags,
-        fileName: form.file.name,
-        fileSize: form.file.size,
-        fileType: form.file.type
-      })
+      // console.log("Uploading asset:", {
+      //   label: form.label.trim(),
+      //   type: form.type,
+      //   tags: form.tags,
+      //   fileName: form.file.name,
+      //   fileSize: form.file.size,
+      //   fileType: form.file.type
+      // })
 
       // Make the API call
       const res = await createAssets(formData).unwrap()

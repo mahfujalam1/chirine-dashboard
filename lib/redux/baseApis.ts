@@ -48,7 +48,8 @@ const baseApis = createApi({
     "customerSupport",
     "setting",
     "expertise",
-    "manageWeb"
+    "manageWeb",
+    "appVersion"
   ],
   endpoints: () => ({}),
 });
