@@ -44,10 +44,17 @@ export default function LoginPage() {
       }
       if (res?.data?.accessToken) {
         localStorage.setItem("accessToken", res?.data?.accessToken);
-        await setAuthToken(res.data.accessToken);
+        // Set cookie client-side first so it works even if the server action fails (e.g. behind a proxy / plain HTTP)
+        document.cookie = `accessToken=${res.data.accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; samesite=lax`;
+        try {
+          await setAuthToken(res.data.accessToken);
+        } catch (err) {
+          console.error("setAuthToken failed", err);
+        }
       }
       toast.success(res?.message || "Sign in successful");
-      router.push("/");
+      // Hard navigation avoids stale router cache (prefetched redirect to /login)
+      window.location.replace("/");
     } catch (error: any) {
       const errorMessage =
         error?.data?.message || error?.message || "Sign in failed";

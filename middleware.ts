@@ -27,12 +27,14 @@ export function middleware(request: NextRequest) {
     pathname.startsWith("/therapists");
 
   if (isProtectedRoute && !token) {
-    const loginUrl = new URL("/login", request.url);
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
     return NextResponse.redirect(loginUrl);
   }
 
   if (isAuthRoute && token) {
-    const homeUrl = new URL("/", request.url);
+    const homeUrl = request.nextUrl.clone();
+    homeUrl.pathname = "/";
     return NextResponse.redirect(homeUrl);
   }
 
