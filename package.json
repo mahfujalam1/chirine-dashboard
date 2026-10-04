@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
-    "dev": "next dev --webpack",
+    "build": "node api.js && next build",
+    "dev": "node api.js && next dev --webpack",
     "lint": "eslint .",
-    "start": "next start"
+    "start": "node api.js && next start"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "1.1.4",
