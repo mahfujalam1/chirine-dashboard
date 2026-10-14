@@ -221,6 +221,7 @@ export function EventForm({
         </Label>
         <Select
           value={form.event_type}
+          disabled={isEdit}
           onValueChange={(v) =>
             set("event_type", v as EventFormData["event_type"])
           }
@@ -234,6 +235,11 @@ export function EventForm({
             <SelectItem value="lunch_and_learn">HotCast</SelectItem>
           </SelectContent>
         </Select>
+        {isEdit && (
+          <p className="text-xs text-muted-foreground">
+            Event type cannot be changed after creation.
+          </p>
+        )}
       </div>
 
       {form.event_type === "social_event" && (

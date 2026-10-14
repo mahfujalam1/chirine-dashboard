@@ -40,6 +40,9 @@ const expertiseApis = baseApis.injectEndpoints({
       query: () => ({
         url: "/expertise/admin-expertise",
         method: "GET",
+        params: {
+          limit: 999
+        }
       }),
       providesTags: ["expertise"],
     }),
