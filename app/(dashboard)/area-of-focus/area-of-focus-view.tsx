@@ -36,7 +36,7 @@ export default function AreaOfFocusClientView() {
   const expertiseQuery = useGetAdminExpertiseQuery();
   const [createExpertise, createState] = useCreateExpertiseMutation();
   const [deleteExpertise, deleteState] = useDeleteExpertiseMutation();
-
+  console.log(expertiseQuery.data?.data)
   const expertise = useMemo(
     () => expertiseQuery.data?.data ?? [],
     [expertiseQuery.data],

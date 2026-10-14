@@ -21,6 +21,7 @@ export interface RequestEvent {
   date: string;
   startTime: string;
   endTime: string;
+  timezone?: string;
   eventType: 'CoffeeConnect' | 'SocialEvent' | 'LunchAndLearn';
   maxParticipants?: number;
   entryRequirements?: string[];
