@@ -18,6 +18,11 @@ export interface CreateExpertisePayload {
   icon: File;
 }
 
+export interface UpdateExpertisePayload {
+  name: string;
+  icon?: File | null;
+}
+
 export interface ExpertiseMutationResponse {
   success: boolean;
   statusCode: number;
@@ -25,12 +30,12 @@ export interface ExpertiseMutationResponse {
   data?: Expertise;
 }
 
-function createExpertiseFormData({ name, icon }: CreateExpertisePayload) {
+function createExpertiseFormData({ name, icon }: UpdateExpertisePayload) {
   const formData = new FormData();
-
   formData.append("name", name.trim());
-  formData.append("icon", icon);
-
+  if (icon) {
+    formData.append("icon", icon);
+  }
   return formData;
 }
 
@@ -66,6 +71,14 @@ const expertiseApis = baseApis.injectEndpoints({
       }),
       invalidatesTags: ["expertise"],
     }),
+    updateExpertise: builder.mutation<ExpertiseMutationResponse, { id: string; data: UpdateExpertisePayload }>({
+      query: ({ id, data }) => ({
+        url: `/expertise/${id}`,
+        method: "PATCH",
+        body: createExpertiseFormData(data),
+      }),
+      invalidatesTags: ["expertise"],
+    }),
   }),
 });
 
@@ -73,6 +86,7 @@ export const {
   useGetAdminExpertiseQuery,
   useCreateExpertiseMutation,
   useDeleteExpertiseMutation,
+  useUpdateExpertiseMutation,
 } = expertiseApis;
 
 export default expertiseApis;

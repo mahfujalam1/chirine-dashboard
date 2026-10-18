@@ -1,6 +1,6 @@
 "use client";
 
-import { CreateExpertisePayload } from "@/lib/redux/services/expertiseApis";
+import { Expertise, UpdateExpertisePayload } from "@/lib/redux/services/expertiseApis";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,26 +19,29 @@ import { toast } from "sonner";
 interface ExpertiseFormDialogProps {
   open: boolean;
   isSaving: boolean;
+  expertise?: Expertise | null;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: CreateExpertisePayload) => Promise<void>;
+  onSubmit: (data: UpdateExpertisePayload) => Promise<void>;
 }
 
 export function ExpertiseFormDialog({
   open,
   isSaving,
+  expertise,
   onOpenChange,
   onSubmit,
 }: ExpertiseFormDialogProps) {
+  const isEditing = !!expertise;
   const [name, setName] = useState("");
   const [icon, setIcon] = useState<File | null>(null);
   const [preview, setPreview] = useState("");
 
   useEffect(() => {
     if (!open) return;
-    setName("");
+    setName(expertise?.name ?? "");
     setIcon(null);
-    setPreview("");
-  }, [open]);
+    setPreview(expertise?.icon ?? "");
+  }, [open, expertise]);
 
   useEffect(() => {
     return () => {
@@ -69,7 +72,7 @@ export function ExpertiseFormDialog({
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!icon) {
+    if (!isEditing && !icon) {
       toast.error("Please select an icon.");
       return;
     }
@@ -81,9 +84,13 @@ export function ExpertiseFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add Area of Focus</DialogTitle>
+          <DialogTitle>
+            {isEditing ? "Update Area of Focus" : "Add Area of Focus"}
+          </DialogTitle>
           <DialogDescription>
-            Create an expertise option that therapists can use for their area of focus.
+            {isEditing
+              ? "Change the name or upload a new icon for this expertise option."
+              : "Create an expertise option that therapists can use for their area of focus."}
           </DialogDescription>
         </DialogHeader>
 
@@ -102,7 +109,14 @@ export function ExpertiseFormDialog({
 
           <div className="space-y-2">
             <Label htmlFor="expertise-icon">
-              Icon <span className="text-destructive">*</span>
+              Icon{" "}
+              {isEditing ? (
+                <span className="text-xs font-normal text-muted-foreground">
+                  (optional)
+                </span>
+              ) : (
+                <span className="text-destructive">*</span>
+              )}
             </Label>
 
             {preview ? (
@@ -113,8 +127,12 @@ export function ExpertiseFormDialog({
                   className="h-20 w-20 rounded-lg border bg-background object-cover"
                 />
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{icon?.name}</p>
-                  <p className="text-xs text-muted-foreground">New icon preview</p>
+                  <p className="truncate text-sm font-medium">
+                    {icon?.name ?? expertise?.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {icon ? "New icon preview" : "Current icon"}
+                  </p>
                 </div>
               </div>
             ) : (
@@ -127,15 +145,16 @@ export function ExpertiseFormDialog({
             )}
 
             <Input
-              key={String(open)}
+              key={`${expertise?._id ?? "new"}-${String(open)}`}
               id="expertise-icon"
               type="file"
               accept="image/png,image/jpeg,image/webp,image/svg+xml"
-              required
+              required={!isEditing}
               onChange={handleIconChange}
             />
             <p className="text-xs text-muted-foreground">
               PNG, JPEG, SVG, or WebP; maximum 5 MB.
+              {isEditing ? " Leave empty to keep the current icon." : ""}
             </p>
           </div>
 
@@ -148,8 +167,17 @@ export function ExpertiseFormDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSaving || !name.trim() || !icon}>
-              {isSaving ? "Creating..." : "Create Area of Focus"}
+            <Button
+              type="submit"
+              disabled={isSaving || !name.trim() || (!isEditing && !icon)}
+            >
+              {isEditing
+                ? isSaving
+                  ? "Updating..."
+                  : "Update Area of Focus"
+                : isSaving
+                  ? "Creating..."
+                  : "Create Area of Focus"}
             </Button>
           </DialogFooter>
         </form>

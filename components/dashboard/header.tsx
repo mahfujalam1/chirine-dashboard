@@ -50,7 +50,7 @@ export interface NavItem {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
 }
-
+    
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
   { label: "User", href: "/therapists", icon: Users },

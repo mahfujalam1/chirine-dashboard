@@ -1,18 +1,20 @@
 import { Expertise } from "@/lib/redux/services/expertiseApis";
 import { Button } from "@/components/ui/button";
 import { ColumnDef, DataTable } from "@/components/ui/DataTable";
-import { Trash2 } from "lucide-react";
+import { Edit2, Trash2 } from "lucide-react";
 
 interface ExpertiseTableProps {
   expertise: Expertise[];
   loading: boolean;
   onDelete: (expertise: Expertise) => void;
+  onUpdate: (expertise: Expertise) => void;
 }
 
 export function ExpertiseTable({
   expertise,
   loading,
   onDelete,
+  onUpdate
 }: ExpertiseTableProps) {
   const columns: ColumnDef<Expertise>[] = [
     {
@@ -39,16 +41,28 @@ export function ExpertiseTable({
       title: "Actions",
       align: "right",
       renderItem: (item) => (
-        <Button
-          size="icon"
-          variant="ghost"
-          title="Delete area of focus"
-          aria-label={`Delete ${item.name}`}
-          className="text-destructive hover:text-destructive"
-          onClick={() => onDelete(item)}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        <>
+          <Button
+            size="icon"
+            variant="ghost"
+            title="Edit area of focus"
+            aria-label={`Edit ${item.name}`}
+            className="text-[#10C091] hover:text-[#10C091]"
+            onClick={() => onUpdate(item)}
+          >
+            <Edit2 className="h-4 w-4" />
+          </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            title="Delete area of focus"
+            aria-label={`Delete ${item.name}`}
+            className="text-destructive hover:text-destructive"
+            onClick={() => onDelete(item)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </>
       ),
     },
   ];

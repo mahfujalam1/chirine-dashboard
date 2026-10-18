@@ -19,9 +19,11 @@ import { Input } from "@/components/ui/input";
 import {
   CreateExpertisePayload,
   Expertise,
+  UpdateExpertisePayload,
   useCreateExpertiseMutation,
   useDeleteExpertiseMutation,
   useGetAdminExpertiseQuery,
+  useUpdateExpertiseMutation,
 } from "@/lib/redux/services/expertiseApis";
 import { getErrorMessage } from "@/lib/utils";
 import { Plus, RefreshCw, Search, Target } from "lucide-react";
@@ -31,10 +33,12 @@ import { toast } from "sonner";
 export default function AreaOfFocusClientView() {
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<Expertise | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Expertise | null>(null);
 
   const expertiseQuery = useGetAdminExpertiseQuery();
   const [createExpertise, createState] = useCreateExpertiseMutation();
+  const [updateExpertise, updateState] = useUpdateExpertiseMutation();
   const [deleteExpertise, deleteState] = useDeleteExpertiseMutation();
   console.log(expertiseQuery.data?.data)
   const expertise = useMemo(
@@ -50,11 +54,32 @@ export default function AreaOfFocusClientView() {
     );
   }, [expertise, search]);
 
-  async function handleCreate(input: CreateExpertisePayload) {
+  function handleFormOpenChange(open: boolean) {
+    setFormOpen(open);
+    if (!open) setEditTarget(null);
+  }
+
+  async function handleSubmit(input: UpdateExpertisePayload) {
+    if (editTarget) {
+      try {
+        const response = await updateExpertise({
+          id: editTarget._id,
+          data: input,
+        }).unwrap();
+        toast.success(response.message || "Area of focus updated successfully.");
+        handleFormOpenChange(false);
+      } catch (error: unknown) {
+        toast.error(getErrorMessage(error, "Unable to update area of focus."));
+      }
+      return;
+    }
+
     try {
-      const response = await createExpertise(input).unwrap();
+      const response = await createExpertise(
+        input as CreateExpertisePayload,
+      ).unwrap();
       toast.success(response.message || "Area of focus created successfully.");
-      setFormOpen(false);
+      handleFormOpenChange(false);
     } catch (error: unknown) {
       toast.error(getErrorMessage(error, "Unable to create area of focus."));
     }
@@ -80,7 +105,10 @@ export default function AreaOfFocusClientView() {
       >
         <Button
           className="bg-[#00ACA7] text-white hover:bg-[#009691]"
-          onClick={() => setFormOpen(true)}
+          onClick={() => {
+            setEditTarget(null);
+            setFormOpen(true);
+          }}
         >
           <Plus className="mr-2 h-4 w-4" />
           Add Area of Focus
@@ -152,6 +180,10 @@ export default function AreaOfFocusClientView() {
               expertise={filteredExpertise}
               loading={expertiseQuery.isLoading || expertiseQuery.isFetching}
               onDelete={setDeleteTarget}
+              onUpdate={(item) => {
+                setEditTarget(item);
+                setFormOpen(true);
+              }}
             />
           )}
         </CardContent>
@@ -159,9 +191,10 @@ export default function AreaOfFocusClientView() {
 
       <ExpertiseFormDialog
         open={formOpen}
-        isSaving={createState.isLoading}
-        onOpenChange={setFormOpen}
-        onSubmit={handleCreate}
+        expertise={editTarget}
+        isSaving={editTarget ? updateState.isLoading : createState.isLoading}
+        onOpenChange={handleFormOpenChange}
+        onSubmit={handleSubmit}
       />
 
       <AlertDialog
