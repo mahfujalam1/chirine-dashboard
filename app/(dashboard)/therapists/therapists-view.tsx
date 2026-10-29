@@ -4,12 +4,12 @@ import { PageHeader } from "@/components/dashboard/page-header"
 import { Badge } from '@/components/ui/badge'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { DataTable } from "@/components/ui/DataTable"
+import { ColumnDef, DataTable } from "@/components/ui/DataTable"
 import { Input } from "@/components/ui/input"
 import UserDetails from "@/components/ui/user-details"
 import { useDebounce } from '@/hooks/use-debounce'
 import { useGetAllTherapistsQuery } from '@/lib/redux/services/userApis'
-import { getStatusColor } from '@/lib/utils'
+import { formatLocation, getRefName, getStatusColor } from '@/lib/utils'
 import { User } from '@/types/userApis'
 import { Eye, ListTodo, Search, ShieldBan, ShieldCheck, Users } from "lucide-react"
 import { useRouter } from 'next/navigation'
@@ -53,6 +53,100 @@ export default function TherapistsClientView() {
 
   const userData: User[] = useMemo(() => data?.data?.result ?? [], [data])
 
+  const columns: ColumnDef<User>[] = useMemo(() => [
+    {
+      key: "fullName",
+      title: "Therapist",
+      renderItem: (user) => (
+        <UserDetails
+          name={user?.fullName || ""}
+          email={user?.email || ""}
+          image={user?.profileImage}
+        />
+      )
+    },
+    {
+      key: "profession",
+      title: "Profession",
+      renderItem: (user) => (
+        <div className="min-w-[10rem] max-w-[14rem]">
+          <p className="text-sm font-medium truncate">
+            {getRefName(user?.profession) || "N/A"}
+          </p>
+          <p className="text-xs text-muted-foreground truncate">
+            {getRefName(user?.governingBody) || "No governing body"}
+          </p>
+        </div>
+      )
+    },
+    {
+      key: "licenseNo",
+      title: "License No.",
+      renderItem: (user) => (
+        <span className="text-sm whitespace-nowrap">{user?.licenseNo || "N/A"}</span>
+      )
+    },
+    {
+      key: "city",
+      title: "Location",
+      renderItem: (user) => {
+        const place = formatLocation(user?.city, user?.province, user?.country)
+        return (
+          <div className="min-w-[9rem] max-w-[14rem]">
+            <p className="text-sm truncate">{place || "N/A"}</p>
+            {user?.locationScope && (
+              <p className="text-xs text-muted-foreground capitalize truncate">
+                {user.locationScope}
+              </p>
+            )}
+          </div>
+        )
+      }
+    },
+    {
+      key: "isVerified",
+      title: "Verification",
+      renderItem: (user) => (
+        <Badge className={getStatusColor(user?.isVerified ? "ACTIVE" : "PENDING")}>
+          {user?.isVerified ? "Verified" : "Pending"}
+        </Badge>
+      )
+    },
+    {
+      key: "isBlocked",
+      title: "Account Status",
+      renderItem: (user) => (
+        <Badge className={getStatusColor(user?.isBlocked ? "BLOCKED" : "ACTIVE")}>
+          {user?.isBlocked ? "Blocked" : "Active"}
+        </Badge>
+      )
+    },
+    {
+      key: "createdAt",
+      title: "Joined",
+      renderItem: (user) => (
+        <span className="text-sm whitespace-nowrap">
+          {user?.joined || formatUsDate(user?.createdAt)}
+        </span>
+      )
+    },
+    {
+      key: "_id",
+      title: "Actions",
+      align: "right",
+      renderItem: (user) => (
+        <Button
+          onClick={() => router.push(`/therapists/${user?._id}`)}
+          variant="outline"
+          size="sm"
+          className="whitespace-nowrap"
+        >
+          <Eye className="w-4 h-4 mr-1" /> View
+        </Button>
+      )
+    },
+  ], [router])
+
   if (error) return <div className="text-red-500 p-6">Failed to load therapists.</div>;
 
   const filterButtons: { label: string; value: FilterType; icon: React.ReactNode }[] = [
@@ -95,9 +189,9 @@ export default function TherapistsClientView() {
       <div className="grid grid-cols-1 gap-6">
         <Card className="lg:col-span-3 bg-card border border-border">
           <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <CardTitle className="text-base font-medium">All User</CardTitle>
-              <div className="relative w-64">
+              <div className="relative w-full sm:w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder="Search therapists..."
@@ -118,8 +212,8 @@ export default function TherapistsClientView() {
                   onClick={() => setActiveFilter(button.value)}
                   className={
                     activeFilter === button.value
-                      ? "bg-foreground text-background"
-                      : "bg-transparent"
+                      ? "bg-foreground text-background shrink-0"
+                      : "bg-transparent shrink-0"
                   }
                 >
                   <span className="mr-2">{button.icon}</span>
@@ -127,57 +221,12 @@ export default function TherapistsClientView() {
                 </Button>
               ))}
             </div>
-
             <DataTable
               data={userData}
               loading={isFetching || isLoading}
-              columns={[
-                {
-                  key: "fullName",
-                  title: "Therapist",
-                  renderItem: (value) => (
-                    <UserDetails
-                      name={value?.fullName || ""}
-                      email={value?.email || ""}
-                    />
-                  )
-                },
-                { key: "email", title: "Email" },
-                {
-                  key: "isVerified",
-                  title: "Verification Status",
-                  renderItem: (value) => (
-                    <Badge className={getStatusColor(value?.isVerified ? "ACTIVE" : "INACTIVE")}>
-                      {value?.isVerified ? "Verified" : "Pending"}
-                    </Badge>
-                  )
-                },
-                {
-                  key: "isBlocked",
-                  title: "Account Status",
-                  renderItem: (value) => (
-                    <Badge className={getStatusColor(value?.isBlocked ? "BLOCKED" : "ACTIVE")}>
-                      {value?.isBlocked ? "Blocked" : "Active"}
-                    </Badge>
-                  )
-                },
-                {
-                  key: "createdAt",
-                  title: "Joined",
-                  renderItem: (value) => (
-                    <span className='text-nowrap'>
-                      {formatUsDate(value?.createdAt)}
-                    </span>
-                  )
-                },
-                {
-                  key: "_id",
-                  title: "Actions",
-                  renderItem: (value) => (
-                    <Button onClick={() => router.push(`/therapists/${value?._id}`)} variant="outline" size="sm"><Eye className="w-4 h-4 mr-1" /> View</Button>
-                  )
-                },
-              ]}
+              rowKey={(user) => user._id}
+              emptyText="No therapists found."
+              columns={columns}
               meta={{
                 limit: data?.data?.meta?.limit || 10,
                 total: data?.data?.meta?.total || 0,

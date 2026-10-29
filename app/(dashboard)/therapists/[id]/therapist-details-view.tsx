@@ -1,7 +1,6 @@
 "use client"
 
 import { PageHeader } from "@/components/dashboard/page-header"
-import { formatUsDate, formatUsDateTime } from "@/lib/date-utils"
 import { LoadingScreen } from '@/components/loading-screen'
 import {
   AlertDialog,
@@ -17,32 +16,94 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from '@/components/ui/badge'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
+import { formatUsDate, formatUsDateTime } from "@/lib/date-utils"
+import { useGetAdminExpertiseQuery } from '@/lib/redux/services/expertiseApis'
 import {
   useBlockTherapistMutation,
   useGetSingleUserQuery,
   useVerifyTherapistMutation
 } from '@/lib/redux/services/userApis'
+import { formatLocation, getRefName } from '@/lib/utils'
+import { User } from '@/types/userApis'
 import {
   ArrowLeft,
   BadgeCheck,
+  Briefcase,
   Building2,
   CalendarClock,
   Check,
+  Compass,
+  Globe,
   Hash,
   Loader2,
   Mail,
   MapPin,
+  MessageSquare,
   Phone,
+  Radius,
   ShieldAlert,
-  ShieldCheck
+  ShieldCheck,
+  UserRound
 } from "lucide-react"
 import { useParams, useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
-interface NamedRef {
-  _id: string
-  name: string
+const getInitials = (name: string) =>
+  name
+    ?.split(' ')
+    .filter(Boolean)
+    .map(word => word[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2) || '?'
+
+function InfoRow({
+  label,
+  value,
+  icon: Icon,
+}: {
+  label: string
+  value?: string | number | null
+  icon?: React.ElementType
+}) {
+  return (
+    <div className="space-y-0.5 min-w-0">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="text-sm font-medium flex items-start gap-1.5">
+        {Icon && <Icon className="w-3.5 h-3.5 mt-0.5 text-muted-foreground shrink-0" />}
+        <span className="break-words min-w-0">
+          {value === 0 ? 0 : value || 'N/A'}
+        </span>
+      </p>
+    </div>
+  )
+}
+
+function Section({
+  title,
+  icon: Icon,
+  className,
+  children,
+}: {
+  title: string
+  icon?: React.ElementType
+  className?: string
+  children: React.ReactNode
+}) {
+  return (
+    <Card className={className}>
+      <CardContent>
+        <CardTitle className="text-sm font-medium mb-3 flex items-center gap-1.5">
+          {Icon && <Icon className="w-4 h-4 text-muted-foreground" />}
+          {title}
+        </CardTitle>
+        <div className="bg-muted/40 p-3 rounded-lg border border-border">
+          {children}
+        </div>
+      </CardContent>
+    </Card>
+  )
 }
 
 export default function TherapistDetailsClientView() {
@@ -52,8 +113,24 @@ export default function TherapistDetailsClientView() {
   const [confirmModal, setConfirmModal] = useState<'verify' | 'block' | 'unblock' | null>(null)
 
   const { data, isLoading, error } = useGetSingleUserQuery(id as string, { skip: !id })
+  const { data: expertiseData } = useGetAdminExpertiseQuery()
   const [verifyTherapist, { isLoading: isVerifying }] = useVerifyTherapistMutation()
   const [blockTherapist, { isLoading: isBlocking }] = useBlockTherapistMutation()
+
+  const therapist = data?.data as User | undefined
+
+  // The list endpoint sends expertise as ids, so fall back to the admin catalogue for names.
+  const expertiseItems = useMemo(() => {
+    const catalogue = expertiseData?.data ?? []
+    return (therapist?.expertise ?? []).map((item) => {
+      if (item && typeof item === 'object') {
+        const match = catalogue.find((entry) => entry._id === item._id)
+        return { _id: item._id, name: item.name, icon: match?.icon }
+      }
+      const match = catalogue.find((entry) => entry._id === item)
+      return { _id: String(item), name: match?.name ?? null, icon: match?.icon }
+    })
+  }, [therapist?.expertise, expertiseData])
 
   if (!id) {
     return (
@@ -78,7 +155,7 @@ export default function TherapistDetailsClientView() {
 
   if (isLoading) return <LoadingScreen />
 
-  if (error || !data?.data) {
+  if (error || !therapist) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <Card className="max-w-md w-full mx-4">
@@ -103,8 +180,6 @@ export default function TherapistDetailsClientView() {
       </div>
     )
   }
-
-  const therapist = data.data
 
   const handleEmailClick = () => {
     if (therapist?.email) {
@@ -149,36 +224,16 @@ export default function TherapistDetailsClientView() {
     }
   }
 
-  const getInitials = (name: string) => {
-    return name
-      ?.split(' ')
-      .map(word => word[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2) || '?'
-  }
-
-  const getName = (val: NamedRef | string | undefined | null) => {
-    if (!val) return null
-    if (typeof val === 'string') return val
-    return val.name
-  }
-
-  const professionName = getName(therapist?.profession?.name)
-  const governingBodyName = getName(therapist?.governingBody?.name)
-
-  const formatDate = (date: string, withTime = false) =>
-    withTime ? formatUsDateTime(date) : formatUsDate(date)
-
-  const InfoRow = ({ label, value, icon: Icon }: { label: string; value?: string | null; icon?: any }) => (
-    <div className="space-y-0.5">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="text-sm font-medium flex items-center gap-1.5">
-        {Icon && <Icon className="w-3.5 h-3.5 text-muted-foreground shrink-0" />}
-        <span className="truncate">{value || 'N/A'}</span>
-      </p>
-    </div>
+  const professionName = getRefName(therapist?.profession)
+  const governingBodyName = getRefName(therapist?.governingBody)
+  const fullAddress = formatLocation(
+    therapist.location?.address,
+    therapist.city,
+    therapist.province,
+    therapist.country
   )
+  const coordinates = therapist.location?.coordinates
+  const [longitude, latitude] = coordinates ?? []
 
   return (
     <div className="space-y-6">
@@ -192,14 +247,25 @@ export default function TherapistDetailsClientView() {
         </Button>
       </PageHeader>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      {/* PageHeader hides its actions below sm, so mobile gets its own back button. */}
+      <Button
+        onClick={() => router.back()}
+        variant="outline"
+        size="sm"
+        className="sm:hidden"
+      >
+        <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
+        Back
+      </Button>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 items-start">
         <div className="lg:col-span-1 lg:sticky lg:top-4">
           <Card>
             <CardContent className="p-4 lg:p-5">
               <div className="flex flex-col">
                 <div className="flex items-start justify-between">
                   <Avatar className="w-14 h-14 mb-3">
-                    <AvatarImage src={therapist.profileImage} />
+                    <AvatarImage src={therapist.profileImage ?? undefined} />
                     <AvatarFallback className="text-lg">
                       {getInitials(therapist.fullName || '')}
                     </AvatarFallback>
@@ -209,9 +275,13 @@ export default function TherapistDetailsClientView() {
                   )}
                 </div>
 
-                <h2 className="text-base font-semibold leading-tight">{therapist?.fullName}</h2>
+                <h2 className="text-base font-semibold leading-tight break-words">
+                  {therapist?.fullName}
+                </h2>
                 {professionName && (
-                  <p className="text-sm text-muted-foreground mt-0.5">{professionName}</p>
+                  <p className="text-sm text-muted-foreground mt-0.5 break-words">
+                    {professionName}
+                  </p>
                 )}
 
                 <div className="flex flex-wrap gap-1.5 mt-3">
@@ -251,26 +321,31 @@ export default function TherapistDetailsClientView() {
                   )}
                 </div>
 
-                {therapist.bio && (
-                  <p className="text-xs text-muted-foreground mt-3 leading-relaxed line-clamp-4">
-                    {therapist.bio}
+                <div className="mt-3">
+                  <p className="text-xs text-muted-foreground mb-1">Bio</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed break-words">
+                    {therapist.bio || 'No bio provided.'}
                   </p>
-                )}
+                </div>
 
                 <div className="mt-4 pt-4 border-t space-y-2.5">
-                  <div className="flex items-center gap-1.5 text-sm">
-                    <Mail className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                    <span className="truncate">{therapist.email || 'N/A'}</span>
+                  <div className="flex items-start gap-1.5 text-sm">
+                    <Mail className="w-3.5 h-3.5 mt-0.5 text-muted-foreground shrink-0" />
+                    <span className="break-all min-w-0">{therapist.email || 'N/A'}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-sm">
-                    <Phone className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                    <span className="truncate">{therapist.phone || 'N/A'}</span>
+                  <div className="flex items-start gap-1.5 text-sm">
+                    <Phone className="w-3.5 h-3.5 mt-0.5 text-muted-foreground shrink-0" />
+                    <span className="break-words min-w-0">{therapist.phone || 'N/A'}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-sm">
-                    <MapPin className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                    <span className="truncate">
-                      {[therapist.city, therapist.country].filter(Boolean).join(', ') || 'N/A'}
+                  <div className="flex items-start gap-1.5 text-sm">
+                    <MapPin className="w-3.5 h-3.5 mt-0.5 text-muted-foreground shrink-0" />
+                    <span className="break-words min-w-0">
+                      {formatLocation(therapist.city, therapist.province, therapist.country) || 'N/A'}
                     </span>
+                  </div>
+                  <div className="flex items-start gap-1.5 text-sm">
+                    <Briefcase className="w-3.5 h-3.5 mt-0.5 text-muted-foreground shrink-0" />
+                    <span className="break-words min-w-0">{therapist.workAt || 'N/A'}</span>
                   </div>
                 </div>
               </div>
@@ -278,53 +353,110 @@ export default function TherapistDetailsClientView() {
           </Card>
         </div>
 
-        <div className="lg:col-span-2 space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card>
-            <CardContent>
-              <CardTitle className="text-sm font-medium mb-3 flex items-center gap-1.5">
-                Credentials & Verification
-              </CardTitle>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-muted/40 p-3 rounded-lg border border-border">
-                <InfoRow label="Profession" value={professionName} />
-                <InfoRow label="Governing Body" value={governingBodyName} icon={Building2} />
-                <InfoRow label="License Number" value={therapist.licenseNo} icon={Hash} />
-                <InfoRow
-                  label="Verification Status"
-                  value={therapist.isVerified ? 'Verified' : 'Pending Review'}
-                />
-              </div>
-            </CardContent>
-          </Card>
+        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Section title="Credentials & Verification" icon={ShieldCheck}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <InfoRow label="Profession" value={professionName} />
+              <InfoRow label="Governing Body" value={governingBodyName} icon={Building2} />
+              <InfoRow label="License Number" value={therapist.licenseNo} icon={Hash} />
+              <InfoRow
+                label="Verification Status"
+                value={therapist.isVerified ? 'Verified' : 'Pending Review'}
+              />
+            </div>
+          </Section>
 
-          <Card>
-            <CardContent>
-              <CardTitle className="text-sm font-medium mb-3 flex items-center gap-1.5">Personal Information</CardTitle>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-muted/40 p-3 rounded-lg border border-border">
-                <InfoRow label="Full Name" value={therapist.fullName} />
-                <InfoRow label="Role" value={therapist.role} />
-                <InfoRow label="Country" value={therapist.country} icon={MapPin} />
-                <InfoRow
-                  label="City"
-                  value={
-                    therapist.location?.radiusInKm
-                      ? `${therapist.city || 'N/A'} (${therapist.location.radiusInKm}km radius)`
-                      : therapist.city
-                  }
-                  icon={MapPin}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <Section title="Personal Information" icon={UserRound}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <InfoRow label="Full Name" value={therapist.fullName} />
+              <InfoRow label="Email" value={therapist.email} icon={Mail} />
+              <InfoRow label="Phone" value={therapist.phone} icon={Phone} />
+              <InfoRow label="Role" value={therapist.role} />
+              <InfoRow label="Works At" value={therapist.workAt} icon={Briefcase} />
+              <InfoRow label="Membership" value={therapist.isPremium ? 'Premium' : 'Free'} />
+            </div>
+          </Section>
 
-          <Card className="col-span-1 md:col-span-2">
+          <Section title="Location" icon={MapPin} className="md:col-span-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <InfoRow label="Address" value={therapist.location?.address} icon={MapPin} />
+              <InfoRow label="City" value={therapist.city} />
+              <InfoRow label="Province / State" value={therapist.province} />
+              <InfoRow label="Country" value={therapist.country} icon={Globe} />
+              <InfoRow
+                label="Location Scope"
+                value={therapist.locationScope ? therapist.locationScope.toUpperCase() : null}
+                icon={Compass}
+              />
+              <InfoRow
+                label="Service Radius"
+                value={
+                  therapist.location?.radiusInKm != null
+                    ? `${therapist.location.radiusInKm} km`
+                    : null
+                }
+                icon={Radius}
+              />
+              <InfoRow
+                label="Coordinates"
+                value={
+                  latitude != null && longitude != null
+                    ? `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`
+                    : null
+                }
+              />
+              <InfoRow label="Full Address" value={fullAddress || null} />
+            </div>
+          </Section>
+
+          <Section title="Areas of Focus" icon={BadgeCheck} className="md:col-span-2">
+            {expertiseItems.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No areas of focus selected.
+              </p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {expertiseItems.map((item) => (
+                  <span
+                    key={item._id}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-1 text-xs font-medium"
+                  >
+                    {item.icon && (
+                      <img
+                        src={item.icon}
+                        alt=""
+                        className="h-4 w-4 rounded object-cover"
+                      />
+                    )}
+                    <span className="break-words">{item.name ?? item._id}</span>
+                  </span>
+                ))}
+              </div>
+            )}
+          </Section>
+
+          <Section title="Account & Activity" icon={CalendarClock} className="md:col-span-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <InfoRow label="User ID" value={therapist._id} icon={Hash} />
+              <InfoRow label="Total Posts" value={therapist.totalPost} icon={MessageSquare} />
+              <InfoRow
+                label="Account Status"
+                value={therapist.isBlocked ? 'Blocked' : 'Active'}
+              />
+              <InfoRow
+                label="Joined"
+                value={therapist.joined || formatUsDate(therapist.createdAt)}
+                icon={CalendarClock}
+              />
+              <InfoRow label="Created At" value={formatUsDateTime(therapist.createdAt)} />
+              <InfoRow label="Last Updated" value={formatUsDateTime(therapist.updatedAt)} />
+            </div>
+          </Section>
+
+          <Card className="md:col-span-2">
             <CardContent className="w-full">
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
-                <div className="flex items-center gap-1.5">
-                  <CalendarClock className="w-3.5 h-3.5" />
-                  <span>Joined: <span className="font-medium text-foreground">{formatDate(therapist.createdAt)}</span></span>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-1.5 mt-4 pt-4 border-t">
+              <CardTitle className="text-sm font-medium mb-3">Actions</CardTitle>
+              <div className="flex flex-wrap gap-1.5">
                 <Button
                   variant="outline"
                   size="sm"

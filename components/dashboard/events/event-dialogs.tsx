@@ -15,7 +15,6 @@ export function EventFormDialog({ open, event, tab, saving, onOpenChange, onSubm
   onOpenChange: (open: boolean) => void
   onSubmit: (data: EventFormData) => Promise<void>
 }) {
-  const defaultTz = (typeof window !== "undefined" && Intl.DateTimeFormat().resolvedOptions().timeZone) || "UTC"
   const initial: EventFormData = event
     ? {
       title: event.title,
@@ -23,7 +22,6 @@ export function EventFormDialog({ open, event, tab, saving, onOpenChange, onSubm
       date: toDateInputValue(event.source.date),
       start_time: toTimeInputValue(event.source.startTime),
       end_time: toTimeInputValue(event.source.endTime),
-      timezone: event.source.timezone || defaultTz,
       location: "location" in event.source ? event.source.location || "" : event.venue,
       entryRequirements: "entryRequirements" in event.source ? event.source.entryRequirements ?? [] : [],
       speakerName: "speakerName" in event.source ? event.source.speakerName || "" : "",
@@ -35,7 +33,6 @@ export function EventFormDialog({ open, event, tab, saving, onOpenChange, onSubm
       date: "",
       start_time: "",
       end_time: "",
-      timezone: defaultTz,
       location: "",
       entryRequirements: [],
       speakerName: "",

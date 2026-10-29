@@ -1,5 +1,5 @@
 export interface CreateEventPayload {
-  eventImage: File;
+  event_image: File;
   title: string;
   description: string;
   date: string;
@@ -16,10 +16,10 @@ export type UpdateEventPayload = Omit<CreateEventPayload, 'eventImage'> & {
 };
 
 export const buildEventFormData = (payload: CreateEventPayload) => {
-  const { eventImage, ...eventData } = payload;
+  const { event_image, ...eventData } = payload;
   const formData = new FormData();
 
-  formData.append('event_image', eventImage);
+  formData.append('event_image', event_image);
   formData.append('data', JSON.stringify(eventData));
 
   return formData;

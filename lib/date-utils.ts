@@ -59,6 +59,12 @@ function pad(value: number) {
   return String(value).padStart(2, "0");
 }
 
+/** The viewer's IANA timezone, e.g. "America/Toronto". Falls back to UTC outside the browser. */
+export function getDeviceTimezone(fallback = "UTC") {
+  if (typeof window === "undefined") return fallback;
+  return Intl.DateTimeFormat().resolvedOptions().timeZone || fallback;
+}
+
 export function formatUsDate(
   value?: string | Date | null,
   fallback = "N/A",

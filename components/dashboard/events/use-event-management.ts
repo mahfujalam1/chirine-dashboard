@@ -31,6 +31,7 @@ import {
 import { useMemo } from "react";
 import { toast } from "sonner";
 
+import { getDeviceTimezone } from "@/lib/date-utils";
 import { getErrorMessage } from "@/lib/utils";
 
 interface ApiResponse {
@@ -82,13 +83,14 @@ export function useEventManagement(type: EventType) {
 
   function toPayload(data: EventFormData): UpdateEventPayload {
     return {
-      eventImage: data.eventImage,
+      event_image: data?.eventImage as File,
       title: data.title.trim(),
       description: data.description.trim(),
       date: data.date,
       startTime: data.start_time,
       endTime: data.end_time,
-      timezone: data.timezone,
+      // The admin picks no timezone; the times they typed belong to their own device.
+      timezone: getDeviceTimezone(),
       ...(data.event_type !== "coffee_connect" && {
         location: data.location.trim(),
       }),
@@ -104,31 +106,49 @@ export function useEventManagement(type: EventType) {
   }
 
   async function save(data: EventFormData, event: EventRow | null) {
+    const isCoffeeCreate = !event && data.event_type === "coffee_connect";
     try {
       const payload = toPayload(data);
+
+      if (isCoffeeCreate) {
+        console.log("[coffee-connect] create form data", data);
+        console.log("[coffee-connect] create payload", payload);
+        console.log(
+          "[coffee-connect] create image",
+          payload.event_image
+            ? {
+              name: payload.event_image.name,
+              type: payload.event_image.type,
+              size: payload.event_image.size,
+            }
+            : null,
+        );
+      }
+
       let response: ApiResponse;
       if (event) {
         response =
           type === "coffee"
             ? ((await updateCoffee({
+              eventId: event.id,
+              data: payload,
+            }).unwrap()) as ApiResponse)
+            : type === "social"
+              ? ((await updateSocial({
                 eventId: event.id,
                 data: payload,
               }).unwrap()) as ApiResponse)
-            : type === "social"
-              ? ((await updateSocial({
-                  eventId: event.id,
-                  data: payload,
-                }).unwrap()) as ApiResponse)
               : ((await updateLunch({
-                  eventId: event.id,
-                  data: payload,
-                }).unwrap()) as ApiResponse);
+                eventId: event.id,
+                data: payload,
+              }).unwrap()) as ApiResponse);
       } else {
         if (!data.eventImage) {
           toast.error("Please select an event image");
           return false;
         }
         const createPayload = payload as CreateEventPayload;
+
         response =
           data.event_type === "coffee_connect"
             ? ((await createCoffee(createPayload).unwrap()) as ApiResponse)
@@ -136,12 +156,20 @@ export function useEventManagement(type: EventType) {
               ? ((await createSocial(createPayload).unwrap()) as ApiResponse)
               : ((await createLunch(createPayload).unwrap()) as ApiResponse);
       }
+      if (isCoffeeCreate) {
+        console.log("[coffee-connect] create response", response);
+      }
+
       toast.success(
         response.message ||
-          `Event ${event ? "updated" : "created"} successfully`,
+        `Event ${event ? "updated" : "created"} successfully`,
       );
       return true;
     } catch (error: unknown) {
+      if (isCoffeeCreate) {
+        console.error("[coffee-connect] create error", error);
+      }
+
       toast.error(getErrorMessage(error, "Unable to save event"));
       return false;
     }

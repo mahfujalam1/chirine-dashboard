@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { getDeviceTimezone } from "@/lib/date-utils";
 import { Plus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -30,13 +31,12 @@ interface EventFormProps {
 interface Event {
   id: string;
   title: string;
-  event_image?: string;
+  event_image?: File;
   eventImage?: File;
   event_type: "coffee_connect" | "social_event" | "lunch_and_learn";
   date: string;
   start_time: string;
   end_time: string;
-  timezone: string;
   location: string;
   entryRequirements: string[];
   speakerName: string;
@@ -52,31 +52,12 @@ export type EventFormData = Omit<
   "id" | "status" | "requested_by" | "proposed_date" | "idea"
 >;
 
-const COMMON_TIMEZONES = [
-  "UTC",
-  "America/New_York",
-  "America/Chicago",
-  "America/Denver",
-  "America/Los_Angeles",
-  "Europe/London",
-  "Europe/Paris",
-  "Europe/Berlin",
-  "Asia/Dubai",
-  "Asia/Dhaka",
-  "Asia/Kolkata",
-  "Asia/Singapore",
-  "Asia/Tokyo",
-  "Australia/Sydney",
-  "Pacific/Auckland",
-];
-
 const EMPTY_FORM: EventFormData = {
   title: "",
   event_type: "coffee_connect",
   date: "",
   start_time: "",
   end_time: "",
-  timezone: typeof window !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC" : "UTC",
   location: "",
   entryRequirements: [],
   speakerName: "",
@@ -99,6 +80,12 @@ export function EventForm({
   const [error, setError] = useState("");
   const [imagePreview, setImagePreview] = useState(existingImage ?? "");
   const [requirementInput, setRequirementInput] = useState("");
+  // Read after mount so the server-rendered markup matches the client.
+  const [deviceTimezone, setDeviceTimezone] = useState("");
+
+  useEffect(() => {
+    setDeviceTimezone(getDeviceTimezone());
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -116,10 +103,6 @@ export function EventForm({
 
     if (!isEdit && !form.eventImage) {
       setError("Please select an event image.");
-      return;
-    }
-    if (!form.timezone) {
-      setError("Timezone is required.");
       return;
     }
     if (form.end_time <= form.start_time) {
@@ -145,12 +128,12 @@ export function EventForm({
     await onSubmit(
       shouldIncludePendingRequirement
         ? {
-            ...form,
-            entryRequirements: [
-              ...form.entryRequirements,
-              pendingRequirement,
-            ],
-          }
+          ...form,
+          entryRequirements: [
+            ...form.entryRequirements,
+            pendingRequirement,
+          ],
+        }
         : form,
     );
   }
@@ -341,9 +324,8 @@ export function EventForm({
 
       {/* Date + Location */}
       <div
-        className={`grid gap-1 ${
-          form.event_type === "coffee_connect" ? "grid-cols-1" : "grid-cols-2"
-        }`}
+        className={`grid gap-1 ${form.event_type === "coffee_connect" ? "grid-cols-1" : "grid-cols-2"
+          }`}
       >
         <div className="space-y-1.5">
           <Label htmlFor="date">
@@ -373,7 +355,7 @@ export function EventForm({
         )}
       </div>
 
-      {/* Start / End time */}
+      {/* Start / End time — saved in the admin's own timezone, so there is no picker. */}
       <div className="grid grid-cols-2 gap-1">
         <div className="space-y-1.5">
           <Label htmlFor="start_time">
@@ -399,33 +381,10 @@ export function EventForm({
             required
           />
         </div>
-      </div>
-
-      {/* Timezone */}
-      <div className="space-y-1.5">
-        <Label htmlFor="timezone">
-          Timezone <span className="text-destructive">*</span>
-        </Label>
-        <Select
-          value={form.timezone || (typeof window !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC")}
-          onValueChange={(v) => set("timezone", v)}
-        >
-          <SelectTrigger className="w-full" id="timezone">
-            <SelectValue placeholder="Select timezone" />
-          </SelectTrigger>
-          <SelectContent className="max-h-60 overflow-y-auto">
-            {Array.from(
-              new Set([
-                form.timezone || (typeof window !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC"),
-                ...COMMON_TIMEZONES,
-              ].filter(Boolean))
-            ).map((tz) => (
-              <SelectItem key={tz} value={tz}>
-                {tz}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <p className="col-span-2 text-xs text-muted-foreground">
+          Times are saved in your current timezone
+          {deviceTimezone ? ` (${deviceTimezone})` : ""}.
+        </p>
       </div>
 
       {/* Description */}

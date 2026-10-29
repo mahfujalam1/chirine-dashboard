@@ -5,20 +5,32 @@ export interface Location {
   radiusInKm: number | null;
 }
 
+/** A populated reference. The API sends an id string when it is not populated. */
+export interface NamedRef {
+  _id: string;
+  name: string;
+}
+
+export type MaybeRef = NamedRef | string | null;
+
 export interface User {
-  location: Location;
+  location: Location | null;
+  locationScope: string | null;
   _id: string;
   fullName: string;
   email: string;
-  profession: string;
-  licenseNo: string;
-  governingBody: string;
-  phone: string;
-  bio: string;
-  country: string;
-  city: string;
+  profession: MaybeRef;
+  licenseNo: string | null;
+  governingBody: MaybeRef;
+  expertise: MaybeRef[];
+  phone: string | null;
+  bio: string | null;
+  country: string | null;
+  province: string | null;
+  city: string | null;
+  workAt: string | null;
   role: string;
-  profileImage: string;
+  profileImage: string | null;
   isPremium: boolean;
   isBlocked: boolean;
   verifyCode: number;
@@ -28,6 +40,8 @@ export interface User {
   isActive: boolean;
   isDeleted: boolean;
   playerIds: string[];
+  totalPost?: number;
   createdAt: string;
   updatedAt: string;
+  joined?: string;
 }

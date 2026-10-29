@@ -54,6 +54,7 @@ import {
   formatUsCalendarDate,
   formatUsDateTime,
   formatUsTime,
+  getDeviceTimezone,
   toDateInputValue,
   toTimeInputValue,
 } from "@/lib/date-utils";
@@ -149,11 +150,6 @@ export default function EventRequestsClientView() {
     }
 
     try {
-      const defaultTz =
-        (typeof window !== "undefined" &&
-          Intl.DateTimeFormat().resolvedOptions().timeZone) ||
-        "UTC";
-
       const payload = {
         title: speakerEvent.event.title,
         description: speakerEvent.event.description,
@@ -165,7 +161,7 @@ export default function EventRequestsClientView() {
         endTime:
           toTimeInputValue(speakerEvent.event.endTime) ||
           speakerEvent.event.endTime,
-        timezone: speakerEvent.event.timezone || defaultTz,
+        timezone: speakerEvent.event.timezone || getDeviceTimezone(),
         speakerName: speakerName.trim(),
       };
 

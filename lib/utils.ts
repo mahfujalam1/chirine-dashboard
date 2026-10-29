@@ -5,6 +5,19 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+/** Reads a reference the API sends either populated (`{ _id, name }`) or as a bare id. */
+export const getRefName = (
+  value?: { _id?: string; name?: string } | string | null,
+): string | null => {
+  if (!value) return null
+  if (typeof value === "string") return value
+  return value.name ?? null
+}
+
+/** Joins the parts of an address that are present, e.g. "Ottawa, Ontario, Canada". */
+export const formatLocation = (...parts: (string | null | undefined)[]) =>
+  parts.filter(Boolean).join(", ")
+
 export const getStatusColor = (status: string) => {
   switch (status.toLowerCase()) {
     case "blocked":

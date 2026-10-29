@@ -50,7 +50,7 @@ export interface NavItem {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
 }
-    
+
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
   { label: "User", href: "/therapists", icon: Users },
@@ -65,7 +65,7 @@ const navItems: NavItem[] = [
   { label: "Chat Assets", href: "/chat-assets", icon: FolderKanban },
   { label: "Privacy Policy", href: "/privacy-policy", icon: ShieldCheck },
   { label: "Terms & Conditions", href: "/terms-conditions", icon: ScrollText },
-  // { label: "App Version", href: "/app-version", icon: Smartphone },
+  { label: "App Version", href: "/app-version", icon: Smartphone },
 ];
 
 const fallbackAvatar =
