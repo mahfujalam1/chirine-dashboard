@@ -17,6 +17,9 @@ export interface CoffeConnectEvent {
   startTime: string;
   endTime: string;
   timezone?: string;
+  /** UTC instants: the moment the event starts and ends. */
+  startAt?: string;
+  endAt?: string;
   zoomMeetingId: string;
   zoomMeetingPassword: string;
   zoomJoinUrl: string;

@@ -5,7 +5,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { toDateInputValue, toTimeInputValue } from "@/lib/date-utils"
+import { toEventFormTime } from "@/lib/event-time"
 
 export function EventFormDialog({ open, event, tab, saving, onOpenChange, onSubmit }: {
   open: boolean
@@ -19,9 +19,7 @@ export function EventFormDialog({ open, event, tab, saving, onOpenChange, onSubm
     ? {
       title: event.title,
       event_type: tab.formType,
-      date: toDateInputValue(event.source.date),
-      start_time: toTimeInputValue(event.source.startTime),
-      end_time: toTimeInputValue(event.source.endTime),
+      ...toEventFormTime(event.source),
       location: "location" in event.source ? event.source.location || "" : event.venue,
       entryRequirements: "entryRequirements" in event.source ? event.source.entryRequirements ?? [] : [],
       speakerName: "speakerName" in event.source ? event.source.speakerName || "" : "",

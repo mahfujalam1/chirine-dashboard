@@ -83,7 +83,7 @@ export function useEventManagement(type: EventType) {
 
   function toPayload(data: EventFormData): UpdateEventPayload {
     return {
-      event_image: data?.eventImage as File,
+      event_image: data.eventImage,
       title: data.title.trim(),
       description: data.description.trim(),
       date: data.date,
