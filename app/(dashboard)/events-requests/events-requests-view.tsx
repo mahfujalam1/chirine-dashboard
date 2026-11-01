@@ -50,14 +50,12 @@ import {
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { formatUsDateTime, getDeviceTimezone } from "@/lib/date-utils";
 import {
-  formatUsCalendarDate,
-  formatUsDateTime,
-  formatUsTime,
-  getDeviceTimezone,
-  toDateInputValue,
-  toTimeInputValue,
-} from "@/lib/date-utils";
+  formatEventDate,
+  formatEventTimeRange,
+  toEventFormTime,
+} from "@/lib/event-time";
 
 const EVENT_LABELS: Record<RequestEvent["eventType"], string> = {
   CoffeeConnect: "Coffee Connect",
@@ -150,18 +148,16 @@ export default function EventRequestsClientView() {
     }
 
     try {
+      // The event's own time, re-sent as the local wall clock this admin sees,
+      // tagged with their timezone so the stored instant stays put.
+      const eventTime = toEventFormTime(speakerEvent.event);
       const payload = {
         title: speakerEvent.event.title,
         description: speakerEvent.event.description,
-        date:
-          toDateInputValue(speakerEvent.event.date) || speakerEvent.event.date,
-        startTime:
-          toTimeInputValue(speakerEvent.event.startTime) ||
-          speakerEvent.event.startTime,
-        endTime:
-          toTimeInputValue(speakerEvent.event.endTime) ||
-          speakerEvent.event.endTime,
-        timezone: speakerEvent.event.timezone || getDeviceTimezone(),
+        date: eventTime.date,
+        startTime: eventTime.start_time,
+        endTime: eventTime.end_time,
+        timezone: getDeviceTimezone(),
         speakerName: speakerName.trim(),
       };
 
@@ -226,7 +222,7 @@ export default function EventRequestsClientView() {
       title: "Type",
       renderItem: (event) => <span>{EVENT_LABELS[event.eventType]}</span>,
     },
-    { title: "Date", renderItem: (event) => formatUsCalendarDate(event.date) },
+    { title: "Date", renderItem: (event) => formatEventDate(event) },
     {
       title: "Requested By",
       renderItem: (event) => (
@@ -459,7 +455,7 @@ export default function EventRequestsClientView() {
                           Date
                         </p>
                         <p className="mt-0.5 font-semibold">
-                          {formatUsCalendarDate(selectedEvent.date)}
+                          {formatEventDate(selectedEvent)}
                         </p>
                       </div>
                     </div>
@@ -472,7 +468,7 @@ export default function EventRequestsClientView() {
                           Time
                         </p>
                         <p className="mt-0.5 font-semibold">
-                          {formatUsTime(selectedEvent.startTime)} – {formatUsTime(selectedEvent.endTime)}
+                          {formatEventTimeRange(selectedEvent)}
                         </p>
                         {selectedEvent.timezone && (
                           <p className="text-[11px] text-muted-foreground">
@@ -681,11 +677,11 @@ export default function EventRequestsClientView() {
                   <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-muted-foreground">
                     <span className="flex items-center gap-1.5">
                       <Calendar className="h-3.5 w-3.5 text-emerald-600" />
-                      {formatUsCalendarDate(speakerEvent.event.date)}
+                      {formatEventDate(speakerEvent.event)}
                     </span>
                     <span className="flex items-center gap-1.5">
                       <Clock className="h-3.5 w-3.5 text-emerald-600" />
-                      {formatUsTime(speakerEvent.event.startTime)} – {formatUsTime(speakerEvent.event.endTime)}
+                      {formatEventTimeRange(speakerEvent.event)}
                     </span>
                   </div>
                 </div>

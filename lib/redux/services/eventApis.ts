@@ -22,6 +22,9 @@ export interface RequestEvent {
   startTime: string;
   endTime: string;
   timezone?: string;
+  /** UTC instants: the moment the event starts and ends. */
+  startAt?: string;
+  endAt?: string;
   eventType: 'CoffeeConnect' | 'SocialEvent' | 'LunchAndLearn';
   maxParticipants?: number;
   entryRequirements?: string[];

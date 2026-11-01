@@ -1,7 +1,7 @@
 import { CoffeConnectEvent } from "@/lib/redux/services/coffeConnectApis";
 import { LunchAndLearnEvent } from "@/lib/redux/services/lunchAndLearnApis";
 import { SocialEvent } from "@/lib/redux/services/socialEventApis";
-import { formatUsTime } from "@/lib/date-utils";
+import { formatEventDate, formatEventTimeRange } from "@/lib/event-time";
 
 export type EventType = "coffee" | "social" | "lunch";
 export type EventRecord = CoffeConnectEvent | SocialEvent | LunchAndLearnEvent;
@@ -40,8 +40,8 @@ export function normalizeEvent(event: EventRecord): EventRow {
     image: event.image,
     title: event.title,
     description: event.description,
-    date: event.date,
-    time: `${formatUsTime(event.startTime)} – ${formatUsTime(event.endTime)}`,
+    date: formatEventDate(event),
+    time: formatEventTimeRange(event),
     venue: "location" in event ? event.location : "Zoom",
     participants: event.participants.length,
     maxParticipants: event.maxParticipants,
