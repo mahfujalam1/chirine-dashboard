@@ -158,3 +158,82 @@ export function toTimeInputValue(value?: string | Date | null) {
 
   return `${pad(parts.hours)}:${pad(parts.minutes)}`;
 }
+
+// ─── Instants ─────────────────────────────────────────────────────────────────
+// An instant is a real moment in time (an ISO timestamp such as
+// "2026-11-05T18:30:00.000Z"). It is rendered in the viewer's own timezone, so
+// the same event reads 2:30 PM in Toronto and 11:30 AM in Vancouver.
+// A wall-clock value ("14:30") pins no moment, so it is shown as stored.
+
+const ISO_DATETIME_PATTERN = /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}/;
+
+function parseInstant(value?: string | Date | null) {
+  if (!value) return null;
+  if (value instanceof Date) return isValidDate(value) ? value : null;
+  if (!ISO_DATETIME_PATTERN.test(value.trim())) return null;
+
+  const date = new Date(value);
+  return isValidDate(date) ? date : null;
+}
+
+/** Formats a stored instant as local time, e.g. "2:30 PM". */
+export function formatLocalTime(value?: string | Date | null, fallback = "N/A") {
+  const instant = parseInstant(value);
+  if (!instant) return formatUsTime(value, fallback);
+
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).format(instant);
+}
+
+/**
+ * Formats a stored instant as the local calendar date, MM/DD/YYYY.
+ * Only for instants: a date-only day is handled by `formatUsCalendarDate`,
+ * which must not shift across timezones.
+ */
+export function formatLocalDate(value?: string | Date | null, fallback = "N/A") {
+  const instant = parseInstant(value);
+  if (!instant) return formatUsCalendarDate(value, fallback);
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+  }).format(instant);
+}
+
+/** Formats a stored instant as local date and time, e.g. "11/05/2026, 02:30 PM". */
+export function formatLocalDateTime(
+  value?: string | Date | null,
+  fallback = "N/A",
+) {
+  const instant = parseInstant(value);
+  if (!instant) return formatUsDateTime(value, fallback);
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  }).format(instant);
+}
+
+/** Local `yyyy-MM-dd` for an <input type="date"> holding a stored instant. */
+export function toLocalDateInputValue(value?: string | Date | null) {
+  const instant = parseInstant(value);
+  if (!instant) return toDateInputValue(value);
+
+  return `${instant.getFullYear()}-${pad(instant.getMonth() + 1)}-${pad(instant.getDate())}`;
+}
+
+/** Local `HH:mm` for an <input type="time"> holding a stored instant. */
+export function toLocalTimeInputValue(value?: string | Date | null) {
+  const instant = parseInstant(value);
+  if (!instant) return toTimeInputValue(value);
+
+  return `${pad(instant.getHours())}:${pad(instant.getMinutes())}`;
+}

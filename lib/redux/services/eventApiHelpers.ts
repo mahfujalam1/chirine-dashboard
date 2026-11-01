@@ -11,8 +11,8 @@ export interface CreateEventPayload {
   speakerName?: string;
 }
 
-export type UpdateEventPayload = Omit<CreateEventPayload, 'eventImage'> & {
-  eventImage?: File;
+export type UpdateEventPayload = Omit<CreateEventPayload, 'event_image'> & {
+  event_image?: File;
 };
 
 export const buildEventFormData = (payload: CreateEventPayload) => {
@@ -26,9 +26,9 @@ export const buildEventFormData = (payload: CreateEventPayload) => {
 };
 
 export const buildUpdateEventFormData = (payload: UpdateEventPayload) => {
-  const { eventImage, ...eventData } = payload;
+  const { event_image, ...eventData } = payload;
   const formData = new FormData();
-  if (eventImage) formData.append('event_image', eventImage);
+  if (event_image) formData.append('event_image', event_image);
   formData.append('data', JSON.stringify(eventData));
   return formData;
 };

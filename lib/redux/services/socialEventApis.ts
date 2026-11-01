@@ -40,6 +40,9 @@ export interface SocialEvent {
   startTime: string;
   endTime: string;
   timezone?: string;
+  /** UTC instants: the moment the event starts and ends. */
+  startAt?: string;
+  endAt?: string;
   maxParticipants: number;
   participants: SocialEventParticipant[];
   isExpired: boolean;

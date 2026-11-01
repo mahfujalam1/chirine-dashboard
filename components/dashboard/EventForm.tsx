@@ -383,7 +383,8 @@ export function EventForm({
         </div>
         <p className="col-span-2 text-xs text-muted-foreground">
           Times are saved in your current timezone
-          {deviceTimezone ? ` (${deviceTimezone})` : ""}.
+          {deviceTimezone ? ` (${deviceTimezone})` : ""} and shown to each user
+          in their own.
         </p>
       </div>
 
